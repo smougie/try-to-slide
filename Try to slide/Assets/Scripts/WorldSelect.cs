@@ -12,7 +12,7 @@ public class WorldSelect : MonoBehaviour
     void Start()
     {
         showWorldDetails = false;
-        worldDetailsRect = new Rect(10, Screen.height - 30, 400, 150);
+        worldDetailsRect = new Rect(Screen.width * .01f, Screen.height * .95f, 400, 150);
         worldDetails = $"Press [SPACE] or [E]  to load level {worldToLoad}.";
     }
 

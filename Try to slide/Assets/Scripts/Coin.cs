@@ -4,8 +4,7 @@ using UnityEngine;
 
 public class Coin : MonoBehaviour
 {
-    [SerializeField]
-    private float rotateSpeed = 0f;
+    [SerializeField] private float rotateSpeed = 0f;
 
     private void Update()
     {

@@ -4,17 +4,14 @@
 public class Player : MonoBehaviour
 {
     private Vector3 spawnPoint;  // spawn point for player, use game object inside Unity to change it by moving
-
-
     [SerializeField] private GameObject deathParticles = null;  // insert death particles object here
     [SerializeField] private AudioClip[] audioClips = null;
+    private Rigidbody playerRb;  // player rigidbody variable
+    private Vector3 input;  // variable create to manipulate player position by using arrow keys
+
     [SerializeField] private float moveSpeed = 0;  // player movement speed, accesible from inspector
     private float maxSpeed = 7.5f;  // maximum movement speed value
     
-    private Rigidbody playerRb;  // player rigidbody variable
-    private Vector3 input;  // variable create to manipulate player position by using arrow keys
-    
-
 
     void Start()
     {

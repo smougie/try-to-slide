@@ -115,6 +115,8 @@ public class GameManager : MonoBehaviour
     {
         currentLevel = 1;
         currentScore = 0;
+        life = 3;
+        maxLife = 3;
         SceneManager.LoadScene(currentLevel);
         PlayerPrefs.SetInt("Unlocked Level", 0);
     }
@@ -267,6 +269,7 @@ public class GameManager : MonoBehaviour
             
         }
 
+        
 
         // DELETE AFTER TEST
         GUI.Label(new Rect(Screen.width - 160, Screen.height - 70, 150, 150), $@"Current Level: {currentLevel}

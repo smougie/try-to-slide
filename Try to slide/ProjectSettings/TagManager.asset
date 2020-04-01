@@ -9,6 +9,8 @@ TagManager:
   - Trap
   - Coin
   - World
+  - Life
+  - Max Life
   layers:
   - Default
   - TransparentFX

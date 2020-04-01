@@ -11,6 +11,7 @@ public class Player : MonoBehaviour
 
     [SerializeField] private float moveSpeed = 0;  // player movement speed, accesible from inspector
     private float maxSpeed = 7.5f;  // maximum movement speed value
+    private bool lifeIsFull;
     
 
     void Start()
@@ -50,6 +51,12 @@ public class Player : MonoBehaviour
         {
             Die();
         }
+
+        // when player falls down to 0 lifes, game ends
+        if (GameManager.life <= 0)
+        {
+            GameManager.LoseLevel();
+        }
     }
 
 
@@ -87,6 +94,34 @@ public class Player : MonoBehaviour
             Destroy(other.gameObject);
             GameManager.CoinPickUp();
         }
+
+        // Adding one life to player when he collides with life object and he's life is not full
+        if (other.transform.tag == "Life")
+        {
+            if (GameManager.life < GameManager.maxLife)
+            {
+                GameManager.life++;
+                Destroy(other.gameObject);
+            }
+
+            // if hp is full just notice that
+            else
+            {
+                lifeIsFull = true;
+            }
+        }
+
+        if (other.transform.tag == "Max Life")
+        {
+            GameManager.maxLife++;
+            Destroy(other.gameObject);
+        }
+    }
+
+
+    private void OnTriggerExit(Collider other)
+    {
+        lifeIsFull = false;
     }
 
 
@@ -104,5 +139,13 @@ public class Player : MonoBehaviour
         Instantiate(deathParticles, transform.position, Quaternion.identity);
         transform.position = spawnPoint;
         GameManager.life -= 1;
+    }
+
+    private void OnGUI()
+    {
+        if (lifeIsFull)
+        {
+            GUI.Label(new Rect(Screen.width / 2, Screen.height * .95f, 20, 20), "Life is full");
+        }
     }
 }

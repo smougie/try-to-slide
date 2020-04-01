@@ -3,6 +3,10 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
+    public static int life = 3;
+    public static int maxLife = 3;
+    private Rect lifeRect;
+
     // Score section
     private static float levelScore;
     private static float currentScore = 0f;
@@ -71,14 +75,21 @@ public class GameManager : MonoBehaviour
         showLoseScreen = false;
         freezeFlag = false;
 
+        lifeRect = new Rect(10, 10, 10, 10);
+
         timerRect = new Rect(Screen.width / 2 - 40, 10, 10, 10);
-        coinsRect = new Rect(10, 10, 10, 10);
-        scoreRect = new Rect(10, 25, 10, 10);
+        coinsRect = new Rect(10, 30, 10, 10);
+        scoreRect = new Rect(10, 50, 10, 10);
         winScreenRect = new Rect(winScreenRectPositionX, winScreenRectPositionY, winScreenBoxWidth, winScreenBoxHeight); 
         detailsRectWinScreen = new Rect(winScreenRect.x + 20, winScreenRect.y + 40, 400, 200);
 
         continueButtonWinScreen = new Rect(winScreenRect.x + winScreenBoxWidth - 100, winScreenRect.y + winScreenBoxHeight - 55, 80, 35);
         quitButtonWinScreen = new Rect(winScreenRect.x + 20, winScreenRect.y + winScreenBoxHeight - 55, 80, 35);
+
+        if (PlayerPrefs.GetInt("Unlocked Level") > 1)
+        {
+            currentLevel = PlayerPrefs.GetInt("Unlocked Level");
+        }
     }
 
 
@@ -119,25 +130,23 @@ public class GameManager : MonoBehaviour
     {
         showLoseScreen = true;
         currentTime = 0;
-        //Destroy(gameObject);
-        //SceneManager.LoadScene("Main Menu");
     }
 
 
     public static void CompleteLevel()
     {
         showWinScreen = true;
-
         remainingTime = currentTime;
         CalculateLevelScore();
-        //currentLevel++;
-        //SceneManager.LoadScene(currentLevel);
+        currentLevel++;
+        SaveLevel();
     }
 
 
     public static void LoadNextLevel()
     {
-        currentLevel++;
+        //currentLevel++;
+        //SaveLevel();
         SceneManager.LoadScene(currentLevel);
     }
 
@@ -193,12 +202,16 @@ public class GameManager : MonoBehaviour
         // In game/Level labels
         // show timer, coins
         // if level is higher than 1 than show score 
+        GUI.Label(lifeRect, $"Life: {life}/{maxLife}", levelSkin.GetStyle("Life"));
         GUI.Label(timerRect, $"Time: {currentTime.ToString("0.0")}/{startTime}", levelSkin.GetStyle("Timer"));
         GUI.Label(coinsRect, $"Coins: {currentCoinCount}/{totalCoinCount}", levelSkin.GetStyle("Coins"));
         string winScreenLevelInfo = $"Level completion time: {levelCompleteTime.ToString("0.0")}" +
             $"\nCoins collected {currentCoinCount}/{totalCoinCount}" +
             $"\nLevel score: {levelScore}\nTotal score: {currentScore}";
-        
+        string loseScreenLevelInfo = $"Coins collected {currentCoinCount}/{totalCoinCount}" +
+            $"\nLevel score: {levelScore}\nTotal score: {currentScore}";
+
+
         if (currentScore > 0)
         {
             GUI.Label(scoreRect, $"Score: {currentScore}", levelSkin.GetStyle("Score"));
@@ -222,6 +235,8 @@ public class GameManager : MonoBehaviour
             {
                 // Show win screen with Level Completed sign at top of the box also show Continue button
                 GUI.Box(winScreenRect, "Level Completed");
+                // show Level Details on win screen
+                GUI.Label(detailsRectWinScreen, winScreenLevelInfo);
                 if (GUI.Button(continueButtonWinScreen, "Continue"))
                 {
                     LoadNextLevel();
@@ -234,10 +249,12 @@ public class GameManager : MonoBehaviour
             {
                 // Show lose screen with Lose sigh at top of the box
                 GUI.Box(winScreenRect, "Lose");
+                // show Level Details on win screen
+                GUI.Label(detailsRectWinScreen, loseScreenLevelInfo);
             }
 
             // show Level Details on win screen
-            GUI.Label(detailsRectWinScreen, winScreenLevelInfo);
+            //GUI.Label(detailsRectWinScreen, winScreenLevelInfo);
 
             // show win screen button in both, win and lose screen
             if (GUI.Button(quitButtonWinScreen, "Quit"))

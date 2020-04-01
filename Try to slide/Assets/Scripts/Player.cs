@@ -22,15 +22,15 @@ public class Player : MonoBehaviour
         // need to be > 1 (level 2 and higher) forcing new game button to create new game and don't save it at 1st level 
         if (GameManager.currentLevel > 1)
         {
-            GameManager.SaveLevel();
+            //GameManager.SaveLevel();
         }
 
         // after pressing continue button this statement set up loaded level from Playerprefs as current level
         // continiue button -> loading level 2 -> setting level 2 as current level
-        if (PlayerPrefs.GetInt("Unlocked Level") > 1 )
-        {
-           GameManager.currentLevel = PlayerPrefs.GetInt("Unlocked Level");
-        }
+        //if (PlayerPrefs.GetInt("Unlocked Level") > 1 )
+        //{
+        //   GameManager.currentLevel = PlayerPrefs.GetInt("Unlocked Level");
+        //}
     }
 
 
@@ -103,5 +103,6 @@ public class Player : MonoBehaviour
         PlaySound(0);
         Instantiate(deathParticles, transform.position, Quaternion.identity);
         transform.position = spawnPoint;
+        GameManager.life -= 1;
     }
 }

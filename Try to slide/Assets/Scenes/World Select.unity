@@ -191,7 +191,7 @@ PrefabInstance:
     - target: {fileID: 3345874261974491070, guid: 08deddaf405672f41abb168c81823399,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 4
+      value: 4.5
       objectReference: {fileID: 0}
     - target: {fileID: 3345874261974491070, guid: 08deddaf405672f41abb168c81823399,
         type: 3}
@@ -276,7 +276,7 @@ PrefabInstance:
     - target: {fileID: 3345874261974491070, guid: 08deddaf405672f41abb168c81823399,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -4
+      value: -4.5
       objectReference: {fileID: 0}
     - target: {fileID: 3345874261974491070, guid: 08deddaf405672f41abb168c81823399,
         type: 3}
@@ -343,6 +343,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: World Node 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3345874261974491075, guid: 08deddaf405672f41abb168c81823399,
+        type: 3}
+      propertyPath: m_Radius
+      value: 1.05
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 08deddaf405672f41abb168c81823399, type: 3}
@@ -896,6 +901,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: World Node 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3345874261974491075, guid: 08deddaf405672f41abb168c81823399,
+        type: 3}
+      propertyPath: m_Radius
+      value: 1.05
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 08deddaf405672f41abb168c81823399, type: 3}

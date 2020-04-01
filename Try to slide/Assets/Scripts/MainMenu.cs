@@ -13,6 +13,8 @@ public class MainMenu : MonoBehaviour
     private Rect yesButton;
     private Rect noButton;
 
+    private string warningMessage;
+
     private float screenWidth;
     private float screenHeight;
 
@@ -37,12 +39,15 @@ public class MainMenu : MonoBehaviour
         gameNameLabel = new Rect(screenWidth / 2 - 80, screenHeight * .1f , 160, 150);  // Game Name
         newGameConfirmBoxRect = new Rect(screenWidth / 2 - (screenWidth * .4f) / 2, screenHeight / 2 - (screenHeight * .4f) / 2, 
             screenWidth * .4f, screenHeight * .4f);  // New Game confirmation rectangle for Box
-        newGameWarningRect = new Rect();
+        newGameWarningRect = new Rect(newGameConfirmBoxRect.x + newGameConfirmBoxRect.x * .2f, newGameConfirmBoxRect.y + newGameConfirmBoxRect.y * .4f, 
+            newGameConfirmBoxRect.x * .9f, newGameConfirmBoxRect.y * .9f);
         yesButton = new Rect(newGameConfirmBoxRect.x + newGameConfirmBoxRect.width * .8f, newGameConfirmBoxRect.y + newGameConfirmBoxRect.height * .8f,
             buttonWidth, buttonHeight);
         noButton = new Rect(newGameConfirmBoxRect.x + (newGameConfirmBoxRect.width * .2f) - buttonWidth, yesButton.y, buttonWidth, buttonHeight);
         guiEnabled = true;
         newGameConfirm = false;
+
+        warningMessage = "You're trying to start new game, your current game progress will be reset. Are you sure?";
 }
 
 
@@ -51,39 +56,47 @@ public class MainMenu : MonoBehaviour
         GUI.skin = mainMenuSkin;
         GUI.Label(gameNameLabel, "Try to slide");
 
+        if (!newGameConfirm)
+        {
+            if (PlayerPrefs.GetInt("Unlocked Level") > 0)
+            {
+                if (GUI.Button(continueButton, "Continue"))
+                {
+                    SceneManager.LoadScene(PlayerPrefs.GetInt("Unlocked Level"));
+                }
+            }
+
+            if (GUI.Button(newGameButton, "New Game"))
+            {
+                if (PlayerPrefs.GetInt("Unlocked Level") > 0)
+                {
+                    newGameConfirm = true;
+                }
+                else
+                {
+                    GameManager.NewGame();
+                }
+            }
+
+            if (GUI.Button(quitButton, "Quit"))
+            {
+                Debug.Log("Quit");
+            }
+
+        }
+
         if (newGameConfirm)
         {
-            GUI.Box(new Rect(newGameConfirmBoxRect), "japierdole");
-            if (GUI.Button(yesButton, "YES"))
+            GUI.Box(new Rect(newGameConfirmBoxRect), "WARNING");
+            GUI.Label(newGameWarningRect, warningMessage, mainMenuSkin.GetStyle("Warning Message"));
+            if (GUI.Button(yesButton, "Yes"))
             {
-                guiEnabled = true;
-                Debug.Log("yes");
+                GameManager.NewGame();
             }
-            if (GUI.Button(noButton, "NO"))
+            if (GUI.Button(noButton, "No"))
             {
-                guiEnabled = true;
-                Debug.Log("no");
+                newGameConfirm = false;
             }
-        }
-
-        GUI.enabled = guiEnabled;
-        if (PlayerPrefs.GetInt("Unlocked Level") > 0)
-        {
-            if (GUI.Button(continueButton, "Continue"))
-            {
-                SceneManager.LoadScene(PlayerPrefs.GetInt("Unlocked Level"));
-            }
-        }
-
-        if (GUI.Button(newGameButton, "New Game"))
-        {
-            newGameConfirm = true;
-            guiEnabled = false;
-        }
-
-        if (GUI.Button(quitButton, "Quit"))
-        {
-            Debug.Log("Quit");
         }
 
     }

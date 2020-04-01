@@ -12,6 +12,9 @@ public class Player : MonoBehaviour
     [SerializeField] private float moveSpeed = 0;  // player movement speed, accesible from inspector
     private float maxSpeed = 7.5f;  // maximum movement speed value
     private bool lifeIsFull;
+
+    private bool invictibleIsActive;
+    private float invictibleTime;
     
 
     void Start()
@@ -66,7 +69,10 @@ public class Player : MonoBehaviour
         // collision with enemy 
         if (collision.transform.tag == "Enemy")
         {
-            Die();
+            if (!invictibleIsActive)
+            {
+                Die();
+            }
         }
     }
 
@@ -74,6 +80,11 @@ public class Player : MonoBehaviour
     // tracking player triggering other objects
     private void OnTriggerEnter(Collider other)
     {
+        if (other.transform.tag == "Invictible")
+        {
+            Invictible();
+            Destroy(other.gameObject);
+        }
         // Goal trigger CompleteLevel method
         if (other.transform.tag == "Goal")
         {
@@ -84,7 +95,10 @@ public class Player : MonoBehaviour
         // Trap trigger Die method
         if (other.transform.tag == "Trap")
         {
-            Die();
+            if (!invictibleIsActive)
+            {
+                Die();
+            }
         }
 
         // Coin trigger CoinPickUp method and destroy coin object
@@ -139,6 +153,18 @@ public class Player : MonoBehaviour
         Instantiate(deathParticles, transform.position, Quaternion.identity);
         transform.position = spawnPoint;
         GameManager.life -= 1;
+    }
+
+    private void Invictible()
+    {
+        invictibleIsActive = true;
+        invictibleTime = 5;
+        invictibleTime -= Time.deltaTime;
+        if (invictibleTime <= 0)
+        {
+            invictibleTime = 0;
+            invictibleIsActive = false;
+        }
     }
 
     private void OnGUI()

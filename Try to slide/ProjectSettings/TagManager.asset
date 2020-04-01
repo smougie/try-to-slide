@@ -11,6 +11,7 @@ TagManager:
   - World
   - Life
   - Max Life
+  - Invictible
   layers:
   - Default
   - TransparentFX

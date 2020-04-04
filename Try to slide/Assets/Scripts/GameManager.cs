@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System.Linq;
+using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
@@ -7,10 +9,14 @@ public class GameManager : MonoBehaviour
     public static int maxLife = 3;
     private Rect lifeRect;
 
+    private static string playerName;
+    private static string scoreBoard;
+
     // Score section
     private static float levelScore;
     private static float currentScore = 0f;
     private static int highscore;
+    private static float totalScore;
 
     // Level section
     public static int currentLevel = 1;
@@ -46,9 +52,14 @@ public class GameManager : MonoBehaviour
     private Rect coinsRect;
     private Rect scoreRect;
     private Rect winScreenRect;
-    private Rect detailsRectWinScreen;
+    private Rect LoseScreenRect;
+    private Rect detailstWinScreenRect;
     private Rect continueButtonWinScreen;
     private Rect quitButtonWinScreen;
+    private Rect scoreBoardButton;
+    private Rect scoreBoardScreenRect;
+    private Rect backButton;
+    private Rect scoreListRect;
 
     private static float winScreenBoxWidth = Screen.width * .7f;  // Width of win screen - 70% of screen width
     private static float winScreenBoxHeight = Screen.height * .7f;  // Height of win screen - 70% of screen height
@@ -59,6 +70,7 @@ public class GameManager : MonoBehaviour
     // Flag section
     private static bool showWinScreen;
     private static bool showLoseScreen;
+    private static bool showScoreBoard;
     private static bool freezeFlag;  // freeze flag which raising will result with freezing game (Time.timeScale = 0f;)
 
     private void Start()
@@ -73,6 +85,7 @@ public class GameManager : MonoBehaviour
         maxLevelTime = startTime;
         showWinScreen = false;
         showLoseScreen = false;
+        showScoreBoard = false;
         freezeFlag = false;
 
         lifeRect = new Rect(10, 10, 10, 10);
@@ -80,16 +93,23 @@ public class GameManager : MonoBehaviour
         timerRect = new Rect(Screen.width / 2 - 40, 10, 10, 10);
         coinsRect = new Rect(10, 30, 10, 10);
         scoreRect = new Rect(10, 50, 10, 10);
-        winScreenRect = new Rect(winScreenRectPositionX, winScreenRectPositionY, winScreenBoxWidth, winScreenBoxHeight); 
-        detailsRectWinScreen = new Rect(winScreenRect.x + 20, winScreenRect.y + 40, 400, 200);
+        winScreenRect = new Rect(winScreenRectPositionX, winScreenRectPositionY, winScreenBoxWidth, winScreenBoxHeight);
+        LoseScreenRect = winScreenRect;
+        detailstWinScreenRect = new Rect(winScreenRect.x + 20, winScreenRect.y + 40, 400, 200);
+        scoreBoardScreenRect = winScreenRect;
+        scoreListRect = new Rect(scoreBoardScreenRect.x + scoreBoardScreenRect.x, scoreBoardScreenRect.y + scoreBoardScreenRect.y * .3f,
+            400, 200);
 
         continueButtonWinScreen = new Rect(winScreenRect.x + winScreenBoxWidth - 100, winScreenRect.y + winScreenBoxHeight - 55, 80, 35);
         quitButtonWinScreen = new Rect(winScreenRect.x + 20, winScreenRect.y + winScreenBoxHeight - 55, 80, 35);
+        scoreBoardButton = continueButtonWinScreen;
+        backButton = quitButtonWinScreen;
 
         if (PlayerPrefs.GetInt("Unlocked Level") > 1)
         {
             currentLevel = PlayerPrefs.GetInt("Unlocked Level");
         }
+        ShowScores();
     }
 
 
@@ -108,10 +128,15 @@ public class GameManager : MonoBehaviour
         // Method which is responsible for tracking freezeFlag status, if freezeFlag is false than Time.timeScale is equal to 1f, game works
         // if freeeFlag is True than Time.timeScale is equal to 0f and game is frozen until flag will be equal to false
         FreezeGame(freezeFlag);
+        //DELETE AFTER TEST!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        if (Input.GetButtonDown("reset"))
+        {
+            PlayerPrefs.SetString("Scoreboard", "");
+        }
     }
 
 
-    public static void NewGame()
+    public static void NewGame(string typedName)
     {
         currentLevel = 1;
         currentScore = 0;
@@ -119,6 +144,7 @@ public class GameManager : MonoBehaviour
         maxLife = 3;
         SceneManager.LoadScene(currentLevel);
         PlayerPrefs.SetInt("Unlocked Level", 0);
+        playerName = typedName;
     }
     
 
@@ -147,8 +173,6 @@ public class GameManager : MonoBehaviour
 
     public static void LoadNextLevel()
     {
-        //currentLevel++;
-        //SaveLevel();
         SceneManager.LoadScene(currentLevel);
     }
 
@@ -180,6 +204,62 @@ public class GameManager : MonoBehaviour
         currentCoinCount += 1;
     }
 
+
+    public static void AddScore()
+    {
+        if (PlayerPrefs.HasKey("Scoreboard"))
+        {
+            scoreBoard = PlayerPrefs.GetString("Scoreboard");
+            PlayerPrefs.SetString("Scoreboard", scoreBoard + $"{playerName}:{totalScore};");
+        }
+        else
+        {
+            PlayerPrefs.SetString("Scoreboard", $"{playerName}:{totalScore};");
+        }
+
+    }
+
+
+    public static string ShowScores()
+    {
+        string showTemplate = $"";
+        print(PlayerPrefs.GetString("Scoreboard"));
+        List<string> listScores = new List<string>();
+        Dictionary<string, string> dictScores = new Dictionary<string, string>();
+        char[] separator = { ':', ';' };
+        listScores = PlayerPrefs.GetString("Scoreboard").Split(separator).ToList();
+        for (int i = 0; i < listScores.Count() - 1 * 2; i += 2)
+        {
+            if (dictScores.ContainsKey(listScores[i]))
+            {
+                dictScores[listScores[i]] = listScores[i + 1];
+            }
+            else
+            {
+                dictScores.Add(listScores[i], listScores[i + 1]);
+            }
+        }
+        foreach (var item in dictScores)
+        {
+            //showTemplate.Concat($"{item.Key}\t\t\t{item.Value}\n");
+            showTemplate += $"{item.Key}\t\t\t{item.Value}\n";
+        }
+        print("Show return: " + showTemplate);
+        return showTemplate;
+    }
+
+
+    public static void GameOver(float playerScore, string currentPlayer)
+    {
+        SceneManager.LoadScene("Main Menu");
+        showWinScreen = false;
+        showLoseScreen = false;
+        freezeFlag = false;
+        totalScore = playerScore;
+        playerName = currentPlayer;
+        AddScore();
+        PlayerPrefs.SetInt("Unlocked Level", 0);
+    }
 
     // Method resposnible for controlling Time.timeScale, after showing the win screen or lose screen flag is raising to true and game is frozen
     // When player press continue (win screen) or quit (win/lose screen) button, flag will be lowered to false and Time.timeScale will be set to 1f.
@@ -230,7 +310,7 @@ public class GameManager : MonoBehaviour
         }
 
         // Win Screen section after triggering goal tag
-        if (showWinScreen || showLoseScreen)
+        if (showWinScreen || showLoseScreen || showScoreBoard)
         {
             freezeFlag = true;
             if (showWinScreen)
@@ -238,41 +318,69 @@ public class GameManager : MonoBehaviour
                 // Show win screen with Level Completed sign at top of the box also show Continue button
                 GUI.Box(winScreenRect, "Level Completed");
                 // show Level Details on win screen
-                GUI.Label(detailsRectWinScreen, winScreenLevelInfo);
+                GUI.Label(detailstWinScreenRect, winScreenLevelInfo);
                 if (GUI.Button(continueButtonWinScreen, "Continue"))
                 {
                     LoadNextLevel();
                     showWinScreen = false;
                     freezeFlag = false;
                 }
+                if (GUI.Button(quitButtonWinScreen, "Quit"))
+                {
+                    SceneManager.LoadScene("Main Menu");
+                    showWinScreen = false;
+                    showLoseScreen = false;
+                    freezeFlag = false;
+                    Destroy(gameObject);
+                }
             }
 
             if (showLoseScreen)
             {
                 // Show lose screen with Lose sigh at top of the box
-                GUI.Box(winScreenRect, "Lose");
+                GUI.Box(LoseScreenRect, "Lose");
                 // show Level Details on win screen
-                GUI.Label(detailsRectWinScreen, loseScreenLevelInfo);
+                GUI.Label(detailstWinScreenRect, loseScreenLevelInfo);
+                if (GUI.Button(scoreBoardButton, "Scoreboard"))
+                {
+                    showScoreBoard = true;
+                }
+                if (GUI.Button(quitButtonWinScreen, "Quit"))
+                {
+                    //SceneManager.LoadScene("Main Menu");
+                    //showWinScreen = false;
+                    //showLoseScreen = false;
+                    //freezeFlag = false;
+                    GameOver(currentScore, playerName);
+                    Destroy(gameObject);
+                }
+            }
+
+            if (showScoreBoard)
+            {
+                showLoseScreen = false;
+                GUI.Box(scoreBoardScreenRect, "Scoreboard");
+                GUI.Label(scoreListRect, ShowScores());
+
+                if (GUI.Button(backButton, "Back"))
+                {
+                    showScoreBoard = false;
+                    showLoseScreen = true;
+                }
             }
 
             // show Level Details on win screen
             //GUI.Label(detailsRectWinScreen, winScreenLevelInfo);
 
             // show win screen button in both, win and lose screen
-            if (GUI.Button(quitButtonWinScreen, "Quit"))
-            {
-                SceneManager.LoadScene("Main Menu");
-                showWinScreen = false;
-                freezeFlag = false;
-                Destroy(gameObject);
-            }
             
         }
 
         
 
-        // DELETE AFTER TEST
-        GUI.Label(new Rect(Screen.width - 160, Screen.height - 70, 150, 150), $@"Current Level: {currentLevel}
+        // DELETE AFTER TEST!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        GUI.Label(new Rect(Screen.width - 160, Screen.height - 70, 150, 150), $@"Name: {playerName}
+Current Level: {currentLevel}
 Playerpref Unlocked Level: {PlayerPrefs.GetInt("Unlocked Level")}
 LvLScore: {levelScore}
 Score: {currentScore}

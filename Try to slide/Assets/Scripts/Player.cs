@@ -15,30 +15,42 @@ public class Player : MonoBehaviour
 
     private bool invictibleIsActive;
     private float invictibleTime;
+    private Renderer playerRenderer;
+    [SerializeField] private Material normalStance;
+    [SerializeField] private Material invictibleStance;
     
 
-    void Start()
+    private void Start()
     {
         playerRb = GetComponent<Rigidbody>();  // initializing player rigid body
         spawnPoint = transform.position;  // initializing player spawn point by taking current position of game object
-
-        // when level start and it is higher than level 1, save game using game manager class
-        // need to be > 1 (level 2 and higher) forcing new game button to create new game and don't save it at 1st level 
-        if (GameManager.currentLevel > 1)
-        {
-            //GameManager.SaveLevel();
-        }
-
-        // after pressing continue button this statement set up loaded level from Playerprefs as current level
-        // continiue button -> loading level 2 -> setting level 2 as current level
-        //if (PlayerPrefs.GetInt("Unlocked Level") > 1 )
-        //{
-        //   GameManager.currentLevel = PlayerPrefs.GetInt("Unlocked Level");
-        //}
+        playerRenderer = GetComponent<Renderer>();
     }
 
 
-    void FixedUpdate()
+    private void Update()
+    {
+        // when player falls down to 0 lifes, game ends
+        if (GameManager.life <= 0)
+        {
+            GameManager.LoseLevel();
+        }
+
+        if (invictibleTime > 0)
+        {
+            invictibleTime -= Time.deltaTime;
+            playerRenderer.material.SetColor("_Color", Color.black);
+            
+        }
+
+        if (invictibleTime <= 0)
+        {
+            InvictibleOff();
+        }
+    }
+
+
+    private void FixedUpdate()
     {
         // variable storing Unity Input position in vector3, necessary to manipulate with add force and create player movement
         input = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical"));
@@ -55,11 +67,6 @@ public class Player : MonoBehaviour
             Die();
         }
 
-        // when player falls down to 0 lifes, game ends
-        if (GameManager.life <= 0)
-        {
-            GameManager.LoseLevel();
-        }
     }
 
 
@@ -82,8 +89,9 @@ public class Player : MonoBehaviour
     {
         if (other.transform.tag == "Invictible")
         {
-            Invictible();
+            InvictibleOn();
             Destroy(other.gameObject);
+
         }
         // Goal trigger CompleteLevel method
         if (other.transform.tag == "Goal")
@@ -155,23 +163,28 @@ public class Player : MonoBehaviour
         GameManager.life -= 1;
     }
 
-    private void Invictible()
+    private void InvictibleOn()
     {
+        invictibleTime = 5f;
         invictibleIsActive = true;
-        invictibleTime = 5;
-        invictibleTime -= Time.deltaTime;
-        if (invictibleTime <= 0)
-        {
-            invictibleTime = 0;
-            invictibleIsActive = false;
-        }
+        playerRenderer.material = invictibleStance;
+    }
+
+    private void InvictibleOff()
+    {
+        invictibleIsActive = false;
+        playerRenderer.material = normalStance;
     }
 
     private void OnGUI()
     {
         if (lifeIsFull)
         {
-            GUI.Label(new Rect(Screen.width / 2, Screen.height * .95f, 20, 20), "Life is full");
+            GUI.Label(new Rect(Screen.width / 2, Screen.height * .95f, 200, 20), "Life is full");
+        }
+        if (invictibleIsActive)
+        {
+            GUI.Label(new Rect(Screen.width / 2 - 70, Screen.height * .90f, 400, 400), $"Invictible for {invictibleTime.ToString("0.0")} seconds.");
         }
     }
 }

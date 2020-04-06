@@ -3,28 +3,29 @@
 // Player class responsible for moving player, track collisions and triggers, destroying player and controlling sound effects.
 public class Player : MonoBehaviour
 {
-    private Vector3 spawnPoint;  // spawn point for player, use game object inside Unity to change it by moving
     [SerializeField] private GameObject deathParticles = null;  // insert death particles object here
-    [SerializeField] private AudioClip[] audioClips = null;
+    [SerializeField] private AudioClip[] audioClips = null;  // audio clips array for player sounds
+    [SerializeField] private Material normalStance;  // material for normal stance
+    [SerializeField] private Material invictibleStance;  // material for invictible stance
+    [SerializeField] private float moveSpeed = 0;  // player movement speed, accesible from inspector
+
     private Rigidbody playerRb;  // player rigidbody variable
     private Vector3 input;  // variable create to manipulate player position by using arrow keys
+    private Vector3 spawnPoint;  // spawn point for player, use game object inside Unity to change it by moving
+    private Renderer playerRenderer;  // variable storing player renderer necessary
 
-    [SerializeField] private float moveSpeed = 0;  // player movement speed, accesible from inspector
     private float maxSpeed = 7.5f;  // maximum movement speed value
-    private bool lifeIsFull;
+    private float invictibleTime;  // period of time for invictible buff
 
-    private bool invictibleIsActive;
-    private float invictibleTime;
-    private Renderer playerRenderer;
-    [SerializeField] private Material normalStance;
-    [SerializeField] private Material invictibleStance;
+    private bool lifeIsFull;  // life is full flag, raising when player try to collect life node and life is full
+    private bool invictibleIsActive;  // invictible buff flag, raising when player collect shield node
     
 
     private void Start()
     {
         playerRb = GetComponent<Rigidbody>();  // initializing player rigid body
         spawnPoint = transform.position;  // initializing player spawn point by taking current position of game object
-        playerRenderer = GetComponent<Renderer>();
+        playerRenderer = GetComponent<Renderer>();  // initializing player renderer
     }
 
 
@@ -36,13 +37,14 @@ public class Player : MonoBehaviour
             GameManager.LoseLevel();
         }
 
+        // timer for invictible buff, while true player color is black
         if (invictibleTime > 0)
         {
             invictibleTime -= Time.deltaTime;
             playerRenderer.material.SetColor("_Color", Color.black);
-            
         }
 
+        // if invictible time falls to 0, running method to turn off this buff
         if (invictibleTime <= 0)
         {
             InvictibleOff();
@@ -76,6 +78,7 @@ public class Player : MonoBehaviour
         // collision with enemy 
         if (collision.transform.tag == "Enemy")
         {
+            // if not while invictible buff is triggered player dies when collides with enemy
             if (!invictibleIsActive)
             {
                 Die();
@@ -87,13 +90,13 @@ public class Player : MonoBehaviour
     // tracking player triggering other objects
     private void OnTriggerEnter(Collider other)
     {
+        // shield node trigger invictible buff and destroys shield node object
         if (other.transform.tag == "Invictible")
         {
             InvictibleOn();
             Destroy(other.gameObject);
-
         }
-        // Goal trigger CompleteLevel method
+        // Goal trigger CompleteLevel method and playing sound
         if (other.transform.tag == "Goal")
         {
             PlaySound(2);
@@ -103,13 +106,14 @@ public class Player : MonoBehaviour
         // Trap trigger Die method
         if (other.transform.tag == "Trap")
         {
+            // if not while invictible buff is triggered, player dies from trap spikes
             if (!invictibleIsActive)
             {
                 Die();
             }
         }
 
-        // Coin trigger CoinPickUp method and destroy coin object
+        // Coin trigger CoinPickUp method and destroy coin object and play sound
         if (other.transform.tag == "Coin")
         {
             PlaySound(1);
@@ -117,7 +121,7 @@ public class Player : MonoBehaviour
             GameManager.CoinPickUp();
         }
 
-        // Adding one life to player when he collides with life object and he's life is not full
+        // Adding one life to player when he collides with life object and he's life is not full and destroy life node
         if (other.transform.tag == "Life")
         {
             if (GameManager.life < GameManager.maxLife)
@@ -126,13 +130,14 @@ public class Player : MonoBehaviour
                 Destroy(other.gameObject);
             }
 
-            // if hp is full just notice that
+            // if hp is full raising flag to display proper label with information
             else
             {
                 lifeIsFull = true;
             }
         }
 
+        // Adding 1 point to maximum player life and destroy game object
         if (other.transform.tag == "Max Life")
         {
             GameManager.maxLife++;
@@ -141,12 +146,14 @@ public class Player : MonoBehaviour
     }
 
 
+    // if player leaves life node while he is on full hp, drop flag and stop showing label with info
     private void OnTriggerExit(Collider other)
     {
         lifeIsFull = false;
     }
 
 
+    // Method responsible for playing sound from array with sounds
     private void PlaySound(int clipIndex)
     {
         AudioSource sound = GetComponent<AudioSource>();
@@ -154,7 +161,7 @@ public class Player : MonoBehaviour
     }
 
 
-    // Method responsible for instantiate death particles in place of player death and moving player to spawn point
+    // Method responsible for instantiate death particles in place of player death, moving player to spawn point and playing sound
     private void Die()
     {
         PlaySound(0);
@@ -163,6 +170,8 @@ public class Player : MonoBehaviour
         GameManager.life -= 1;
     }
 
+
+    // Method responsible for turning on invictible buff, initializing buff time, raising flag and setting player color
     private void InvictibleOn()
     {
         invictibleTime = 5f;
@@ -170,12 +179,17 @@ public class Player : MonoBehaviour
         playerRenderer.material = invictibleStance;
     }
 
+
+    // Method resposible for turning off ivictible buff, dropping flag and setting normal color
     private void InvictibleOff()
     {
         invictibleIsActive = false;
         playerRenderer.material = normalStance;
     }
 
+
+    // Method responsible for showing life is full while player is on full hp and try to collect life node
+    // also shows timer for invictible buff in bot center of screen
     private void OnGUI()
     {
         if (lifeIsFull)

@@ -6,49 +6,49 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
-    public static int life = 3;
-    public static int maxLife = 3;
-    private Rect lifeRect;
-
-    private static string playerName;
-    private static string scoreBoard;
+    #region Life, Score, Level, Coin, Time section
+    // Life variables section
+    public static int life = 3;  // player current life
+    public static int maxLife = 3;  // player max life
 
     // Score section
-    private static float levelScore;
-    private static float currentScore = 0f;
-    private static int highscore;
-    private static float totalScore;
+    private static float levelScore;  // level score var, showing after completing level
+    private static float currentScore = 0f;  // current player score, reseting everytime when new game starts
+    private static string playerName;  // var with player name
+    private static string scoreBoard;  // var storing whole scoreboard string from PlayerPrefs.GetString("Scoreboard")
 
     // Level section
-    public static int currentLevel = 1;
-    public static int unlockedLevel;
+    public static int currentLevel = 1;  // var storing current level, using it while saving progress, while loading next levels
 
     // Coin section
-    [SerializeField] private GameObject coinParent = null;
-    [SerializeField] private float coinImportance = 0f;  // Value from Game Manager gameobject set in inspector
-    private static float coinImportanceCalc;
-    private static float totalCoinCount;
-    private static float currentCoinCount = 0f;
-    private static float coinCompletion = 0f;
-    private static float coinScore;
+    [SerializeField] private GameObject coinParent = null;  // object with coin parent, coin parent is box when storing coin object to count them
+    [SerializeField] private float coinImportance = 0f;  // value from game manager inspector, setting how important are coins at level
+    private static float coinImportanceCalc;  // var for storing coin importance necessary for score calculations
+    private static float totalCoinCount;  // var storing total number of coins at scene 
+    private static float currentCoinCount = 0f;  // current coin count at level
+    private static float coinCompletion = 0f;  // var storing value with coin % completion at current scene 
+    private static float coinScore;  // var storing coin score from current level
 
     // Time section
-    [SerializeField] private float startTime = 0f;
-    [SerializeField] private float timeImportance = 0f;
-    private static float timeImportanceCalc;
-    private static float currentTime;
-    private static float maxLevelTime;
-    private static float remainingTime;
-    private static float timeCompletion = 0f;
-    private static float levelCompleteTime;
-    private static float timeScore;
+    [SerializeField] private float startTime = 0f;  // set time for player to complete level
+    [SerializeField] private float timeImportance = 0f;  // value from game manager inspector, setting how important is time at level
+    private static float timeImportanceCalc;  //  var for storing time importance necessary for score calculations
+    private static float currentTime;  // var storing current time (start time - Time.deltaTime). Necessary for level timer
+    private static float maxLevelTime;  // var storing maximum level time (start time), this var is necessary for counting time score
+    private static float remainingTime;  // var storing remaining time after player complete level
+    private static float timeCompletion = 0f;  // var storing value with time % completion at current scene
+    private static float levelCompleteTime;  // var storing value of level completion time
+    private static float timeScore;  // var storing time score from current level
+    #endregion  
 
-    // GUI Section
-    [SerializeField] private GUISkin levelSkin = null;
+    #region GUI Section
+    // GUI
+    [SerializeField] private GUISkin levelSkin = null;  // GUI.skin set in inspector
 
-    private Color normalTimerColor = new Color(0, 0, 0);  // black
-    private Color warningTimerColor = new Color(255, 0, 0);  // red
+    private Color normalTimerColor = new Color(0, 0, 0);  // black color for timer
+    private Color warningTimerColor = new Color(255, 0, 0);  // red color for < 5 sec timer
     
+    // Rectangles for buttons, labels, boxes
     private Rect timerRect;
     private Rect coinsRect;
     private Rect scoreRect;
@@ -62,36 +62,39 @@ public class GameManager : MonoBehaviour
     private Rect backButton;
     private Rect scoreListRect;
     private Rect playerListRect;
+    private Rect lifeRect;
 
+    // Initializing win screen window
     private static float winScreenBoxWidth = Screen.width * .7f;  // Width of win screen - 70% of screen width
     private static float winScreenBoxHeight = Screen.height * .7f;  // Height of win screen - 70% of screen height
     private float winScreenRectPositionX = Screen.width / 2 - winScreenBoxWidth / 2;  // x position, half of screen width - half of winScreenBox width ;
     private float winScreenRectPositionY = Screen.height / 2 - winScreenBoxHeight / 2; // y position, half of screen height - half of winScreenBox height ;
-
+    #endregion
 
     // Flag section
-    private static bool showWinScreen;
-    private static bool showLoseScreen;
-    private static bool showScoreBoard;
+    private static bool showWinScreen;  // win screen flag showing after player complete level
+    private static bool showLoseScreen;  // lose screen flag showing after time ends, player waste all his lifes
+    private static bool showScoreBoard;  // scoreboard flag showing after pressing Scoreboard button after lose
     private static bool freezeFlag;  // freeze flag which raising will result with freezing game (Time.timeScale = 0f;)
+
 
     private void Start()
     {
-        currentTime = startTime;
-        totalCoinCount = coinParent.transform.childCount;
+        currentTime = startTime;  // seting start time as current time
+        totalCoinCount = coinParent.transform.childCount;  // setting total coin count
         currentCoinCount = 0f;  // reseting coin count value when starting level
         coinCompletion = 0f;  // reseting coin completition value when starting level
         levelScore = 0f;  // reseting level score value when starting level
-        coinImportanceCalc = coinImportance;
-        timeImportanceCalc = timeImportance;
-        maxLevelTime = startTime;
-        showWinScreen = false;
-        showLoseScreen = false;
-        showScoreBoard = false;
-        freezeFlag = false;
+        coinImportanceCalc = coinImportance;  // setting coin imporance from inspector
+        timeImportanceCalc = timeImportance;  // setting time importance from inspector
+        maxLevelTime = startTime;  // setting start time as max level time
+        showWinScreen = false;  // droping win screen flag
+        showLoseScreen = false;  // dropping lose screen flag
+        showScoreBoard = false;  // dropping scoreboard flag
+        freezeFlag = false;  // dropping freeze flag
 
-        lifeRect = new Rect(10, 10, 10, 10);
-
+        // Initializing all rectangles for labels and boxes
+        lifeRect = new Rect(10, 10, 10, 10);  
         timerRect = new Rect(Screen.width / 2 - 40, 10, 10, 10);
         coinsRect = new Rect(10, 30, 10, 10);
         scoreRect = new Rect(10, 50, 10, 10);
@@ -104,11 +107,13 @@ public class GameManager : MonoBehaviour
         scoreListRect = new Rect(scoreBoardScreenRect.x + scoreBoardScreenRect.x * 3f, scoreBoardScreenRect.y + scoreBoardScreenRect.y * .5f,
             100, 200);
 
+        // Initializing buttons rectangles
         continueButtonWinScreen = new Rect(winScreenRect.x + winScreenBoxWidth - 100, winScreenRect.y + winScreenBoxHeight - 55, 80, 35);
         quitButtonWinScreen = new Rect(winScreenRect.x + 20, winScreenRect.y + winScreenBoxHeight - 55, 80, 35);
         scoreBoardButton = continueButtonWinScreen;
         backButton = quitButtonWinScreen;
 
+        // if level stored in unlocked level (current player progress) is higher than level 1 than set current level as unlocked level
         if (PlayerPrefs.GetInt("Unlocked Level") > 1)
         {
             currentLevel = PlayerPrefs.GetInt("Unlocked Level");
@@ -118,19 +123,23 @@ public class GameManager : MonoBehaviour
 
     private void Update()
     {
+        // simble counter for level
         if (startTime > 0)
         {
             currentTime -= Time.deltaTime;
         }
 
+        // if time ends player lose
         if (currentTime <= 0)
         {
             LoseLevel();
         }
 
-        // Method which is responsible for tracking freezeFlag status, if freezeFlag is false than Time.timeScale is equal to 1f, game works
-        // if freeeFlag is True than Time.timeScale is equal to 0f and game is frozen until flag will be equal to false
+
+        // tracking freezeFlag status nad controlin conditions
         FreezeGame(freezeFlag);
+
+
         //DELETE AFTER TEST!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         if (Input.GetButtonDown("reset"))
         {
@@ -139,6 +148,8 @@ public class GameManager : MonoBehaviour
     }
 
 
+    // New game method responsible for staring a new game, loading level 1, clearing save in PlayerPrefs "Unlocked Level", setting player name. reseting
+    // score and life values
     public static void NewGame(string typedName)
     {
         currentLevel = 1;
@@ -151,12 +162,14 @@ public class GameManager : MonoBehaviour
     }
     
 
+    // Method responsible for setting current level as Unlocked Level in PlayerPrefs
     public static void SaveLevel()
     {
         PlayerPrefs.SetInt("Unlocked Level", currentLevel);
     }
 
 
+    // Method responsible for raising Lose Screen flag, setting current time to 0 and current score with player name to PlayerPrefs "Scoreboard" 
     public static void LoseLevel()
     {
         showLoseScreen = true;
@@ -164,7 +177,8 @@ public class GameManager : MonoBehaviour
         AddScore();
     }
 
-
+    
+    // Method responsible for raising Win Screen flag, setting current time as remaining time, calculating level score, incrementing level var and saving
     public static void CompleteLevel()
     {
         showWinScreen = true;
@@ -175,15 +189,24 @@ public class GameManager : MonoBehaviour
     }
 
 
+    // Method responsible for loading next scene
     public static void LoadNextLevel()
     {
         SceneManager.LoadScene(currentLevel);
     }
 
-
+     
+    /*
+     * Method responsible for calcualting level score
+     * First calculating percentage coin completion (if there was 4 coins on map and player collected 1 than he has = 25% completition)
+     * Next calculating percentage time completion (remaining time as percentage value of total time for level)
+     * Third step is parsing data from float to int representation of % values
+     * Than counting complete percentage values by importance which can be set in game manager, for example:
+     * coins were more important than time so you can adjust importance to 120 and leave time importance at 100
+     * Last step is addition coin score and time score and add level score to current score
+     */
     public static void CalculateLevelScore()
     {
-
         // Remaining time and coin count % values, than converting them to int
         coinCompletion = (currentCoinCount * 100) / totalCoinCount;
         coinCompletion = (int)coinCompletion;  // Coin completion as percentage value
@@ -203,12 +226,18 @@ public class GameManager : MonoBehaviour
     }
 
 
+    // Method responsible for increment coin value after picking coin
     public static void CoinPickUp()
     {
         currentCoinCount += 1;
     }
 
 
+    /*
+     * Method resposible for concatenate current player and his score to scoreboard save in PlayerPrefs
+     * first method is checking is there any record in player pref, if there is none method is starting new record
+     * if there is some record in Scoreboard key, than method concatenate to this record player and his score
+     */
     public static void AddScore()
     {
         if (PlayerPrefs.HasKey("Scoreboard"))
@@ -224,6 +253,15 @@ public class GameManager : MonoBehaviour
     }
 
 
+    /*
+     * Method responsible for creating template with players and their scores
+     * Method load record with scoreboard from PlayerPrefs
+     * First creating two empty string for player names and second one for player scores
+     * Next empy array for 2 string where mehtod store player names and scores and than return this array as a resault
+     * listScores is a list of separated names and score - using list of separators to split this list
+     * dictScores is a dict with key - player names and value - player score
+     * sortedDict is a dict with 20 highest scores
+     */
     public static string[] ShowScores()
     {
         string showTemplatePlayers = $"";
@@ -234,6 +272,7 @@ public class GameManager : MonoBehaviour
         Dictionary<string, int> sortedDict = new Dictionary<string, int>();
         char[] separator = { ':', ';' };
         listScores = PlayerPrefs.GetString("Scoreboard").Split(separator).ToList();
+
         for (int i = 0; i < listScores.Count() - 1 * 2; i += 2)
         {
             if (dictScores.ContainsKey(listScores[i]))
@@ -260,20 +299,25 @@ public class GameManager : MonoBehaviour
                 break;
             }
         }
+
         playersAndScores[0] = showTemplatePlayers;
         playersAndScores[1] = showTemplateScores;
+
         return playersAndScores;
     }
 
 
-    public static void GameOver()
+    // Method responsible for ending the game by dropping all flags, destroying game manager object, loading main menu scene and reseting player progress
+    public static void GameOver(GameObject gameObject)
     {
+        Destroy(gameObject);
         SceneManager.LoadScene("Main Menu");
         showWinScreen = false;
         showLoseScreen = false;
         freezeFlag = false;
         PlayerPrefs.SetInt("Unlocked Level", 0);
     }
+
 
     // Method resposnible for controlling Time.timeScale, after showing the win screen or lose screen flag is raising to true and game is frozen
     // When player press continue (win screen) or quit (win/lose screen) button, flag will be lowered to false and Time.timeScale will be set to 1f.
@@ -290,6 +334,7 @@ public class GameManager : MonoBehaviour
     }
 
 
+    // GUI section responsible for showing win/lose/scoreboard boxes, life/timer/coins label
     private void OnGUI()
     {
         GUI.skin = levelSkin;
@@ -322,7 +367,23 @@ public class GameManager : MonoBehaviour
             levelSkin.GetStyle("Timer").normal.textColor = normalTimerColor;
         }
 
-        // Win Screen section after triggering goal tag
+
+        /*
+         * Win/Lose/Scoreboard screen
+         * if any of this flag is raised, than game is freezed
+         * Show Win Screen:
+         * showing level details and score
+         * if player press continue button, loading next level, dropping Win Screen and Freeze flag
+         * if player press quit, loading main menu scene, dropping Win Screen and Freeze flag, destroying game manager object
+         * Show Lose Screen:
+         * showing level details
+         * if player press Scoreboard button, raising Scoreboard flag and showing player scores
+         * if player press quit, calling GameOver method and destroying game object
+         * Show Scoreboard:
+         * if player press the Scoreboard button, hiding showLoseScreen by dropping flag and raising Scoreboard flag
+         * creating two vertical labels, one with player names, second with player scores
+         * if player press back button, showScoreboard flag is dropping and showLoseScreen flag is raising
+         */
         if (showWinScreen || showLoseScreen || showScoreBoard)
         {
             freezeFlag = true;
@@ -342,7 +403,6 @@ public class GameManager : MonoBehaviour
                 {
                     SceneManager.LoadScene("Main Menu");
                     showWinScreen = false;
-                    showLoseScreen = false;
                     freezeFlag = false;
                     Destroy(gameObject);
                 }
@@ -360,8 +420,7 @@ public class GameManager : MonoBehaviour
                 }
                 if (GUI.Button(quitButtonWinScreen, "Quit"))
                 {
-                    GameOver();
-                    Destroy(gameObject);
+                    GameOver(gameObject);
                 }
             }
 

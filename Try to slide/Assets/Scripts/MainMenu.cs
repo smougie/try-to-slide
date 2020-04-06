@@ -131,7 +131,6 @@ public class MainMenu : MonoBehaviour
                 }
                 else
                 {
-                    //GameManager.NewGame();
                     playerNameConfirm = true;
                     mainMenuWindow = false;
                 }
@@ -156,7 +155,6 @@ public class MainMenu : MonoBehaviour
             GUI.Label(newGameWarningRect, warningMessage, mainMenuSkin.GetStyle("Warning Message"));
             if (GUI.Button(yesButton, "Yes"))
             {
-                //GameManager.NewGame();
                 newGameConfirm = false;
                 playerNameConfirm = true;
             }

@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -60,6 +61,7 @@ public class GameManager : MonoBehaviour
     private Rect scoreBoardScreenRect;
     private Rect backButton;
     private Rect scoreListRect;
+    private Rect playerListRect;
 
     private static float winScreenBoxWidth = Screen.width * .7f;  // Width of win screen - 70% of screen width
     private static float winScreenBoxHeight = Screen.height * .7f;  // Height of win screen - 70% of screen height
@@ -97,8 +99,10 @@ public class GameManager : MonoBehaviour
         LoseScreenRect = winScreenRect;
         detailstWinScreenRect = new Rect(winScreenRect.x + 20, winScreenRect.y + 40, 400, 200);
         scoreBoardScreenRect = winScreenRect;
-        scoreListRect = new Rect(scoreBoardScreenRect.x + scoreBoardScreenRect.x, scoreBoardScreenRect.y + scoreBoardScreenRect.y * .3f,
-            400, 200);
+        playerListRect = new Rect(scoreBoardScreenRect.x + scoreBoardScreenRect.x * 1.5f, scoreBoardScreenRect.y + scoreBoardScreenRect.y * .5f,
+            100, 200);
+        scoreListRect = new Rect(scoreBoardScreenRect.x + scoreBoardScreenRect.x * 3f, scoreBoardScreenRect.y + scoreBoardScreenRect.y * .5f,
+            100, 200);
 
         continueButtonWinScreen = new Rect(winScreenRect.x + winScreenBoxWidth - 100, winScreenRect.y + winScreenBoxHeight - 55, 80, 35);
         quitButtonWinScreen = new Rect(winScreenRect.x + 20, winScreenRect.y + winScreenBoxHeight - 55, 80, 35);
@@ -109,7 +113,6 @@ public class GameManager : MonoBehaviour
         {
             currentLevel = PlayerPrefs.GetInt("Unlocked Level");
         }
-        ShowScores();
     }
 
 
@@ -158,6 +161,7 @@ public class GameManager : MonoBehaviour
     {
         showLoseScreen = true;
         currentTime = 0;
+        AddScore();
     }
 
 
@@ -210,54 +214,64 @@ public class GameManager : MonoBehaviour
         if (PlayerPrefs.HasKey("Scoreboard"))
         {
             scoreBoard = PlayerPrefs.GetString("Scoreboard");
-            PlayerPrefs.SetString("Scoreboard", scoreBoard + $"{playerName}:{totalScore};");
+            PlayerPrefs.SetString("Scoreboard", scoreBoard + $"{playerName}:{currentScore};");
         }
         else
         {
-            PlayerPrefs.SetString("Scoreboard", $"{playerName}:{totalScore};");
+            PlayerPrefs.SetString("Scoreboard", $"{playerName}:{currentScore};");
         }
 
     }
 
 
-    public static string ShowScores()
+    public static string[] ShowScores()
     {
-        string showTemplate = $"";
-        print(PlayerPrefs.GetString("Scoreboard"));
+        string showTemplatePlayers = $"";
+        string showTemplateScores = $"";
+        string[] playersAndScores = new string[2];
         List<string> listScores = new List<string>();
-        Dictionary<string, string> dictScores = new Dictionary<string, string>();
+        Dictionary<string, int> dictScores = new Dictionary<string, int>();
+        Dictionary<string, int> sortedDict = new Dictionary<string, int>();
         char[] separator = { ':', ';' };
         listScores = PlayerPrefs.GetString("Scoreboard").Split(separator).ToList();
         for (int i = 0; i < listScores.Count() - 1 * 2; i += 2)
         {
             if (dictScores.ContainsKey(listScores[i]))
             {
-                dictScores[listScores[i]] = listScores[i + 1];
+                int valueStrToInt = int.Parse(listScores[i + 1]);
+                dictScores[listScores[i]] = valueStrToInt;
             }
             else
             {
-                dictScores.Add(listScores[i], listScores[i + 1]);
+                int valueStrToInt = int.Parse(listScores[i + 1]);
+                dictScores.Add(listScores[i], valueStrToInt);
             }
         }
-        foreach (var item in dictScores)
+
+        int playerPlace = 1;
+        foreach (KeyValuePair<string, int> player in dictScores.OrderByDescending(key => key.Value))
         {
-            //showTemplate.Concat($"{item.Key}\t\t\t{item.Value}\n");
-            showTemplate += $"{item.Key}\t\t\t{item.Value}\n";
+            showTemplatePlayers += $"{playerPlace}.) {player.Key}".PadRight(60, '.') + "\n";
+            showTemplateScores += $"{player.Value}\n";
+            sortedDict.Add(player.Key, player.Value);
+            playerPlace++;
+            if (playerPlace > 20)
+            {
+                break;
+            }
         }
-        print("Show return: " + showTemplate);
-        return showTemplate;
+        playersAndScores[0] = showTemplatePlayers;
+        playersAndScores[1] = showTemplateScores;
+        return playersAndScores;
     }
 
 
-    public static void GameOver(float playerScore, string currentPlayer)
+    public static void GameOver()
     {
         SceneManager.LoadScene("Main Menu");
         showWinScreen = false;
         showLoseScreen = false;
         freezeFlag = false;
-        totalScore = playerScore;
-        playerName = currentPlayer;
-        AddScore();
         PlayerPrefs.SetInt("Unlocked Level", 0);
     }
 
@@ -269,7 +283,6 @@ public class GameManager : MonoBehaviour
         {
             Time.timeScale = 0f;
         }
-
         else
         {
             Time.timeScale = 1f;
@@ -347,20 +360,18 @@ public class GameManager : MonoBehaviour
                 }
                 if (GUI.Button(quitButtonWinScreen, "Quit"))
                 {
-                    //SceneManager.LoadScene("Main Menu");
-                    //showWinScreen = false;
-                    //showLoseScreen = false;
-                    //freezeFlag = false;
-                    GameOver(currentScore, playerName);
+                    GameOver();
                     Destroy(gameObject);
                 }
             }
 
             if (showScoreBoard)
             {
+
                 showLoseScreen = false;
                 GUI.Box(scoreBoardScreenRect, "Scoreboard");
-                GUI.Label(scoreListRect, ShowScores());
+                GUI.Label(playerListRect, ShowScores()[0], levelSkin.GetStyle("Scores"));
+                GUI.Label(scoreListRect, ShowScores()[1], levelSkin.GetStyle("Scores"));
 
                 if (GUI.Button(backButton, "Back"))
                 {
@@ -368,12 +379,6 @@ public class GameManager : MonoBehaviour
                     showLoseScreen = true;
                 }
             }
-
-            // show Level Details on win screen
-            //GUI.Label(detailsRectWinScreen, winScreenLevelInfo);
-
-            // show win screen button in both, win and lose screen
-            
         }
 
         

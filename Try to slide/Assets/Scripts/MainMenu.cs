@@ -17,6 +17,7 @@ public class MainMenu : MonoBehaviour
     private Rect playerNameBoxRect;
     private Rect playerNamePromptRect;
     private Rect playerNameTextFieldRect;
+    private Rect playerNameWarningRect;
     private Rect confirmButton;
     private Rect backButton;
 
@@ -33,11 +34,13 @@ public class MainMenu : MonoBehaviour
     private string warningMessage;
     private string typedName;
     private string playerNamePrompt;
+    private string playerNameWarning;
 
     // Flag section
     private bool mainMenuWindow;
     private bool newGameConfirm;
     private bool playerNameConfirm;
+    private bool emptyPlayerName;
     #endregion
 
     private void Start()
@@ -63,6 +66,8 @@ public class MainMenu : MonoBehaviour
             playerNameBoxRect.x * .7f, playerNameBoxRect.y * .1f);
         playerNameTextFieldRect = new Rect(playerNameBoxRect.x + playerNameBoxRect.x * .5f, playerNameBoxRect.y + playerNameBoxRect.y * .5f,
             playerNameBoxRect.x * .4f, playerNameBoxRect.y * .4f);
+        playerNameWarningRect = new Rect(playerNameBoxRect.x + playerNameBoxRect.x * .40f, playerNameBoxRect.y + playerNameBoxRect.y * .9f,
+            playerNameBoxRect.x * .7f, playerNameBoxRect.y * .1f);
 
 
         // Rectangles for buttons
@@ -80,12 +85,19 @@ public class MainMenu : MonoBehaviour
         mainMenuWindow = true;
         newGameConfirm = false;
         playerNameConfirm = false;
+        emptyPlayerName = false;
 
         // Strings for boxes
         warningMessage = "You're trying to start new game, your current game progress will be reset. Are you sure?";  // Warning message for box
         typedName = "";
         playerNamePrompt = "Enter player name (maximum 10 characters).";
+        playerNameWarning = "You must enter player name!";
         #endregion
+    }
+
+    private void Update()
+    {
+        print(emptyPlayerName);
     }
 
 
@@ -162,9 +174,21 @@ public class MainMenu : MonoBehaviour
             GUI.Box(playerNameBoxRect, "");
             GUI.Label(playerNamePromptRect, playerNamePrompt, mainMenuSkin.GetStyle("Player Name Prompt"));
             typedName = GUI.TextField(playerNameTextFieldRect, typedName, 10, mainMenuSkin.GetStyle("Player Name"));
+            if (emptyPlayerName)
+            {
+                GUI.Label(playerNameWarningRect, playerNameWarning, mainMenuSkin.GetStyle("New Player Warning"));
+            }
             if (GUI.Button(confirmButton, "Confirm"))
             {
-                GameManager.NewGame(typedName);
+                if (string.IsNullOrEmpty(typedName))
+                {
+                    emptyPlayerName = true;
+                }
+                else
+                {
+                    emptyPlayerName = false;
+                    GameManager.NewGame(typedName);
+                }
             }
             if (GUI.Button(backButton, "Back"))
             {

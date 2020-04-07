@@ -5,8 +5,8 @@ public class Player : MonoBehaviour
 {
     [SerializeField] private GameObject deathParticles = null;  // insert death particles object here
     [SerializeField] private AudioClip[] audioClips = null;  // audio clips array for player sounds
-    [SerializeField] private Material normalStance;  // material for normal stance
-    [SerializeField] private Material invictibleStance;  // material for invictible stance
+    [SerializeField] private Material normalStance = null;  // material for normal stance
+    [SerializeField] private Material invictibleStance = null;  // material for invictible stance
     [SerializeField] private float moveSpeed = 0;  // player movement speed, accesible from inspector
 
     private Rigidbody playerRb;  // player rigidbody variable

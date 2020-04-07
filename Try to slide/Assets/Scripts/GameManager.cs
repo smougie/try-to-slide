@@ -16,9 +16,11 @@ public class GameManager : MonoBehaviour
     private static float currentScore = 0f;  // current player score, reseting everytime when new game starts
     private static string playerName;  // var with player name
     private static string scoreBoard;  // var storing whole scoreboard string from PlayerPrefs.GetString("Scoreboard")
+    private static string levelScoreboard;  // var storing level scoreboard string from PlayerPrefs.GetString("Scoreboard Level {levelNumber}")
 
     // Level section
     public static int currentLevel = 1;  // var storing current level, using it while saving progress, while loading next levels
+    public static int currentLevelLabel;  // var storing current level label, even if some mehtods will change currentLevel this var stays the same for level
 
     // Coin section
     [SerializeField] private GameObject coinParent = null;  // object with coin parent, coin parent is box when storing coin object to count them
@@ -63,6 +65,10 @@ public class GameManager : MonoBehaviour
     private Rect scoreListRect;
     private Rect playerListRect;
     private Rect lifeRect;
+    private Rect levelScoreBoardButton;
+    private Rect levelScoreBoardScreenRect;
+    private Rect levelScoreListRect;
+    private Rect levelPlayerListRect;
 
     // Initializing win screen window
     private static float winScreenBoxWidth = Screen.width * .7f;  // Width of win screen - 70% of screen width
@@ -75,6 +81,7 @@ public class GameManager : MonoBehaviour
     private static bool showWinScreen;  // win screen flag showing after player complete level
     private static bool showLoseScreen;  // lose screen flag showing after time ends, player waste all his lifes
     private static bool showScoreBoard;  // scoreboard flag showing after pressing Scoreboard button after lose
+    private static bool showLevelScoreBoard;  // level scoreboard flag showing after pressing Level Scoreboard button after finishing level
     private static bool freezeFlag;  // freeze flag which raising will result with freezing game (Time.timeScale = 0f;)
 
 
@@ -106,11 +113,16 @@ public class GameManager : MonoBehaviour
             100, 200);
         scoreListRect = new Rect(scoreBoardScreenRect.x + scoreBoardScreenRect.x * 3f, scoreBoardScreenRect.y + scoreBoardScreenRect.y * .5f,
             100, 200);
+        levelScoreBoardScreenRect = scoreBoardScreenRect;
+        levelPlayerListRect = playerListRect;
+        levelScoreListRect = scoreListRect;
+
 
         // Initializing buttons rectangles
         continueButtonWinScreen = new Rect(winScreenRect.x + winScreenBoxWidth - 100, winScreenRect.y + winScreenBoxHeight - 55, 80, 35);
         quitButtonWinScreen = new Rect(winScreenRect.x + 20, winScreenRect.y + winScreenBoxHeight - 55, 80, 35);
         scoreBoardButton = continueButtonWinScreen;
+        levelScoreBoardButton = new Rect(winScreenRect.x + winScreenBoxWidth - 280, winScreenRect.y + winScreenBoxHeight - 55, 160, 35);
         backButton = quitButtonWinScreen;
 
         // if level stored in unlocked level (current player progress) is higher than level 1 than set current level as unlocked level
@@ -184,6 +196,8 @@ public class GameManager : MonoBehaviour
         showWinScreen = true;
         remainingTime = currentTime;
         CalculateLevelScore();
+        AddLevelScore(currentLevel);
+        currentLevelLabel = currentLevel;
         currentLevel++;
         SaveLevel();
     }
@@ -253,17 +267,38 @@ public class GameManager : MonoBehaviour
     }
 
 
+    public static void AddLevelScore(int levelNumber)
+    {
+        if (PlayerPrefs.HasKey($"Scoreboard Level {levelNumber}"))
+        {
+            levelScoreboard = PlayerPrefs.GetString($"Scoreboard Level {levelNumber}");
+            PlayerPrefs.SetString($"Scoreboard Level {levelNumber}", levelScoreboard + $"{playerName}:{levelScore};");
+        }
+        else
+        {
+            PlayerPrefs.SetString($"Scoreboard Level {levelNumber}", $"{playerName}:{levelScore};");
+        }
+    }
+
+
     /*
      * Method responsible for creating template with players and their scores
+     * Method takes places parameter - this one declare number of players that we want to get
+     * and optional parameter level, which is tracked inside of method in condition, if we put level number
+     * method will change from global scoreboard to specified world scoreboard
      * Method load record with scoreboard from PlayerPrefs
      * First creating two empty string for player names and second one for player scores
      * Next empy array for 2 string where mehtod store player names and scores and than return this array as a resault
      * listScores is a list of separated names and score - using list of separators to split this list
      * dictScores is a dict with key - player names and value - player score
      * sortedDict is a dict with 20 highest scores
+     * ShowScores(20)[0] - shows names of best 20 players in total scoreboard (change 20 number to get other number of players)
+     * ShowScore(20)[1] - show scores of best 20 players in total scoreboard (change 20 number to get other number of players)
+     * ShowScore(10, 1)[0] - show score of 10 best player in level 1 scoreboards
      */
-    public static string[] ShowScores()
+    public static string[] ShowScores(int places, int level = 0)
     {
+        int showPlayerPlaces = places;
         string showTemplatePlayers = $"";
         string showTemplateScores = $"";
         string[] playersAndScores = new string[2];
@@ -271,7 +306,14 @@ public class GameManager : MonoBehaviour
         Dictionary<string, int> dictScores = new Dictionary<string, int>();
         Dictionary<string, int> sortedDict = new Dictionary<string, int>();
         char[] separator = { ':', ';' };
-        listScores = PlayerPrefs.GetString("Scoreboard").Split(separator).ToList();
+        if (level == 0)
+        {
+            listScores = PlayerPrefs.GetString("Scoreboard").Split(separator).ToList();
+        }
+        else
+        {
+            listScores = PlayerPrefs.GetString($"Scoreboard Level {level}").Split(separator).ToList();
+        }
 
         for (int i = 0; i < listScores.Count() - 1 * 2; i += 2)
         {
@@ -294,7 +336,8 @@ public class GameManager : MonoBehaviour
             showTemplateScores += $"{player.Value}\n";
             sortedDict.Add(player.Key, player.Value);
             playerPlace++;
-            if (playerPlace > 20)
+            showPlayerPlaces--;
+            if (showPlayerPlaces == 0)
             {
                 break;
             }
@@ -384,13 +427,13 @@ public class GameManager : MonoBehaviour
          * creating two vertical labels, one with player names, second with player scores
          * if player press back button, showScoreboard flag is dropping and showLoseScreen flag is raising
          */
-        if (showWinScreen || showLoseScreen || showScoreBoard)
+        if (showWinScreen || showLoseScreen || showScoreBoard || showLevelScoreBoard)
         {
             freezeFlag = true;
             if (showWinScreen)
             {
                 // Show win screen with Level Completed sign at top of the box also show Continue button
-                GUI.Box(winScreenRect, "Level Completed");
+                GUI.Box(winScreenRect, $"Level {currentLevelLabel} Completed");
                 // show Level Details on win screen
                 GUI.Label(detailstWinScreenRect, winScreenLevelInfo);
                 if (GUI.Button(continueButtonWinScreen, "Continue"))
@@ -398,6 +441,10 @@ public class GameManager : MonoBehaviour
                     LoadNextLevel();
                     showWinScreen = false;
                     freezeFlag = false;
+                }
+                if (GUI.Button(levelScoreBoardButton, $"Level {currentLevelLabel} Scoreboard"))
+                {
+                    showLevelScoreBoard = true;
                 }
                 if (GUI.Button(quitButtonWinScreen, "Quit"))
                 {
@@ -424,13 +471,25 @@ public class GameManager : MonoBehaviour
                 }
             }
 
+            if (showLevelScoreBoard)
+            {
+                showWinScreen = false;
+                GUI.Box(levelScoreBoardScreenRect, "Level Scoreboard");
+                GUI.Label(levelPlayerListRect, ShowScores(10, currentLevelLabel)[0], levelSkin.GetStyle("Scores"));
+                GUI.Label(levelScoreListRect, ShowScores(10, currentLevelLabel)[1], levelSkin.GetStyle("Scores"));
+                if (GUI.Button(backButton, "Back"))
+                {
+                    showLevelScoreBoard = false;
+                    showWinScreen = true;
+                }
+            }
+
             if (showScoreBoard)
             {
-
                 showLoseScreen = false;
                 GUI.Box(scoreBoardScreenRect, "Scoreboard");
-                GUI.Label(playerListRect, ShowScores()[0], levelSkin.GetStyle("Scores"));
-                GUI.Label(scoreListRect, ShowScores()[1], levelSkin.GetStyle("Scores"));
+                GUI.Label(playerListRect, ShowScores(20)[0], levelSkin.GetStyle("Scores"));
+                GUI.Label(scoreListRect, ShowScores(20)[1], levelSkin.GetStyle("Scores"));
 
                 if (GUI.Button(backButton, "Back"))
                 {

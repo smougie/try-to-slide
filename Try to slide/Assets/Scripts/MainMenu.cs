@@ -95,11 +95,6 @@ public class MainMenu : MonoBehaviour
         #endregion
     }
 
-    private void Update()
-    {
-        print(emptyPlayerName);
-    }
-
 
     private void OnGUI()
     {

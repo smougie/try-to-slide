@@ -126,10 +126,12 @@ public class GameManager : MonoBehaviour
         backButton = quitButtonWinScreen;
 
         // if level stored in unlocked level (current player progress) is higher than level 1 than set current level as unlocked level
+        // added to set player name even if he press continue button
         if (PlayerPrefs.GetInt("Unlocked Level") > 1)
         {
-            currentLevel = PlayerPrefs.GetInt("Unlocked Level");
+            //currentLevel = PlayerPrefs.GetInt("Unlocked Level");
         }
+
     }
 
 
@@ -168,9 +170,10 @@ public class GameManager : MonoBehaviour
         currentScore = 0;
         life = 3;
         maxLife = 3;
+        playerName = typedName;
         SceneManager.LoadScene(currentLevel);
         PlayerPrefs.SetInt("Unlocked Level", 0);
-        playerName = typedName;
+        PlayerPrefs.SetString("Player Name", playerName);
     }
     
 
@@ -196,8 +199,8 @@ public class GameManager : MonoBehaviour
         showWinScreen = true;
         remainingTime = currentTime;
         CalculateLevelScore();
-        AddLevelScore(currentLevel);
         currentLevelLabel = currentLevel;
+        AddLevelScore(currentLevelLabel);
         currentLevel++;
         SaveLevel();
     }
@@ -250,7 +253,7 @@ public class GameManager : MonoBehaviour
     /*
      * Method resposible for concatenate current player and his score to scoreboard save in PlayerPrefs
      * first method is checking is there any record in player pref, if there is none method is starting new record
-     * if there is some record in Scoreboard key, than method concatenate to this record player and his score
+     * if there is some record in Scoreboard key, than method concatenate player and his score to this record
      */
     public static void AddScore()
     {
@@ -267,6 +270,11 @@ public class GameManager : MonoBehaviour
     }
 
 
+    /*
+     * Method resposible for concatenate current player and his score to level scoreboard save in PlayerPrefs
+     * first method is checking is there any record in player prefs, if there is none method is starting new record
+     * if there is any record in Scoreboard Level {levelNumber} key, than method concatenate player and his score to this record 
+     */
     public static void AddLevelScore(int levelNumber)
     {
         if (PlayerPrefs.HasKey($"Scoreboard Level {levelNumber}"))
@@ -288,10 +296,18 @@ public class GameManager : MonoBehaviour
      * method will change from global scoreboard to specified world scoreboard
      * Method load record with scoreboard from PlayerPrefs
      * First creating two empty string for player names and second one for player scores
-     * Next empy array for 2 string where mehtod store player names and scores and than return this array as a resault
+     * Next creating empy array for 2 string where mehtod store player names and scores and than return this array as a resault
      * listScores is a list of separated names and score - using list of separators to split this list
      * dictScores is a dict with key - player names and value - player score
-     * sortedDict is a dict with 20 highest scores
+     * sortedDict is a dict with number of {places} highest scores
+     * First method checks is there optional parameter typed in call,
+     * if there is optional parameter, method creates list of strings  with level scoreboard - {"player", "score", "player", "score"}
+     * if there is none, method creates list of strings with global scoreboard - {"player", "score", "player", "score"}
+     * Next method fills dictScores with key - "player" and value - score (parsing score from string to int) records
+     * if there is already player with the same name, method will save achieved score
+     * Next method is creating player and score string templates with place-player name-player score records
+     * Last step is putting templates to playersAndScores array - index 0 are player names, index 1 are player scores
+     * and returning array
      * ShowScores(20)[0] - shows names of best 20 players in total scoreboard (change 20 number to get other number of players)
      * ShowScore(20)[1] - show scores of best 20 players in total scoreboard (change 20 number to get other number of players)
      * ShowScore(10, 1)[0] - show score of 10 best player in level 1 scoreboards
@@ -358,6 +374,7 @@ public class GameManager : MonoBehaviour
         showWinScreen = false;
         showLoseScreen = false;
         freezeFlag = false;
+        PlayerPrefs.DeleteKey("Player Name");
         PlayerPrefs.SetInt("Unlocked Level", 0);
     }
 
@@ -426,6 +443,10 @@ public class GameManager : MonoBehaviour
          * if player press the Scoreboard button, hiding showLoseScreen by dropping flag and raising Scoreboard flag
          * creating two vertical labels, one with player names, second with player scores
          * if player press back button, showScoreboard flag is dropping and showLoseScreen flag is raising
+         * Show Level Scoreboard:
+         * if player press the Level Scoreboard button, hiding showWinScreen by dropping flag and raising showLevelScoreBoard flag
+         * creating two vertical labels, one with player names, second with players scores
+         * if player press back button, showLevelScoreBoard flag is dopping and showWinScreen flag is raising
          */
         if (showWinScreen || showLoseScreen || showScoreBoard || showLevelScoreBoard)
         {

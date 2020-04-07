@@ -46,6 +46,7 @@ public class LevelSelect : MonoBehaviour
     public void LoadWorld()
     {
         SceneManager.LoadScene(levelToLoad);
+        GameManager.currentLevel = levelToLoad;
     }
 
     // GUI section responsible for showing world details only when flag is raised

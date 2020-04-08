@@ -31,14 +31,14 @@ public class Player : MonoBehaviour
 
     private void Update()
     {
-        if (!GameManager.gameFinished)
-        {
-            // when player falls down to 0 lifes, game ends
-            if (GameManager.life <= 0)
-            {
-                GameManager.LoseLevel();
-            }
-        }
+        //if (!GameManager.gameFinished)
+        //{
+        //    // when player falls down to 0 lifes, game ends
+        //    if (GameManager.life <= 0)
+        //    {
+        //        GameManager.LoseLevel();
+        //    }
+        //}
 
         // timer for invictible buff, while true player color is black
         if (invictibleTime > 0)

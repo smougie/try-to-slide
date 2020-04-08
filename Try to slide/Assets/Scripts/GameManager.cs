@@ -145,7 +145,7 @@ public class GameManager : MonoBehaviour
     {
         if (!gameFinished)
         {
-            if (currentTime > 0)
+            if (currentTime > 0 && life > 0)
             {
                 currentTime -= Time.deltaTime;
             }
@@ -364,6 +364,7 @@ public class GameManager : MonoBehaviour
                 playerPlace++;
             }
         }
+
         else
         {
             foreach (KeyValuePair<string, int> player in dictScores.OrderByDescending(key => key.Value))

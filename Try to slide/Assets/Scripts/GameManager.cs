@@ -83,10 +83,15 @@ public class GameManager : MonoBehaviour
     private static bool showScoreBoard;  // scoreboard flag showing after pressing Scoreboard button after lose
     private static bool showLevelScoreBoard;  // level scoreboard flag showing after pressing Level Scoreboard button after finishing level
     private static bool freezeFlag;  // freeze flag which raising will result with freezing game (Time.timeScale = 0f;)
+    private static bool gameFinished;
 
 
     private void Start()
     {
+        print("1  " + PlayerPrefs.GetString("Scoreboard Level 1"));
+        print("2  " +PlayerPrefs.GetString("Scoreboard Level 2"));
+        print("3  " +PlayerPrefs.GetString("Scoreboard Level 3"));
+        print("Global  "  + PlayerPrefs.GetString("Scoreboard"));
         totalCoinCount = coinParent.transform.childCount;  // setting total coin count
         currentTime = startTime;  // seting start time as current time
         currentCoinCount = 0f;  // reseting coin count value when starting level
@@ -99,6 +104,7 @@ public class GameManager : MonoBehaviour
         showLoseScreen = false;  // dropping lose screen flag
         showScoreBoard = false;  // dropping scoreboard flag
         freezeFlag = false;  // dropping freeze flag
+        gameFinished = false;
 
         // Initializing all rectangles for labels and boxes
         lifeRect = new Rect(10, 10, 10, 10);  
@@ -137,19 +143,18 @@ public class GameManager : MonoBehaviour
 
     private void Update()
     {
-        // simple counter for level
-        if (startTime > 0)
+        if (!gameFinished)
         {
-            currentTime -= Time.deltaTime;
+            if (startTime > 0)
+            {
+                currentTime -= Time.deltaTime;
+            }
+            else
+            {
+                LoseLevel();
+            }
         }
-
-        // if time ends player lose
-        if (currentTime <= 0)
-        {
-            LoseLevel();
-        }
-
-
+        
         // tracking freezeFlag status nad controlin conditions
         FreezeGame(freezeFlag);
 
@@ -158,6 +163,9 @@ public class GameManager : MonoBehaviour
         if (Input.GetButtonDown("reset"))
         {
             PlayerPrefs.SetString("Scoreboard", "");
+            PlayerPrefs.SetString("Scoreboard Level 1", "");
+            PlayerPrefs.SetString("Scoreboard Level 2", "");
+            PlayerPrefs.SetString("Scoreboard Level 3", "");
         }
     }
 
@@ -187,8 +195,8 @@ public class GameManager : MonoBehaviour
     // Method responsible for raising Lose Screen flag, setting current time to 0 and current score with player name to PlayerPrefs "Scoreboard" 
     public static void LoseLevel()
     {
+        gameFinished = true;
         showLoseScreen = true;
-        currentTime = 0;
         AddScore();
     }
 
@@ -346,18 +354,32 @@ public class GameManager : MonoBehaviour
         }
 
         int playerPlace = 1;
-        foreach (KeyValuePair<string, int> player in dictScores.OrderByDescending(key => key.Value))
+        if (dictScores.Count() < showPlayerPlaces)
         {
-            showTemplatePlayers += $"{playerPlace}.) {player.Key}".PadRight(60, '.') + "\n";
-            showTemplateScores += $"{player.Value}\n";
-            sortedDict.Add(player.Key, player.Value);
-            playerPlace++;
-            showPlayerPlaces--;
-            if (showPlayerPlaces == 0)
+            foreach (KeyValuePair<string, int> player in dictScores.OrderByDescending(key => key.Value))
             {
-                break;
+                showTemplatePlayers += $"{playerPlace}.) {player.Key}".PadRight(60, '.') + "\n";
+                showTemplateScores += $"{player.Value}\n";
+                sortedDict.Add(player.Key, player.Value);
+                playerPlace++;
             }
         }
+        else
+        {
+            foreach (KeyValuePair<string, int> player in dictScores.OrderByDescending(key => key.Value))
+            {
+                showTemplatePlayers += $"{playerPlace}.) {player.Key}".PadRight(60, '.') + "\n";
+                showTemplateScores += $"{player.Value}\n";
+                sortedDict.Add(player.Key, player.Value);
+                playerPlace++;
+                showPlayerPlaces--;
+                if (showPlayerPlaces == 0)
+                {
+                    break;
+                }
+            }
+        }
+
 
         playersAndScores[0] = showTemplatePlayers;
         playersAndScores[1] = showTemplateScores;
@@ -371,6 +393,7 @@ public class GameManager : MonoBehaviour
     {
         Destroy(gameObject);
         SceneManager.LoadScene("Main Menu");
+        gameFinished = false;
         showWinScreen = false;
         showLoseScreen = false;
         freezeFlag = false;

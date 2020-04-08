@@ -87,8 +87,8 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        currentTime = startTime;  // seting start time as current time
         totalCoinCount = coinParent.transform.childCount;  // setting total coin count
+        currentTime = startTime;  // seting start time as current time
         currentCoinCount = 0f;  // reseting coin count value when starting level
         coinCompletion = 0f;  // reseting coin completition value when starting level
         levelScore = 0f;  // reseting level score value when starting level
@@ -122,7 +122,7 @@ public class GameManager : MonoBehaviour
         continueButtonWinScreen = new Rect(winScreenRect.x + winScreenBoxWidth - 100, winScreenRect.y + winScreenBoxHeight - 55, 80, 35);
         quitButtonWinScreen = new Rect(winScreenRect.x + 20, winScreenRect.y + winScreenBoxHeight - 55, 80, 35);
         scoreBoardButton = continueButtonWinScreen;
-        levelScoreBoardButton = new Rect(winScreenRect.x + winScreenBoxWidth - 280, winScreenRect.y + winScreenBoxHeight - 55, 160, 35);
+        levelScoreBoardButton = new Rect(winScreenRect.x + winScreenBoxWidth - 240, winScreenRect.y + winScreenBoxHeight - 55, 120, 35);
         backButton = quitButtonWinScreen;
 
         // if level stored in unlocked level (current player progress) is higher than level 1 than set current level as unlocked level
@@ -137,7 +137,7 @@ public class GameManager : MonoBehaviour
 
     private void Update()
     {
-        // simble counter for level
+        // simple counter for level
         if (startTime > 0)
         {
             currentTime -= Time.deltaTime;
@@ -463,7 +463,7 @@ public class GameManager : MonoBehaviour
                     showWinScreen = false;
                     freezeFlag = false;
                 }
-                if (GUI.Button(levelScoreBoardButton, $"Level {currentLevelLabel} Scoreboard"))
+                if (GUI.Button(levelScoreBoardButton, $"Level Scoreboard"))
                 {
                     showLevelScoreBoard = true;
                 }
@@ -511,7 +511,6 @@ public class GameManager : MonoBehaviour
                 GUI.Box(scoreBoardScreenRect, "Scoreboard");
                 GUI.Label(playerListRect, ShowScores(20)[0], levelSkin.GetStyle("Scores"));
                 GUI.Label(scoreListRect, ShowScores(20)[1], levelSkin.GetStyle("Scores"));
-
                 if (GUI.Button(backButton, "Back"))
                 {
                     showScoreBoard = false;
@@ -523,7 +522,8 @@ public class GameManager : MonoBehaviour
         
 
         // DELETE AFTER TEST!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        GUI.Label(new Rect(Screen.width - 160, Screen.height - 70, 150, 150), $@"Name: {playerName}
+        GUI.Label(new Rect(Screen.width - 160, Screen.height - 90, 150, 150), $@"Name: {playerName}
+PlayerPrefsName: {PlayerPrefs.GetString("Player Name")}
 Current Level: {currentLevel}
 Playerpref Unlocked Level: {PlayerPrefs.GetInt("Unlocked Level")}
 LvLScore: {levelScore}

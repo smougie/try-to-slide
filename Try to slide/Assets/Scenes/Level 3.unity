@@ -146,6 +146,7 @@ MonoBehaviour:
   startTime: 10
   timeImportance: 100
   levelSkin: {fileID: 11400000, guid: 2dad13ba5537a674d843b659d1a57ba2, type: 2}
+  coinsActive: 1
 --- !u!4 &102692877
 Transform:
   m_ObjectHideFlags: 0
@@ -542,6 +543,8 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 7f63e5e3463b50f4c92840e77d08e9f3, type: 3}
   - {fileID: 8300000, guid: 85e89c0dfde3c00419976ef229297123, type: 3}
   - {fileID: 8300000, guid: 32882f43da555b4418185bc020bdaadd, type: 3}
+  normalStance: {fileID: 0}
+  invictibleStance: {fileID: 0}
   moveSpeed: 30
 --- !u!82 &511178642
 AudioSource:

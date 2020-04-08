@@ -146,6 +146,7 @@ MonoBehaviour:
   startTime: 10
   timeImportance: 100
   levelSkin: {fileID: 11400000, guid: 2dad13ba5537a674d843b659d1a57ba2, type: 2}
+  coinsActive: 1
 --- !u!4 &102692877
 Transform:
   m_ObjectHideFlags: 0

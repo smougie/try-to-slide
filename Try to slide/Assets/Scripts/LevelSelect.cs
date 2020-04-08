@@ -6,19 +6,34 @@ public class LevelSelect : MonoBehaviour
 {
     [SerializeField] private int levelToLoad = 0;  // variable storing value of level to load, accesible from inspektor/World Node
     [SerializeField] private GameObject padlock = null;
+    [SerializeField] private GUISkin skinLevelSelect = null;
     private string levelDetails;
     private bool inRange;  // flag, we will raise flag when player is colliding with World Node and lower flag when player exit trigger
     private Rect levelDetailsRect;  // rect for world details label
+
+    private float screenWidth;
+    private float screenHeight;
+    private Rect levelScoreBoardRect;
+    private Rect levelPlayerListRect;
+    private Rect levelScoreListRect;
     
     void Start()
     {
         inRange = false;
+
+        screenWidth = Screen.width;
+        screenHeight = Screen.height;
+
         levelDetailsRect = new Rect(Screen.width * .01f, Screen.height * .95f, 400, 150);
         levelDetails = $"Press [SPACE] or [E]  to load level {levelToLoad}.";
+
+        levelScoreBoardRect = new Rect(screenWidth - screenWidth * .95f, screenHeight - screenHeight * .95f, screenWidth * .3f, screenHeight * .6f);
+        levelPlayerListRect = new Rect(levelScoreBoardRect.x + levelScoreBoardRect.x * 1f, levelScoreBoardRect.y + levelScoreBoardRect.y * 1f, 100, 400);
+        levelScoreListRect = new Rect(levelScoreBoardRect.x + levelScoreBoardRect.x * 4.5f, levelScoreBoardRect.y + levelScoreBoardRect.y * 1f, 100, 400);
+
         if (levelToLoad > PlayerPrefs.GetInt("Unlocked Level"))
         {
             Instantiate(padlock,new Vector3(transform.position.x, transform.position.y - 0.15f, transform.position.z - 1), Quaternion.identity);
-
         }
     }
 
@@ -49,12 +64,25 @@ public class LevelSelect : MonoBehaviour
         GameManager.currentLevel = levelToLoad;
     }
 
+    private string Players()
+    {
+        string playerNames;
+        playerNames = GameManager.ShowScores(10, levelToLoad)[0];
+        return playerNames;
+    }
+
     // GUI section responsible for showing world details only when flag is raised
     private void OnGUI()
     {
+        GUI.skin = skinLevelSelect;
         if (inRange)
         {
             GUI.Label(levelDetailsRect, levelDetails);
+            GUI.Box(levelScoreBoardRect, $"Level {levelToLoad} Scoreboard");
+            GUI.Label(levelPlayerListRect, "Players", skinLevelSelect.GetStyle("Scores"));
+            //GUI.Label(levelPlayerListRect, GameManager.ShowScores(10, levelToLoad)[0], skinLevelSelect.GetStyle("Scores"));
+            GUI.Label(levelScoreListRect, "Scores", skinLevelSelect.GetStyle("Scores"));
+            //GUI.Label(levelScoreListRect, GameManager.ShowScores(10, levelToLoad)[1], skinLevelSelect.GetStyle("Scores"));
         }
     }
 }

@@ -259,6 +259,12 @@ PrefabInstance:
       propertyPath: levelToLoad
       value: 3
       objectReference: {fileID: 0}
+    - target: {fileID: 3345874261974491071, guid: 08deddaf405672f41abb168c81823399,
+        type: 3}
+      propertyPath: skinLevelSelect
+      value: 
+      objectReference: {fileID: 11400000, guid: 2dad13ba5537a674d843b659d1a57ba2,
+        type: 2}
     - target: {fileID: 3345874261974491074, guid: 08deddaf405672f41abb168c81823399,
         type: 3}
       propertyPath: m_Name
@@ -521,6 +527,12 @@ PrefabInstance:
       propertyPath: levelToLoad
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 3345874261974491071, guid: 08deddaf405672f41abb168c81823399,
+        type: 3}
+      propertyPath: skinLevelSelect
+      value: 
+      objectReference: {fileID: 11400000, guid: 2dad13ba5537a674d843b659d1a57ba2,
+        type: 2}
     - target: {fileID: 3345874261974491074, guid: 08deddaf405672f41abb168c81823399,
         type: 3}
       propertyPath: m_Name
@@ -662,6 +674,8 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 7f63e5e3463b50f4c92840e77d08e9f3, type: 3}
   - {fileID: 8300000, guid: 85e89c0dfde3c00419976ef229297123, type: 3}
   - {fileID: 8300000, guid: 32882f43da555b4418185bc020bdaadd, type: 3}
+  normalStance: {fileID: 0}
+  invictibleStance: {fileID: 0}
   moveSpeed: 19
 --- !u!82 &511178642
 AudioSource:
@@ -1295,6 +1309,12 @@ PrefabInstance:
       propertyPath: levelToLoad
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 3345874261974491071, guid: 08deddaf405672f41abb168c81823399,
+        type: 3}
+      propertyPath: skinLevelSelect
+      value: 
+      objectReference: {fileID: 11400000, guid: 2dad13ba5537a674d843b659d1a57ba2,
+        type: 2}
     - target: {fileID: 3345874261974491074, guid: 08deddaf405672f41abb168c81823399,
         type: 3}
       propertyPath: m_Name

@@ -83,7 +83,7 @@ public class GameManager : MonoBehaviour
     private static bool showScoreBoard;  // scoreboard flag showing after pressing Scoreboard button after lose
     private static bool showLevelScoreBoard;  // level scoreboard flag showing after pressing Level Scoreboard button after finishing level
     private static bool freezeFlag;  // freeze flag which raising will result with freezing game (Time.timeScale = 0f;)
-    private static bool gameFinished;
+    public static bool gameFinished;
 
 
     private void Start()
@@ -145,7 +145,7 @@ public class GameManager : MonoBehaviour
     {
         if (!gameFinished)
         {
-            if (startTime > 0)
+            if (currentTime > 0)
             {
                 currentTime -= Time.deltaTime;
             }

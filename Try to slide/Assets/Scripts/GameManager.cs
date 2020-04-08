@@ -327,8 +327,7 @@ public class GameManager : MonoBehaviour
         string showTemplateScores = $"";
         string[] playersAndScores = new string[2];
         List<string> listScores = new List<string>();
-        Dictionary<string, int> dictScores = new Dictionary<string, int>();
-        Dictionary<string, int> sortedDict = new Dictionary<string, int>();
+        Dictionary<string, float> dictScores = new Dictionary<string, float>();
         char[] separator = { ':', ';' };
         if (level == 0)
         {
@@ -343,35 +342,38 @@ public class GameManager : MonoBehaviour
         {
             if (dictScores.ContainsKey(listScores[i]))
             {
-                int valueStrToInt = int.Parse(listScores[i + 1]);
+                float valueStrToInt = float.Parse(listScores[i + 1]);
                 dictScores[listScores[i]] = valueStrToInt;
             }
             else
             {
-                int valueStrToInt = int.Parse(listScores[i + 1]);
+                float valueStrToInt = float.Parse(listScores[i + 1]);
                 dictScores.Add(listScores[i], valueStrToInt);
             }
+        }
+
+        foreach (var item in dictScores)
+        {
+            print(item);
         }
 
         int playerPlace = 1;
         if (dictScores.Count() < showPlayerPlaces)
         {
-            foreach (KeyValuePair<string, int> player in dictScores.OrderByDescending(key => key.Value))
+            foreach (KeyValuePair<string, float> player in dictScores.OrderByDescending(key => key.Value))
             {
                 showTemplatePlayers += $"{playerPlace}.) {player.Key}".PadRight(60, '.') + "\n";
                 showTemplateScores += $"{player.Value}\n";
-                sortedDict.Add(player.Key, player.Value);
                 playerPlace++;
             }
         }
 
         else
         {
-            foreach (KeyValuePair<string, int> player in dictScores.OrderByDescending(key => key.Value))
+            foreach (KeyValuePair<string, float> player in dictScores.OrderByDescending(key => key.Value))
             {
                 showTemplatePlayers += $"{playerPlace}.) {player.Key}".PadRight(60, '.') + "\n";
                 showTemplateScores += $"{player.Value}\n";
-                sortedDict.Add(player.Key, player.Value);
                 playerPlace++;
                 showPlayerPlaces--;
                 if (showPlayerPlaces == 0)

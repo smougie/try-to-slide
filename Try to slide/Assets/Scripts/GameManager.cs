@@ -88,10 +88,10 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        print("1  " + PlayerPrefs.GetString("Scoreboard Level 1"));
-        print("2  " +PlayerPrefs.GetString("Scoreboard Level 2"));
-        print("3  " +PlayerPrefs.GetString("Scoreboard Level 3"));
-        print("Global  "  + PlayerPrefs.GetString("Scoreboard"));
+        //print("1  " + PlayerPrefs.GetString("Scoreboard Level 1"));
+        //print("2  " +PlayerPrefs.GetString("Scoreboard Level 2"));
+        //print("3  " +PlayerPrefs.GetString("Scoreboard Level 3"));
+        //print("Global  "  + PlayerPrefs.GetString("Scoreboard"));
         totalCoinCount = coinParent.transform.childCount;  // setting total coin count
         currentTime = startTime;  // seting start time as current time
         currentCoinCount = 0f;  // reseting coin count value when starting level
@@ -183,7 +183,21 @@ public class GameManager : MonoBehaviour
         PlayerPrefs.SetInt("Unlocked Level", 0);
         PlayerPrefs.SetString("Player Name", playerName);
     }
-    
+
+
+    // Method responsible for ending the game by dropping all flags, destroying game manager object, loading main menu scene and reseting player progress
+    public static void GameOver(GameObject gameObject)
+    {
+        Destroy(gameObject);
+        SceneManager.LoadScene("Main Menu");
+        gameFinished = false;
+        showWinScreen = false;
+        showLoseScreen = false;
+        freezeFlag = false;
+        PlayerPrefs.DeleteKey("Player Name");
+        PlayerPrefs.SetInt("Unlocked Level", 0);
+    }
+
 
     // Method responsible for setting current level as Unlocked Level in PlayerPrefs
     public static void SaveLevel()
@@ -352,11 +366,6 @@ public class GameManager : MonoBehaviour
             }
         }
 
-        foreach (var item in dictScores)
-        {
-            print(item);
-        }
-
         int playerPlace = 1;
         if (dictScores.Count() < showPlayerPlaces)
         {
@@ -388,20 +397,6 @@ public class GameManager : MonoBehaviour
         playersAndScores[1] = showTemplateScores;
 
         return playersAndScores;
-    }
-
-
-    // Method responsible for ending the game by dropping all flags, destroying game manager object, loading main menu scene and reseting player progress
-    public static void GameOver(GameObject gameObject)
-    {
-        Destroy(gameObject);
-        SceneManager.LoadScene("Main Menu");
-        gameFinished = false;
-        showWinScreen = false;
-        showLoseScreen = false;
-        freezeFlag = false;
-        PlayerPrefs.DeleteKey("Player Name");
-        PlayerPrefs.SetInt("Unlocked Level", 0);
     }
 
 

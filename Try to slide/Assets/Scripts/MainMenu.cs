@@ -20,6 +20,8 @@ public class MainMenu : MonoBehaviour
     private Rect playerNameWarningRect;
     private Rect confirmButton;
     private Rect backButton;
+    private Rect playerExistBoxRect;
+    private Rect playerExistWarningRect;
 
 
     // Size section for buttons, boxes and labels
@@ -35,12 +37,14 @@ public class MainMenu : MonoBehaviour
     private string typedName;
     private string playerNamePrompt;
     private string playerNameWarning;
+    private string playerExistsWarning;
 
     // Flag section
     private bool mainMenuWindow;
     private bool newGameConfirm;
     private bool playerNameConfirm;
     private bool emptyPlayerName;
+    private bool playerExists;
     #endregion
 
     private void Start()
@@ -68,6 +72,8 @@ public class MainMenu : MonoBehaviour
             playerNameBoxRect.x * .4f, playerNameBoxRect.y * .4f);
         playerNameWarningRect = new Rect(playerNameBoxRect.x + playerNameBoxRect.x * .40f, playerNameBoxRect.y + playerNameBoxRect.y * .9f,
             playerNameBoxRect.x * .7f, playerNameBoxRect.y * .1f);
+        playerExistBoxRect = newGameConfirmBoxRect;
+        playerExistWarningRect = playerNameWarningRect;
 
 
         // Rectangles for buttons
@@ -86,12 +92,15 @@ public class MainMenu : MonoBehaviour
         newGameConfirm = false;
         playerNameConfirm = false;
         emptyPlayerName = false;
+        playerExists = false;
 
         // Strings for boxes
         warningMessage = "You're trying to start new game, your current game progress will be reset. Are you sure?";  // Warning message for box
         typedName = "";
         playerNamePrompt = "Enter player name (maximum 10 characters).";
         playerNameWarning = "You must enter player name!";
+        playerExistsWarning = "Name you type is already in record base, would you like to start game with this name and overwrite scores?";
+        
         #endregion
     }
 
@@ -173,7 +182,12 @@ public class MainMenu : MonoBehaviour
             }
             if (GUI.Button(confirmButton, "Confirm"))
             {
-                if (string.IsNullOrEmpty(typedName))
+                if (GameManager.PlayerNameCheck(typedName))
+                {
+                    playerExists = true;
+                    playerNameConfirm = false;
+                }
+                else if (string.IsNullOrEmpty(typedName))
                 {
                     emptyPlayerName = true;
                 }
@@ -188,6 +202,14 @@ public class MainMenu : MonoBehaviour
                 playerNameConfirm = false;
                 mainMenuWindow = true;
             }
+        }
+        #endregion
+
+        #region Player Exist window
+        if (playerExists)
+        {
+            GUI.Box(playerExistBoxRect, "Player already exist!");
+            GUI.Label(playerExistWarningRect, playerExistsWarning);
         }
         #endregion
     }

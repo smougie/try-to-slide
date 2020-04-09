@@ -90,6 +90,8 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
+        print(playerName);
+        print(PlayerNameCheck(playerName));
         //print("1  " + PlayerPrefs.GetString("Scoreboard Level 1"));
         //print("2  " +PlayerPrefs.GetString("Scoreboard Level 2"));
         //print("3  " +PlayerPrefs.GetString("Scoreboard Level 3"));
@@ -356,12 +358,30 @@ public class GameManager : MonoBehaviour
     public static bool PlayerNameCheck(string typedName)
     {
         int numberOfLevels = SceneManager.sceneCountInBuildSettings - 2;  // -2 means: - Main Menu scene, -Level Select
+        bool exist = false;
         for (int levelNum = 1; levelNum <= numberOfLevels; levelNum++)
         {
-            PlayerPrefs.GetString($"Scoreboard Level {levelNum}");  // each level player pref level x scoreboard record - string
+            if (PlayerNamesScores($"Scoreboard Level {levelNum}").ContainsKey(typedName))
+            {
+                exist = true;
+            }
+            else
+            {
+                continue;
+            }
+            //if (PlayerNamesScores(PlayerPrefs.GetString($"Scoreboard Level {levelNum}")).ContainsKey(typedName))
+            //{
+            //    print("LOL");
+            //    exist = true;
+            //    break;
+            //}
+            //else
+            //{
+            //    continue;
+            //}
         }
 
-        return true;
+        return exist;
     }
 
     /*
@@ -370,7 +390,8 @@ public class GameManager : MonoBehaviour
     public static Dictionary<string, string> PlayerNamesScores(string listToCheck)
     {
         char[] separator = { ':', ';' };
-        List<string> listScores = PlayerPrefs.GetString(listToCheck).Split(separator).ToList();
+        List<string> listScores = new List<string>();
+        listScores = PlayerPrefs.GetString(listToCheck).Split(separator).ToList();
         Dictionary<string, string> dictPlayersScores = new Dictionary<string, string>();
 
         for (int i = 0; i < listScores.Count() - 1 * 2; i += 2)
@@ -384,6 +405,7 @@ public class GameManager : MonoBehaviour
                 dictPlayersScores.Add(listScores[i], listScores[i + 1]);
             }
         }
+
         return dictPlayersScores;
     }
 

@@ -16,6 +16,9 @@ public class LevelSelect : MonoBehaviour
     private Rect levelScoreBoardRect;
     private Rect levelPlayerListRect;
     private Rect levelScoreListRect;
+    private Rect playerLevelScoreRect;
+    private Color playerScoreColor = new Color(0, 0, 0);
+    private Color playerNoScoreColor = new Color(255, 0, 0);
     
     void Start()
     {
@@ -30,6 +33,7 @@ public class LevelSelect : MonoBehaviour
         levelScoreBoardRect = new Rect(screenWidth - screenWidth * .95f, screenHeight - screenHeight * .95f, screenWidth * .3f, screenHeight * .6f);
         levelPlayerListRect = new Rect(levelScoreBoardRect.x + levelScoreBoardRect.x * 1f, levelScoreBoardRect.y + levelScoreBoardRect.y * 1f, 100, 400);
         levelScoreListRect = new Rect(levelScoreBoardRect.x + levelScoreBoardRect.x * 4.5f, levelScoreBoardRect.y + levelScoreBoardRect.y * 1f, 100, 400);
+        playerLevelScoreRect = new Rect(levelScoreBoardRect.x + levelScoreBoardRect.width / 2, levelScoreBoardRect.height, 200, 100);
 
         if (levelToLoad > PlayerPrefs.GetInt("Unlocked Level"))
         {
@@ -64,12 +68,6 @@ public class LevelSelect : MonoBehaviour
         GameManager.currentLevel = levelToLoad;
     }
 
-    private string Players()
-    {
-        string playerNames;
-        playerNames = GameManager.ShowScores(10, levelToLoad)[0];
-        return playerNames;
-    }
 
     // GUI section responsible for showing world details only when flag is raised
     private void OnGUI()
@@ -81,6 +79,7 @@ public class LevelSelect : MonoBehaviour
             GUI.Box(levelScoreBoardRect, $"Level {levelToLoad} Scoreboard");
             GUI.Label(levelPlayerListRect, GameManager.ShowScores(10, levelToLoad)[0], skinLevelSelect.GetStyle("Scores"));
             GUI.Label(levelScoreListRect, GameManager.ShowScores(10, levelToLoad)[1], skinLevelSelect.GetStyle("Scores"));
+            GUI.Label(playerLevelScoreRect, GameManager.LevelScoreComparer(levelToLoad, GameManager.playerName), skinLevelSelect.GetStyle("Player Level Score"));
         }
     }
 }

@@ -14,7 +14,7 @@ public class GameManager : MonoBehaviour
     // Score section
     private static float levelScore;  // level score var, showing after completing level
     private static float currentScore = 0f;  // current player score, reseting everytime when new game starts
-    private static string playerName;  // var with player name
+    public static string playerName;  // var with player name
     private static string scoreBoard;  // var storing whole scoreboard string from PlayerPrefs.GetString("Scoreboard")
     private static string levelScoreboard;  // var storing level scoreboard string from PlayerPrefs.GetString("Scoreboard Level {levelNumber}")
 
@@ -330,6 +330,28 @@ public class GameManager : MonoBehaviour
     }
 
 
+    public static string LevelScoreComparer(int levelNumber, string playerName)
+    {
+        string playerScore = "";
+        string levelScoreboard = PlayerPrefs.GetString($"Scoreboard Level {levelNumber}");
+        char[] separator = { ':', ';' };
+        List<string> listPlayerScores = levelScoreboard.Split(separator).ToList();
+
+        int counter = 0;
+        foreach (var item in listPlayerScores)
+        {
+            if (item == playerName)
+            {
+                return listPlayerScores[counter + 1];
+            }
+            else
+            {
+                counter++;
+            }
+        }
+        return playerScore;
+
+    }
     /*
      * Method responsible for creating template with players and their scores
      * Method takes places parameter - this one declare number of players that we want to get
@@ -353,7 +375,7 @@ public class GameManager : MonoBehaviour
      * ShowScore(20)[1] - show scores of best 20 players in total scoreboard (change 20 number to get other number of players)
      * ShowScore(10, 1)[0] - show score of 10 best player in level 1 scoreboards
      */
-    public static string[] ShowScores(int places, int level = 0)
+    public static string[] ShowScores(int places = 0, int level = 0)
     {
         int showPlayerPlaces = places;
         string showTemplatePlayers = $"";

@@ -106,11 +106,11 @@ public class MainMenu : MonoBehaviour
         if (mainMenuWindow)
         {
             // if player made some progress, Continue button will be available and he will be able to continue from highest level achieved
-            if (PlayerPrefs.GetInt("Unlocked Level") > 0)
+            if (PlayerPrefs.GetInt("Unlocked Level") > 1)
             {
                 if (GUI.Button(continueButton, "Continue"))
                 {
-                    SceneManager.LoadScene(PlayerPrefs.GetInt("Unlocked Level"));
+                    GameManager.ContinueGame();
                 }
             }
 
@@ -119,7 +119,7 @@ public class MainMenu : MonoBehaviour
             // if player press yes button new game starts, if he press no main menu will show once again
             if (GUI.Button(newGameButton, "New Game"))
             {
-                if (PlayerPrefs.GetInt("Unlocked Level") > 0)
+                if (PlayerPrefs.GetInt("Unlocked Level") > 1)
                 {
                     newGameConfirm = true;  // rising flag to pop up warning message
                     mainMenuWindow = false;

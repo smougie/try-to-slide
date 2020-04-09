@@ -54,6 +54,7 @@ public class GameManager : MonoBehaviour
     private Rect timerRect;
     private Rect coinsRect;
     private Rect scoreRect;
+    private Rect currentScoreLevelSelectRect;
     private Rect winScreenRect;
     private Rect LoseScreenRect;
     private Rect detailstWinScreenRect;
@@ -84,6 +85,7 @@ public class GameManager : MonoBehaviour
     private static bool showLevelScoreBoard;  // level scoreboard flag showing after pressing Level Scoreboard button after finishing level
     private static bool freezeFlag;  // freeze flag which raising will result with freezing game (Time.timeScale = 0f;)
     public static bool gameFinished;
+    [SerializeField] private bool isLevelSelect = false;
 
 
     private void Start()
@@ -92,7 +94,10 @@ public class GameManager : MonoBehaviour
         //print("2  " +PlayerPrefs.GetString("Scoreboard Level 2"));
         //print("3  " +PlayerPrefs.GetString("Scoreboard Level 3"));
         //print("Global  "  + PlayerPrefs.GetString("Scoreboard"));
-        totalCoinCount = coinParent.transform.childCount;  // setting total coin count
+        if (!isLevelSelect)
+        {
+            totalCoinCount = coinParent.transform.childCount;  // setting total coin count
+        }
         currentTime = startTime;  // seting start time as current time
         currentCoinCount = 0f;  // reseting coin count value when starting level
         coinCompletion = 0f;  // reseting coin completition value when starting level
@@ -111,6 +116,7 @@ public class GameManager : MonoBehaviour
         timerRect = new Rect(Screen.width / 2 - 40, 10, 10, 10);
         coinsRect = new Rect(10, 30, 10, 10);
         scoreRect = new Rect(10, 50, 10, 10);
+        currentScoreLevelSelectRect = timerRect;
         winScreenRect = new Rect(winScreenRectPositionX, winScreenRectPositionY, winScreenBoxWidth, winScreenBoxHeight);
         LoseScreenRect = winScreenRect;
         detailstWinScreenRect = new Rect(winScreenRect.x + 20, winScreenRect.y + 40, 400, 200);
@@ -143,15 +149,18 @@ public class GameManager : MonoBehaviour
 
     private void Update()
     {
-        if (!gameFinished)
+        if (!isLevelSelect)
         {
-            if (currentTime > 0 && life > 0)
+            if (!gameFinished )
             {
-                currentTime -= Time.deltaTime;
-            }
-            else
-            {
-                LoseLevel();
+                if (currentTime > 0 && life > 0)
+                {
+                    currentTime -= Time.deltaTime;
+                }
+                else
+                {
+                    LoseLevel();
+                }
             }
         }
         
@@ -174,14 +183,22 @@ public class GameManager : MonoBehaviour
     // score and life values
     public static void NewGame(string typedName)
     {
-        currentLevel = 1;
+        currentLevel = 0;
         currentScore = 0;
         life = 3;
         maxLife = 3;
         playerName = typedName;
-        SceneManager.LoadScene(currentLevel);
-        PlayerPrefs.SetInt("Unlocked Level", 0);
+        SceneManager.LoadScene("Level Select");  // before test was currentLevel
+        PlayerPrefs.SetInt("Unlocked Level", 1);  // before test was 0
         PlayerPrefs.SetString("Player Name", playerName);
+    }
+
+
+    public static void ContinueGame()
+    {
+        currentLevel = 0;
+        SceneManager.LoadScene("Level Select");
+        currentScore = float.Parse(PlayerPrefs.GetString("Current Score"));
     }
 
 
@@ -203,6 +220,7 @@ public class GameManager : MonoBehaviour
     public static void SaveLevel()
     {
         PlayerPrefs.SetInt("Unlocked Level", currentLevel);
+        PlayerPrefs.SetString("Current Score", $"{currentScore}");
     }
 
 
@@ -423,19 +441,26 @@ public class GameManager : MonoBehaviour
         // In game/Level labels
         // show timer, coins
         // if level is higher than 1 than show score 
-        GUI.Label(lifeRect, $"Life: {life}/{maxLife}", levelSkin.GetStyle("Life"));
-        GUI.Label(timerRect, $"Time: {currentTime.ToString("0.0")}/{startTime}", levelSkin.GetStyle("Timer"));
-        GUI.Label(coinsRect, $"Coins: {currentCoinCount}/{totalCoinCount}", levelSkin.GetStyle("Coins"));
         string winScreenLevelInfo = $"Level completion time: {levelCompleteTime.ToString("0.0")}" +
             $"\nCoins collected {currentCoinCount}/{totalCoinCount}" +
             $"\nLevel score: {levelScore}\nTotal score: {currentScore}";
         string loseScreenLevelInfo = $"Coins collected {currentCoinCount}/{totalCoinCount}" +
             $"\nLevel score: {levelScore}\nTotal score: {currentScore}";
 
-
-        if (currentScore > 0)
+        GUI.Label(lifeRect, $"Life: {life}/{maxLife}", levelSkin.GetStyle("Life"));
+        if (isLevelSelect)
         {
-            GUI.Label(scoreRect, $"Score: {currentScore}", levelSkin.GetStyle("Score"));
+            GUI.Label(currentScoreLevelSelectRect, $"Score: {currentScore}", levelSkin.GetStyle("Level Select Score"));
+        }
+
+        if (!isLevelSelect)
+        {
+            GUI.Label(timerRect, $"Time: {currentTime.ToString("0.0")}/{startTime}", levelSkin.GetStyle("Timer"));
+            GUI.Label(coinsRect, $"Coins: {currentCoinCount}/{totalCoinCount}", levelSkin.GetStyle("Coins"));
+            if (currentScore > 0)
+            {
+                GUI.Label(scoreRect, $"Score: {currentScore}", levelSkin.GetStyle("Score"));
+            }
         }
 
         if (currentTime <= 5)

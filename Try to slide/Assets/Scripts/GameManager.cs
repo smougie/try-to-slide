@@ -19,7 +19,7 @@ public class GameManager : MonoBehaviour
     private static string levelScoreboard;  // var storing level scoreboard string from PlayerPrefs.GetString("Scoreboard Level {levelNumber}")
 
     // Level section
-    public static int currentLevel = 1;  // var storing current level, using it while saving progress, while loading next levels
+    public static int currentLevel;  // var storing current level, using it while saving progress, while loading next levels
     public static int currentLevelLabel;  // var storing current level label, even if some mehtods will change currentLevel this var stays the same for level
 
     // Coin section
@@ -212,6 +212,7 @@ public class GameManager : MonoBehaviour
         showLoseScreen = false;
         freezeFlag = false;
         PlayerPrefs.DeleteKey("Player Name");
+        PlayerPrefs.DeleteKey("Current Score");
         PlayerPrefs.SetInt("Unlocked Level", 0);
     }
 

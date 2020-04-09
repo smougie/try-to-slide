@@ -332,7 +332,7 @@ public class GameManager : MonoBehaviour
 
     public static string LevelScoreComparer(int levelNumber, string playerName)
     {
-        string playerScore = "";
+        string playerScore = "You have not finished this level";
         string levelScoreboard = PlayerPrefs.GetString($"Scoreboard Level {levelNumber}");
         char[] separator = { ':', ';' };
         List<string> listPlayerScores = levelScoreboard.Split(separator).ToList();
@@ -342,7 +342,7 @@ public class GameManager : MonoBehaviour
         {
             if (item == playerName)
             {
-                return listPlayerScores[counter + 1];
+                return $"Your score on this level: {listPlayerScores[counter + 1]}";
             }
             else
             {
@@ -350,8 +350,44 @@ public class GameManager : MonoBehaviour
             }
         }
         return playerScore;
-
     }
+
+
+    public static bool PlayerNameCheck(string typedName)
+    {
+        int numberOfLevels = SceneManager.sceneCountInBuildSettings - 2;  // -2 means: - Main Menu scene, -Level Select
+        for (int levelNum = 1; levelNum <= numberOfLevels; levelNum++)
+        {
+            PlayerPrefs.GetString($"Scoreboard Level {levelNum}");  // each level player pref level x scoreboard record - string
+        }
+
+        return true;
+    }
+
+    /*
+     * Method creating and returning dict with key - player name, value - player score, both are string
+     */
+    public static Dictionary<string, string> PlayerNamesScores(string listToCheck)
+    {
+        char[] separator = { ':', ';' };
+        List<string> listScores = PlayerPrefs.GetString(listToCheck).Split(separator).ToList();
+        Dictionary<string, string> dictPlayersScores = new Dictionary<string, string>();
+
+        for (int i = 0; i < listScores.Count() - 1 * 2; i += 2)
+        {
+            if (dictPlayersScores.ContainsKey(listScores[i]))  // check THIS
+            {
+                dictPlayersScores[listScores[i]] = listScores[i + 1];
+            }
+            else
+            {
+                dictPlayersScores.Add(listScores[i], listScores[i + 1]);
+            }
+        }
+        return dictPlayersScores;
+    }
+
+
     /*
      * Method responsible for creating template with players and their scores
      * Method takes places parameter - this one declare number of players that we want to get

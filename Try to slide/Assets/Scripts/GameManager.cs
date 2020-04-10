@@ -91,7 +91,6 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        RemovePlayerScore(playerName);
         if (!isLevelSelect)
         {
             totalCoinCount = coinParent.transform.childCount;  // setting total coin count
@@ -332,7 +331,6 @@ public class GameManager : MonoBehaviour
     {
         Dictionary<string, string> scoreboardDict = PlayerNamesScores("Scoreboard");
         List<string> scoreboardKeysToRemove = new List<string>();
-        string recordToModify = PlayerPrefs.GetString("Scoreboard");
         string modifiedRecord = "";
         foreach (KeyValuePair<string, string> entry in scoreboardDict)
         {
@@ -349,30 +347,57 @@ public class GameManager : MonoBehaviour
             scoreboardDict.Remove(key);
             print($"deleteing {key}");
         }
-
-        foreach (KeyValuePair<string, string> playerScore in scoreboardDict)
+        // jeżeli lista zawiera jakieś elementy to wykonujemy modyfikację recordu
+        if (scoreboardKeysToRemove.Any())
         {
-            modifiedRecord += $"{playerScore.Key}:{playerScore.Value};";
-            print("adding record");
+            foreach (KeyValuePair<string, string> playerScore in scoreboardDict)
+            {
+                modifiedRecord += $"{playerScore.Key}:{playerScore.Value};";
+                print("adding record");
+            }
+            print(modifiedRecord);
+            PlayerPrefs.SetString("Scoreboard", modifiedRecord);
         }
-        PlayerPrefs.SetString("Scoreboard", modifiedRecord);
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        for (int levelNum = 1; levelNum < numberOfLevels; levelNum++)
+        List<int> levelsToNuke = new List<int>();
+        for (int levelNum = 1; levelNum <= numberOfLevels; levelNum++)
         {
+            print(levelNum);
             foreach (KeyValuePair<string, string> entry in PlayerNamesScores($"Scoreboard Level {levelNum}"))
             {
                 if (entry.Key == playerToRemove)
                 {
-                    continue;  // work here
+                    print($"found score in Score Board Level {levelNum} adding level number to nuke after loop");
+                    levelsToNuke.Add(levelNum);
                 }
             }
+        }
+        foreach (var entry in levelsToNuke)
+        {
+            print($"Level to nuke player record: " + entry);
+        }
+
+        // w tym momencie mam levele z których trzeba usunąć record gracza levelsToNuke = {1,2,3}
+
+        foreach (var levelNumber in levelsToNuke)
+        {
+            Dictionary<string, string> levelScoreBoard = PlayerNamesScores($"Scoreboard Level {levelNumber}");
+            string modifiedLevelRecord = "";
+
+            levelScoreBoard.Remove(playerToRemove);
+            foreach (KeyValuePair<string, string> entry in levelScoreBoard)
+            {
+                modifiedLevelRecord += $"{entry.Key}:{entry.Value};";
+            }
+            PlayerPrefs.SetString($"Scoreboard Level {levelNumber}", modifiedLevelRecord);
         }
     }
 
 
     public static string LevelScoreComparer(int levelNumber, string playerName)
     {
-        string playerScore = "You have not finished this level";
+        string playerScore = "You have not finished this level.";
         string levelScoreboard = PlayerPrefs.GetString($"Scoreboard Level {levelNumber}");
         char[] separator = { ':', ';' };
         List<string> listPlayerScores = levelScoreboard.Split(separator).ToList();

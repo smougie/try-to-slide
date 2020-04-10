@@ -213,6 +213,7 @@ public class MainMenu : MonoBehaviour
             if (GUI.Button(yesButton, "Yes"))
             {
                 playerExists = false;
+                GameManager.RemovePlayerScore(typedName);
                 GameManager.NewGame(typedName);
             }
             if (GUI.Button(noButton, "No"))

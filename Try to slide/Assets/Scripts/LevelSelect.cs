@@ -33,7 +33,7 @@ public class LevelSelect : MonoBehaviour
         levelScoreBoardRect = new Rect(screenWidth - screenWidth * .95f, screenHeight - screenHeight * .95f, screenWidth * .3f, screenHeight * .6f);
         levelPlayerListRect = new Rect(levelScoreBoardRect.x + levelScoreBoardRect.x * 1f, levelScoreBoardRect.y + levelScoreBoardRect.y * 1f, 100, 400);
         levelScoreListRect = new Rect(levelScoreBoardRect.x + levelScoreBoardRect.x * 4.5f, levelScoreBoardRect.y + levelScoreBoardRect.y * 1f, 100, 400);
-        playerLevelScoreRect = new Rect(levelScoreBoardRect.x + levelScoreBoardRect.width / 2, levelScoreBoardRect.height, 200, 100);
+        playerLevelScoreRect = new Rect(levelScoreBoardRect.x + levelScoreBoardRect.width * .28f, levelScoreBoardRect.height, 200, 100);
 
         if (levelToLoad > PlayerPrefs.GetInt("Unlocked Level"))
         {

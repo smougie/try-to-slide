@@ -99,7 +99,7 @@ public class MainMenu : MonoBehaviour
         typedName = "";
         playerNamePrompt = "Enter player name (maximum 10 characters).";
         playerNameWarning = "You must enter player name!";
-        playerExistsWarning = "Name you type is already in score base, would you like to start game and overwrite scores?";
+        playerExistsWarning = "This name is already in score base, would you like to start game and overwrite scores?";
         
         #endregion
     }

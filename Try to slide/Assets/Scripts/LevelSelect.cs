@@ -7,8 +7,10 @@ public class LevelSelect : MonoBehaviour
     [SerializeField] private int levelToLoad = 0;  // variable storing value of level to load, accesible from inspektor/World Node
     [SerializeField] private GameObject padlock = null;
     [SerializeField] private GUISkin skinLevelSelect = null;
-    private string levelDetails;
+    private string unlockedLevelDetails;
+    private string lockedLevelDetails;
     private bool inRange;  // flag, we will raise flag when player is colliding with World Node and lower flag when player exit trigger
+    private bool locked;
     private Rect levelDetailsRect;  // rect for world details label
 
     private float screenWidth;
@@ -23,12 +25,14 @@ public class LevelSelect : MonoBehaviour
     void Start()
     {
         inRange = false;
+        locked = false;
 
         screenWidth = Screen.width;
         screenHeight = Screen.height;
 
         levelDetailsRect = new Rect(Screen.width * .01f, Screen.height * .95f, 400, 150);
-        levelDetails = $"Press [SPACE] or [E]  to load level {levelToLoad}.";
+        unlockedLevelDetails = $"Press [SPACE] or [E]  to load level {levelToLoad}.";
+        lockedLevelDetails = $"Complete level {levelToLoad - 1} to unlock.";
 
         levelScoreBoardRect = new Rect(screenWidth - screenWidth * .95f, screenHeight - screenHeight * .95f, screenWidth * .3f, screenHeight * .6f);
         levelPlayerListRect = new Rect(levelScoreBoardRect.x + levelScoreBoardRect.x * 1f, levelScoreBoardRect.y + levelScoreBoardRect.y * 1f, 100, 400);
@@ -39,6 +43,10 @@ public class LevelSelect : MonoBehaviour
         {
             Instantiate(padlock,new Vector3(transform.position.x, transform.position.y - 0.15f, transform.position.z - 1), Quaternion.identity);
         }
+        if (levelToLoad > PlayerPrefs.GetInt("Unlocked Level") || levelToLoad == 0)
+        {
+            locked = true;
+        }
     }
 
     // when player enter World Node sphere collider this method will raise flag and show worldDetails
@@ -48,7 +56,7 @@ public class LevelSelect : MonoBehaviour
         if (other.transform.tag == "Player")
         {
             inRange = true;
-            if (Input.GetButtonDown("Action"))
+            if (Input.GetButtonDown("Action") && !locked)
             {
                 LoadWorld();
             }
@@ -75,8 +83,26 @@ public class LevelSelect : MonoBehaviour
         GUI.skin = skinLevelSelect;
         if (inRange)
         {
-            GUI.Label(levelDetailsRect, levelDetails);
-            GUI.Box(levelScoreBoardRect, $"Level {levelToLoad} Scoreboard");
+            if (levelToLoad == 0)
+            {
+                // if levelToLoad is equal to 0, don't use any label, leave empty place.
+            }
+            else if (locked)
+            {
+                GUI.Label(levelDetailsRect, lockedLevelDetails);
+            }
+            else
+            {
+                GUI.Label(levelDetailsRect, unlockedLevelDetails);
+            }
+            if (levelToLoad == 0)
+            {
+                GUI.Box(levelScoreBoardRect, $"Scoreboard");
+            }
+            else
+            {
+                GUI.Box(levelScoreBoardRect, $"Level {levelToLoad} Scoreboard");
+            }
             GUI.Label(levelPlayerListRect, GameManager.ShowScores(10, levelToLoad)[0], skinLevelSelect.GetStyle("Scores"));
             GUI.Label(levelScoreListRect, GameManager.ShowScores(10, levelToLoad)[1], skinLevelSelect.GetStyle("Scores"));
             GUI.Label(playerLevelScoreRect, GameManager.LevelScoreComparer(levelToLoad, GameManager.playerName), skinLevelSelect.GetStyle("Player Level Score"));

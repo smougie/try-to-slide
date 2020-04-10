@@ -448,14 +448,14 @@ public class GameManager : MonoBehaviour
 
         for (int i = 0; i < listScores.Count() - 1 * 2; i += 2)
         {
-            if (dictPlayersScores.ContainsKey(listScores[i]))  // check THIS
-            {
-                dictPlayersScores[listScores[i]] = listScores[i + 1];
-            }
-            else
-            {
+            //if (dictPlayersScores.ContainsKey(listScores[i]))  // check THIS
+            //{
+            //    dictPlayersScores[listScores[i]] = listScores[i + 1];
+            //}
+            //else
+            //{
                 dictPlayersScores.Add(listScores[i], listScores[i + 1]);
-            }
+            //}
         }
 
         return dictPlayersScores;

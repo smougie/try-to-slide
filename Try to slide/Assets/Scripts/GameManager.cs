@@ -331,15 +331,31 @@ public class GameManager : MonoBehaviour
     public static void RemovePlayerScore(string playerToRemove)
     {
         Dictionary<string, string> scoreboardDict = PlayerNamesScores("Scoreboard");
+        List<string> scoreboardKeysToRemove = new List<string>();
+        string recordToModify = PlayerPrefs.GetString("Scoreboard");
+        string modifiedRecord = "";
         foreach (KeyValuePair<string, string> entry in scoreboardDict)
         {
             if (entry.Key == playerToRemove)
             {
-                scoreboardDict.Remove(playerToRemove);
-                print("removed from scoreboard");
+                //scoreboardDict.Remove(playerToRemove);
+                scoreboardKeysToRemove.Add(entry.Key);
+                print("adding key to nuke");  //asdf player to remove
             }
         }
 
+        foreach (var key in scoreboardKeysToRemove)
+        {
+            scoreboardDict.Remove(key);
+            print($"deleteing {key}");
+        }
+
+        foreach (KeyValuePair<string, string> playerScore in scoreboardDict)
+        {
+            modifiedRecord += $"{playerScore.Key}:{playerScore.Value};";
+            print("adding record");
+        }
+        PlayerPrefs.SetString("Scoreboard", modifiedRecord);
 
         for (int levelNum = 1; levelNum < numberOfLevels; levelNum++)
         {

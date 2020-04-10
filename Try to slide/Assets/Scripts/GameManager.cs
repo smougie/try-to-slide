@@ -21,6 +21,7 @@ public class GameManager : MonoBehaviour
     // Level section
     public static int currentLevel;  // var storing current level, using it while saving progress, while loading next levels
     public static int currentLevelLabel;  // var storing current level label, even if some mehtods will change currentLevel this var stays the same for level
+    public static int numberOfLevels = SceneManager.sceneCountInBuildSettings - 2;  // var storing current number of levels ->   -2 means: - Main Menu scene, -Level Select
 
     // Coin section
     [SerializeField] private GameObject coinParent = null;  // object with coin parent, coin parent is box when storing coin object to count them
@@ -90,12 +91,7 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        print(playerName);
-        print(PlayerNameCheck(playerName));
-        //print("1  " + PlayerPrefs.GetString("Scoreboard Level 1"));
-        //print("2  " +PlayerPrefs.GetString("Scoreboard Level 2"));
-        //print("3  " +PlayerPrefs.GetString("Scoreboard Level 3"));
-        //print("Global  "  + PlayerPrefs.GetString("Scoreboard"));
+        RemovePlayerScore(playerName);
         if (!isLevelSelect)
         {
             totalCoinCount = coinParent.transform.childCount;  // setting total coin count
@@ -332,6 +328,32 @@ public class GameManager : MonoBehaviour
     }
 
 
+    public static void RemovePlayerScore(string playerToRemove)
+    {
+        Dictionary<string, string> scoreboardDict = PlayerNamesScores("Scoreboard");
+        foreach (KeyValuePair<string, string> entry in scoreboardDict)
+        {
+            if (entry.Key == playerToRemove)
+            {
+                scoreboardDict.Remove(playerToRemove);
+                print("removed from scoreboard");
+            }
+        }
+
+
+        for (int levelNum = 1; levelNum < numberOfLevels; levelNum++)
+        {
+            foreach (KeyValuePair<string, string> entry in PlayerNamesScores($"Scoreboard Level {levelNum}"))
+            {
+                if (entry.Key == playerToRemove)
+                {
+                    continue;  // work here
+                }
+            }
+        }
+    }
+
+
     public static string LevelScoreComparer(int levelNumber, string playerName)
     {
         string playerScore = "You have not finished this level";
@@ -357,7 +379,6 @@ public class GameManager : MonoBehaviour
 
     public static bool PlayerNameCheck(string typedName)
     {
-        int numberOfLevels = SceneManager.sceneCountInBuildSettings - 2;  // -2 means: - Main Menu scene, -Level Select
         bool exist = false;
         for (int levelNum = 1; levelNum <= numberOfLevels; levelNum++)
         {
@@ -369,16 +390,6 @@ public class GameManager : MonoBehaviour
             {
                 continue;
             }
-            //if (PlayerNamesScores(PlayerPrefs.GetString($"Scoreboard Level {levelNum}")).ContainsKey(typedName))
-            //{
-            //    print("LOL");
-            //    exist = true;
-            //    break;
-            //}
-            //else
-            //{
-            //    continue;
-            //}
         }
 
         return exist;
@@ -440,35 +451,38 @@ public class GameManager : MonoBehaviour
         string showTemplateScores = $"";
         string[] playersAndScores = new string[2];
         List<string> listScores = new List<string>();
-        Dictionary<string, float> dictScores = new Dictionary<string, float>();
+        Dictionary<string, string> notSortedDictScore = new Dictionary<string, string>();
+        //Dictionary<string, float> dictScores = new Dictionary<string, float>();
         char[] separator = { ':', ';' };
         if (level == 0)
         {
-            listScores = PlayerPrefs.GetString("Scoreboard").Split(separator).ToList();
+            //listScores = PlayerPrefs.GetString("Scoreboard").Split(separator).ToList();
+            notSortedDictScore = PlayerNamesScores("Scoreboard");
         }
         else
         {
-            listScores = PlayerPrefs.GetString($"Scoreboard Level {level}").Split(separator).ToList();
+            notSortedDictScore = PlayerNamesScores($"Scoreboard Level {level}");
+            //listScores = PlayerPrefs.GetString($"Scoreboard Level {level}").Split(separator).ToList();
         }
 
-        for (int i = 0; i < listScores.Count() - 1 * 2; i += 2)
-        {
-            if (dictScores.ContainsKey(listScores[i]))
-            {
-                float valueStrToInt = float.Parse(listScores[i + 1]);
-                dictScores[listScores[i]] = valueStrToInt;
-            }
-            else
-            {
-                float valueStrToInt = float.Parse(listScores[i + 1]);
-                dictScores.Add(listScores[i], valueStrToInt);
-            }
-        }
+        //for (int i = 0; i < listScores.Count() - 1 * 2; i += 2)
+        //{
+        //    if (dictScores.ContainsKey(listScores[i]))
+        //    {
+        //        float valueStrToInt = float.Parse(listScores[i + 1]);
+        //        dictScores[listScores[i]] = valueStrToInt;
+        //    }
+        //    else
+        //    {
+        //        float valueStrToInt = float.Parse(listScores[i + 1]);
+        //        dictScores.Add(listScores[i], valueStrToInt);
+        //    }
+        //}
 
         int playerPlace = 1;
-        if (dictScores.Count() < showPlayerPlaces)
+        if (notSortedDictScore.Count() < showPlayerPlaces)
         {
-            foreach (KeyValuePair<string, float> player in dictScores.OrderByDescending(key => key.Value))
+            foreach (KeyValuePair<string, string> player in notSortedDictScore.OrderByDescending(key => key.Value))
             {
                 showTemplatePlayers += $"{playerPlace}.) {player.Key}".PadRight(60, '.') + "\n";
                 showTemplateScores += $"{player.Value}\n";
@@ -478,7 +492,7 @@ public class GameManager : MonoBehaviour
 
         else
         {
-            foreach (KeyValuePair<string, float> player in dictScores.OrderByDescending(key => key.Value))
+            foreach (KeyValuePair<string, string> player in notSortedDictScore.OrderByDescending(key => key.Value))
             {
                 showTemplatePlayers += $"{playerPlace}.) {player.Key}".PadRight(60, '.') + "\n";
                 showTemplateScores += $"{player.Value}\n";

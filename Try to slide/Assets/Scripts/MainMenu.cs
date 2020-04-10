@@ -73,7 +73,7 @@ public class MainMenu : MonoBehaviour
         playerNameWarningRect = new Rect(playerNameBoxRect.x + playerNameBoxRect.x * .40f, playerNameBoxRect.y + playerNameBoxRect.y * .9f,
             playerNameBoxRect.x * .7f, playerNameBoxRect.y * .1f);
         playerExistBoxRect = newGameConfirmBoxRect;
-        playerExistWarningRect = playerNameWarningRect;
+        playerExistWarningRect = newGameWarningRect;
 
 
         // Rectangles for buttons
@@ -99,7 +99,7 @@ public class MainMenu : MonoBehaviour
         typedName = "";
         playerNamePrompt = "Enter player name (maximum 10 characters).";
         playerNameWarning = "You must enter player name!";
-        playerExistsWarning = "Name you type is already in record base, would you like to start game with this name and overwrite scores?";
+        playerExistsWarning = "Name you type is already in score base, would you like to start game and overwrite scores?";
         
         #endregion
     }
@@ -155,7 +155,7 @@ public class MainMenu : MonoBehaviour
         // if player press yes button new game starts, if he press no main menu will show once again
         if (newGameConfirm)
         {
-            GUI.Box(new Rect(newGameConfirmBoxRect), "WARNING");
+            GUI.Box(newGameConfirmBoxRect, "WARNING");
             GUI.Label(newGameWarningRect, warningMessage, mainMenuSkin.GetStyle("Warning Message"));
             if (GUI.Button(yesButton, "Yes"))
             {
@@ -208,8 +208,18 @@ public class MainMenu : MonoBehaviour
         #region Player Exist window
         if (playerExists)
         {
-            GUI.Box(playerExistBoxRect, "Player already exist!");
-            GUI.Label(playerExistWarningRect, playerExistsWarning);
+            GUI.Box(playerExistBoxRect, "WARNING!");
+            GUI.Label(playerExistWarningRect, playerExistsWarning, mainMenuSkin.GetStyle("Player Exists Warning"));
+            if (GUI.Button(yesButton, "Yes"))
+            {
+                playerExists = false;
+                GameManager.NewGame(typedName);
+            }
+            if (GUI.Button(noButton, "No"))
+            {
+                playerExists = false;
+                playerNameConfirm = true;
+            }
         }
         #endregion
     }

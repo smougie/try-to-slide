@@ -91,6 +91,13 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
+        //string cheat = "asd1:1500;asd2:1500;asd3:1500;asd4:1500;asd5:1500;asd6:1500;asd7:1500;asd8:1500;asd9:1500;asd10:1500;" +
+        //    "asd11:1500;asd12:1500;asd111:1500;asd1111:1500;asd15:1500;asd17:1500;asd16:1500;asd18:1500;asd19:1500;asd20:1500;jaja:1600;";
+        //PlayerPrefs.SetString("Scoreboard", cheat);
+        //PlayerPrefs.SetString("Scoreboard Level 1", cheat);
+        //PlayerPrefs.SetString("Scoreboard Level 2", cheat);
+        //PlayerPrefs.SetString("Scoreboard Level 3", cheat);
+        //print(PlayerPrefs.GetString("Scoreboard Level 1"));
         if (!isLevelSelect)
         {
             totalCoinCount = coinParent.transform.childCount;  // setting total coin count
@@ -196,6 +203,7 @@ public class GameManager : MonoBehaviour
         currentLevel = 0;
         SceneManager.LoadScene("Level Select");
         currentScore = float.Parse(PlayerPrefs.GetString("Current Score"));
+        playerName = PlayerPrefs.GetString("Player Name");
     }
 
 
@@ -448,14 +456,14 @@ public class GameManager : MonoBehaviour
 
         for (int i = 0; i < listScores.Count() - 1 * 2; i += 2)
         {
-            //if (dictPlayersScores.ContainsKey(listScores[i]))  // check THIS
-            //{
-            //    dictPlayersScores[listScores[i]] = listScores[i + 1];
-            //}
-            //else
-            //{
+            if (dictPlayersScores.ContainsKey(listScores[i]))  // check THIS
+            {
+                dictPlayersScores[listScores[i]] = listScores[i + 1];
+            }
+            else
+            {
                 dictPlayersScores.Add(listScores[i], listScores[i + 1]);
-            //}
+            }
         }
 
         return dictPlayersScores;
@@ -533,6 +541,10 @@ public class GameManager : MonoBehaviour
 
         else
         {
+            //foreach (KeyValuePair<string, string> item in notSortedDictScore.OrderByDescending(key => key.Value))
+            //{
+            //    Debug.Log("Key: " + item.Key + " Value: " + item.Value);
+            //}
             foreach (KeyValuePair<string, string> player in notSortedDictScore.OrderByDescending(key => key.Value))
             {
                 showTemplatePlayers += $"{playerPlace}.) {player.Key}".PadRight(60, '.') + "\n";

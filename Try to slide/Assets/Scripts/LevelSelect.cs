@@ -98,13 +98,15 @@ public class LevelSelect : MonoBehaviour
             if (levelToLoad == 0)
             {
                 GUI.Box(levelScoreBoardRect, $"Scoreboard");
+                GUI.Label(levelPlayerListRect, GameManager.ShowScores(20, levelToLoad)[0], skinLevelSelect.GetStyle("Scores"));
+                GUI.Label(levelScoreListRect, GameManager.ShowScores(20, levelToLoad)[1], skinLevelSelect.GetStyle("Scores"));
             }
             else
             {
                 GUI.Box(levelScoreBoardRect, $"Level {levelToLoad} Scoreboard");
+                GUI.Label(levelPlayerListRect, GameManager.ShowScores(10, levelToLoad)[0], skinLevelSelect.GetStyle("Scores"));
+                GUI.Label(levelScoreListRect, GameManager.ShowScores(10, levelToLoad)[1], skinLevelSelect.GetStyle("Scores"));
             }
-            GUI.Label(levelPlayerListRect, GameManager.ShowScores(10, levelToLoad)[0], skinLevelSelect.GetStyle("Scores"));
-            GUI.Label(levelScoreListRect, GameManager.ShowScores(10, levelToLoad)[1], skinLevelSelect.GetStyle("Scores"));
             GUI.Label(playerLevelScoreRect, GameManager.LevelScoreComparer(levelToLoad, GameManager.playerName), skinLevelSelect.GetStyle("Player Level Score"));
         }
     }

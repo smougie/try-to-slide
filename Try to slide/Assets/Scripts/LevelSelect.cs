@@ -11,6 +11,7 @@ public class LevelSelect : MonoBehaviour
     private string lockedLevelDetails;
     private bool inRange;  // flag, we will raise flag when player is colliding with World Node and lower flag when player exit trigger
     private bool locked;
+    private bool restartAvailable;
     private Rect levelDetailsRect;  // rect for world details label
 
     private float screenWidth;
@@ -19,6 +20,7 @@ public class LevelSelect : MonoBehaviour
     private Rect levelPlayerListRect;
     private Rect levelScoreListRect;
     private Rect playerLevelScoreRect;
+    private Rect restartButton;
     private Color playerScoreColor = new Color(0, 0, 0);
     private Color playerNoScoreColor = new Color(255, 0, 0);
     
@@ -26,7 +28,7 @@ public class LevelSelect : MonoBehaviour
     {
         inRange = false;
         locked = false;
-
+        restartAvailable = false;
         screenWidth = Screen.width;
         screenHeight = Screen.height;
 
@@ -38,6 +40,7 @@ public class LevelSelect : MonoBehaviour
         levelPlayerListRect = new Rect(levelScoreBoardRect.x + levelScoreBoardRect.x * 1f, levelScoreBoardRect.y + levelScoreBoardRect.y * 1f, 100, 400);
         levelScoreListRect = new Rect(levelScoreBoardRect.x + levelScoreBoardRect.x * 4.5f, levelScoreBoardRect.y + levelScoreBoardRect.y * 1f, 100, 400);
         playerLevelScoreRect = new Rect(levelScoreBoardRect.x + levelScoreBoardRect.width * .28f, levelScoreBoardRect.height, 200, 100);
+        restartButton = new Rect(levelScoreBoardRect.x + levelScoreBoardRect.width / 2 - 30, levelScoreBoardRect.y + levelScoreBoardRect.height * .8f, 60, 30);
 
         if (levelToLoad > PlayerPrefs.GetInt("Unlocked Level"))
         {
@@ -55,11 +58,11 @@ public class LevelSelect : MonoBehaviour
     {
         if (other.transform.tag == "Player")
         {
+            restartAvailable = GameManager.RestartAvailable(levelToLoad);
             inRange = true;
-            if (Input.GetButtonDown("Action") && !locked)
+            if (Input.GetButtonDown("Action") && !locked && !restartAvailable)
             {
-                GameManager.RemoveLevelScore(GameManager.playerName, levelToLoad);
-                LoadWorld();
+                LoadLevel();
             }
         }
     }
@@ -71,7 +74,7 @@ public class LevelSelect : MonoBehaviour
     }
 
     // method responsible for loading level which is stored in worldToLoad variable
-    public void LoadWorld()
+    public void LoadLevel()
     {
         SceneManager.LoadScene(levelToLoad);
         GameManager.currentLevel = levelToLoad;
@@ -86,35 +89,39 @@ public class LevelSelect : MonoBehaviour
         {
             if (levelToLoad == 0)
             {
+                GUI.Box(levelScoreBoardRect, $"Scoreboard");
+                GUI.Label(levelPlayerListRect, GameManager.ShowScores(20, levelToLoad)[0], skinLevelSelect.GetStyle("Scores"));
+                GUI.Label(levelScoreListRect, GameManager.ShowScores(20, levelToLoad)[1], skinLevelSelect.GetStyle("Scores"));
                 // if levelToLoad is equal to 0, don't use any label, leave empty place.
             }
             else if (locked)
             {
+                GUI.Box(levelScoreBoardRect, $"Level {levelToLoad} Scoreboard");
+                GUI.Label(levelPlayerListRect, GameManager.ShowScores(10, levelToLoad)[0], skinLevelSelect.GetStyle("Scores"));
+                GUI.Label(levelScoreListRect, GameManager.ShowScores(10, levelToLoad)[1], skinLevelSelect.GetStyle("Scores"));
                 GUI.Label(levelDetailsRect, lockedLevelDetails);
             }
-            else
+            else if (restartAvailable)
             {
-                GUI.Label(levelDetailsRect, unlockedLevelDetails);
-            }
-            if (levelToLoad == 0)
-            {
-                GUI.Box(levelScoreBoardRect, $"Scoreboard");
-                GUI.Label(levelPlayerListRect, GameManager.ShowScores(20, levelToLoad)[0], skinLevelSelect.GetStyle("Scores"));
-                GUI.Label(levelScoreListRect, GameManager.ShowScores(20, levelToLoad)[1], skinLevelSelect.GetStyle("Scores"));
+                GUI.Box(levelScoreBoardRect, $"Level {levelToLoad} Scoreboard");
+                GUI.Label(levelPlayerListRect, GameManager.ShowScores(10, levelToLoad)[0], skinLevelSelect.GetStyle("Scores"));
+                GUI.Label(levelScoreListRect, GameManager.ShowScores(10, levelToLoad)[1], skinLevelSelect.GetStyle("Scores"));
+                GUI.Label(playerLevelScoreRect, GameManager.LevelScoreComparer(levelToLoad, GameManager.playerName), 
+                    skinLevelSelect.GetStyle("Player Level Score"));
+                if (GUI.Button(restartButton, "Restart"))
+                    {
+                        GameManager.RemoveLevelScore(GameManager.playerName, levelToLoad);
+                        LoadLevel();
+                    }
             }
             else
             {
                 GUI.Box(levelScoreBoardRect, $"Level {levelToLoad} Scoreboard");
                 GUI.Label(levelPlayerListRect, GameManager.ShowScores(10, levelToLoad)[0], skinLevelSelect.GetStyle("Scores"));
                 GUI.Label(levelScoreListRect, GameManager.ShowScores(10, levelToLoad)[1], skinLevelSelect.GetStyle("Scores"));
-            }
-            if (levelToLoad == 0)
-            {
-                // Leave empty score comparer label for global scoreboard
-            }
-            else
-            {
-                GUI.Label(playerLevelScoreRect, GameManager.LevelScoreComparer(levelToLoad, GameManager.playerName), skinLevelSelect.GetStyle("Player Level Score"));
+                GUI.Label(playerLevelScoreRect, GameManager.LevelScoreComparer(levelToLoad, GameManager.playerName), 
+                    skinLevelSelect.GetStyle("Player Level Score"));
+                GUI.Label(levelDetailsRect, unlockedLevelDetails);
             }
         }
     }

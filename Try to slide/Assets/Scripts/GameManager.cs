@@ -93,19 +93,6 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        print(PlayerPrefs.GetString("Scoreboard Level 3"));
-        foreach (KeyValuePair<string, string> item in PlayerNamesScores("Scoreboard Level 3").OrderBy(item => item.Value).Reverse())
-        {
-            print("Key: " + item.Key + " Value: " + item.Value);
-        }
-
-        //string cheat = "asd1:1500;asd2:1500;asd3:1500;asd4:1500;asd5:1500;asd6:1500;asd7:1500;asd8:1500;asd9:1500;asd10:1500;" +
-        //    "asd11:1500;asd12:1500;asd111:1500;asd1111:1500;asd15:1500;asd17:1500;asd16:1500;asd18:1500;asd19:1500;asd20:1500;jaja:1600;";
-        //PlayerPrefs.SetString("Scoreboard", cheat);
-        //PlayerPrefs.SetString("Scoreboard Level 1", cheat);
-        //PlayerPrefs.SetString("Scoreboard Level 2", cheat);
-        //PlayerPrefs.SetString("Scoreboard Level 3", cheat);
-        //print(PlayerPrefs.GetString("Scoreboard Level 1"));
         if (!isLevelSelect)
         {
             totalCoinCount = coinParent.transform.childCount;  // setting total coin count
@@ -233,7 +220,10 @@ public class GameManager : MonoBehaviour
     // Method responsible for setting current level as Unlocked Level in PlayerPrefs
     public static void SaveLevel()
     {
-        PlayerPrefs.SetInt("Unlocked Level", currentLevel);
+        if (PlayerPrefs.GetInt("Unlocked Level") < currentLevel + 1)
+        {
+            PlayerPrefs.SetInt("Unlocked Level", currentLevel + 1);
+        }
         PlayerPrefs.SetString("Current Score", $"{currentScore}");
     }
 
@@ -253,17 +243,17 @@ public class GameManager : MonoBehaviour
         showWinScreen = true;
         remainingTime = currentTime;
         CalculateLevelScore();
-        currentLevelLabel = currentLevel;
-        AddLevelScore(currentLevelLabel);
-        currentLevel++;
+        AddLevelScore(currentLevel);
+        //currentLevel++;
         SaveLevel();
     }
 
 
     // Method responsible for loading next scene
-    public static void LoadNextLevel()
+    public static void LoadLevelSelect()
     {
-        SceneManager.LoadScene(currentLevel);
+        SceneManager.LoadScene("Level Select");
+        currentLevel = 0;
     }
 
      
@@ -378,14 +368,12 @@ public class GameManager : MonoBehaviour
             {
                 //scoreboardDict.Remove(playerToRemove);
                 scoreboardKeysToRemove.Add(entry.Key);
-                print("adding key to nuke");  //asdf player to remove
             }
         }
 
         foreach (var key in scoreboardKeysToRemove)
         {
             scoreboardDict.Remove(key);
-            print($"deleteing {key}");
         }
         // jeżeli lista zawiera jakieś elementy to wykonujemy modyfikację recordu
         if (scoreboardKeysToRemove.Any())
@@ -393,9 +381,7 @@ public class GameManager : MonoBehaviour
             foreach (KeyValuePair<string, string> playerScore in scoreboardDict)
             {
                 modifiedRecord += $"{playerScore.Key}:{playerScore.Value};";
-                print("adding record");
             }
-            print(modifiedRecord);
             PlayerPrefs.SetString("Scoreboard", modifiedRecord);
         }
         ////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -403,19 +389,13 @@ public class GameManager : MonoBehaviour
         List<int> levelsToNuke = new List<int>();
         for (int levelNum = 1; levelNum <= numberOfLevels; levelNum++)
         {
-            print(levelNum);
             foreach (KeyValuePair<string, string> entry in PlayerNamesScores($"Scoreboard Level {levelNum}"))
             {
                 if (entry.Key == playerToRemove)
                 {
-                    print($"found score in Score Board Level {levelNum} adding level number to nuke after loop");
                     levelsToNuke.Add(levelNum);
                 }
             }
-        }
-        foreach (var entry in levelsToNuke)
-        {
-            print($"Level to nuke player record: " + entry);
         }
 
         // w tym momencie mam levele z których trzeba usunąć record gracza levelsToNuke = {1,2,3}
@@ -455,6 +435,20 @@ public class GameManager : MonoBehaviour
             }
         }
         return playerScore;
+    }
+
+
+    public static bool RestartAvailable(int levelToCheck)
+    {
+        Dictionary<string, string> playersAndScores = PlayerNamesScores($"Scoreboard Level {levelToCheck}");
+        if (playersAndScores.ContainsKey(playerName))
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 
 
@@ -579,8 +573,7 @@ public class GameManager : MonoBehaviour
         {
             foreach (KeyValuePair<string, string> player in notSortedDictScore.OrderByDescending(key => float.Parse(key.Value)))
             {
-                print($"{playerPlace}.) {player.Key}".PadRight(60, '.') + "\n" + $"{player.Value}\n");
-                showTemplatePlayers += $"{playerPlace}.) {player.Key}".PadRight(60, '.') + "\n";
+                showTemplatePlayers += $"{playerPlace}.) {player.Key}".PadRight(63 - player.Key.Length - 2, '.') + "\n";
                 showTemplateScores += $"{player.Value}\n";
                 playerPlace++;
             }
@@ -594,8 +587,7 @@ public class GameManager : MonoBehaviour
             //}
             foreach (KeyValuePair<string, string> player in notSortedDictScore.OrderByDescending(key => float.Parse(key.Value)))
             {
-                print("K: " + player.Key + " V: "+ player.Value);
-                showTemplatePlayers += $"{playerPlace}.) {player.Key}".PadRight(60, '.') + "\n";
+                showTemplatePlayers += $"{playerPlace}.) {player.Key}".PadRight(63 - player.Key.Length - 2, '.') + "\n";
                 showTemplateScores += $"{player.Value}\n";
                 playerPlace++;
                 showPlayerPlaces--;
@@ -701,7 +693,7 @@ public class GameManager : MonoBehaviour
                 GUI.Label(detailstWinScreenRect, winScreenLevelInfo);
                 if (GUI.Button(continueButtonWinScreen, "Continue"))
                 {
-                    LoadNextLevel();
+                    LoadLevelSelect();
                     showWinScreen = false;
                     freezeFlag = false;
                 }

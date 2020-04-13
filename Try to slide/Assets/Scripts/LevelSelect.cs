@@ -58,6 +58,7 @@ public class LevelSelect : MonoBehaviour
             inRange = true;
             if (Input.GetButtonDown("Action") && !locked)
             {
+                GameManager.RemoveLevelScore(GameManager.playerName, levelToLoad);
                 LoadWorld();
             }
         }
@@ -107,7 +108,14 @@ public class LevelSelect : MonoBehaviour
                 GUI.Label(levelPlayerListRect, GameManager.ShowScores(10, levelToLoad)[0], skinLevelSelect.GetStyle("Scores"));
                 GUI.Label(levelScoreListRect, GameManager.ShowScores(10, levelToLoad)[1], skinLevelSelect.GetStyle("Scores"));
             }
-            GUI.Label(playerLevelScoreRect, GameManager.LevelScoreComparer(levelToLoad, GameManager.playerName), skinLevelSelect.GetStyle("Player Level Score"));
+            if (levelToLoad == 0)
+            {
+                // Leave empty score comparer label for global scoreboard
+            }
+            else
+            {
+                GUI.Label(playerLevelScoreRect, GameManager.LevelScoreComparer(levelToLoad, GameManager.playerName), skinLevelSelect.GetStyle("Player Level Score"));
+            }
         }
     }
 }

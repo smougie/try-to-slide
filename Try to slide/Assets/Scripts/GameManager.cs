@@ -79,6 +79,7 @@ public class GameManager : MonoBehaviour
     private float winScreenRectPositionY = Screen.height / 2 - winScreenBoxHeight / 2; // y position, half of screen height - half of winScreenBox height ;
     #endregion
 
+    #region Flag Section
     // Flag section
     private static bool showWinScreen;  // win screen flag showing after player complete level
     private static bool showLoseScreen;  // lose screen flag showing after time ends, player waste all his lifes
@@ -87,10 +88,17 @@ public class GameManager : MonoBehaviour
     private static bool freezeFlag;  // freeze flag which raising will result with freezing game (Time.timeScale = 0f;)
     public static bool gameFinished;
     [SerializeField] private bool isLevelSelect = false;
+    #endregion
 
 
     private void Start()
     {
+        print(PlayerPrefs.GetString("Scoreboard Level 3"));
+        foreach (KeyValuePair<string, string> item in PlayerNamesScores("Scoreboard Level 3").OrderBy(item => item.Value).Reverse())
+        {
+            print("Key: " + item.Key + " Value: " + item.Value);
+        }
+
         //string cheat = "asd1:1500;asd2:1500;asd3:1500;asd4:1500;asd5:1500;asd6:1500;asd7:1500;asd8:1500;asd9:1500;asd10:1500;" +
         //    "asd11:1500;asd12:1500;asd111:1500;asd1111:1500;asd15:1500;asd17:1500;asd16:1500;asd18:1500;asd19:1500;asd20:1500;jaja:1600;";
         //PlayerPrefs.SetString("Scoreboard", cheat);
@@ -173,13 +181,13 @@ public class GameManager : MonoBehaviour
 
 
         //DELETE AFTER TEST!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        if (Input.GetButtonDown("reset"))
-        {
-            PlayerPrefs.SetString("Scoreboard", "");
-            PlayerPrefs.SetString("Scoreboard Level 1", "");
-            PlayerPrefs.SetString("Scoreboard Level 2", "");
-            PlayerPrefs.SetString("Scoreboard Level 3", "");
-        }
+        //if (Input.GetButtonDown("reset"))
+        //{
+        //    PlayerPrefs.SetString("Scoreboard", "");
+        //    PlayerPrefs.SetString("Scoreboard Level 1", "");
+        //    PlayerPrefs.SetString("Scoreboard Level 2", "");
+        //    PlayerPrefs.SetString("Scoreboard Level 3", "");
+        //}
     }
 
 
@@ -335,7 +343,31 @@ public class GameManager : MonoBehaviour
     }
 
 
-    public static void RemovePlayerScore(string playerToRemove)
+    public static void RemoveLevelScore(string playerName, int levelNumberToRemove)
+    {
+        string modifiedScoreboard = "";
+        Dictionary<string, string> playersAndScores = PlayerNamesScores($"Scoreboard Level {levelNumberToRemove}");
+
+        foreach (KeyValuePair<string, string> item in playersAndScores)
+        {
+            if (item.Key == playerName)
+            {
+                currentScore -= float.Parse(item.Value);
+            }
+        }
+
+        playersAndScores.Remove(playerName);
+
+        foreach (KeyValuePair<string, string> item in playersAndScores)
+        {
+            modifiedScoreboard += $"{item.Key}:{item.Value};";
+        }
+
+        PlayerPrefs.SetString($"Scoreboard Level {levelNumberToRemove}", modifiedScoreboard);
+    }
+
+
+    public static void RemovePlayerScore(string playerToRemove, int levelToRemove = 0)
     {
         Dictionary<string, string> scoreboardDict = PlayerNamesScores("Scoreboard");
         List<string> scoreboardKeysToRemove = new List<string>();
@@ -456,7 +488,21 @@ public class GameManager : MonoBehaviour
 
         for (int i = 0; i < listScores.Count() - 1 * 2; i += 2)
         {
-            if (dictPlayersScores.ContainsKey(listScores[i]))  // check THIS
+            /*
+             * W tym miejscu buguje się lista, jeżeli gracz wszedł drugi raz w level to posiada dwa wyniki
+             * Tutaj dochodzi do sytuacji w której wysoki wynik 197, po napotkaniu drugi raz nicku dostaje informacje aby nadpisał 
+             * Wynik (który już znajduje się na miejscu 1, słabszym wynikiem 96
+             * Wygląda na to, że w ShowScores() dict zapisuje wysoko gracza z recordem 197, następnie gdy natrafia po raz kolejny na niego
+             * to nadpisuje go wynikiem słabszym - tym z playerprefs??? tutaj tworzymy dict na podstawie playerprefs natomiast record playerprefs pozostaje 
+             * nadal z dwoma wynikami dla jednego gracza
+             * należy stworzyć instrukcję, która po wejściu gracza do tego samego levelu, tj. level'a w którym już widnieje wynik dla tego gracza, usunie z 
+             * playerprefs ten wynik
+             * Coś jak levelscorecomparer...
+             * Jeżeli gracz będzie w range level node'a a node odnotuje wynik jaki gracz już ustalił to wyświetli możliwość zrestartowania level'a
+             * Po potwierdzeniu, kasujemy record i odpalamy level, jeżeli gracz przejdzie level zapisujemy wynik, jeżeli zginie, dodajemy wynik jaki osiągnał
+             * obecnie do current score i kończymy jego grę
+             */
+            if (dictPlayersScores.ContainsKey(listScores[i]))  // check THIS - w tym miejscu się buguje wyświetlane wyniku
             {
                 dictPlayersScores[listScores[i]] = listScores[i + 1];
             }
@@ -502,7 +548,7 @@ public class GameManager : MonoBehaviour
         List<string> listScores = new List<string>();
         Dictionary<string, string> notSortedDictScore = new Dictionary<string, string>();
         //Dictionary<string, float> dictScores = new Dictionary<string, float>();
-        char[] separator = { ':', ';' };
+        //char[] separator = { ':', ';' };
         if (level == 0)
         {
             //listScores = PlayerPrefs.GetString("Scoreboard").Split(separator).ToList();
@@ -533,6 +579,7 @@ public class GameManager : MonoBehaviour
         {
             foreach (KeyValuePair<string, string> player in notSortedDictScore.OrderByDescending(key => key.Value))
             {
+                print($"{playerPlace}.) {player.Key}".PadRight(60, '.') + "\n" + $"{player.Value}\n");
                 showTemplatePlayers += $"{playerPlace}.) {player.Key}".PadRight(60, '.') + "\n";
                 showTemplateScores += $"{player.Value}\n";
                 playerPlace++;
@@ -547,6 +594,7 @@ public class GameManager : MonoBehaviour
             //}
             foreach (KeyValuePair<string, string> player in notSortedDictScore.OrderByDescending(key => key.Value))
             {
+                print("K: " + player.Key + " V: "+ player.Value);
                 showTemplatePlayers += $"{playerPlace}.) {player.Key}".PadRight(60, '.') + "\n";
                 showTemplateScores += $"{player.Value}\n";
                 playerPlace++;

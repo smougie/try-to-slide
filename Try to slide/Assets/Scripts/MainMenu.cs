@@ -4,7 +4,9 @@ using UnityEngine.SceneManagement;
 public class MainMenu : MonoBehaviour
 {
     #region Variables
-    // GUI/rectangle section for buttons, boxes and labels
+
+    #region GUI/rectangle section for buttons, boxes and labels
+
     [SerializeField] private GUISkin mainMenuSkin = null;
     private Rect newGameButton;
     private Rect continueButton;
@@ -23,33 +25,47 @@ public class MainMenu : MonoBehaviour
     private Rect playerExistBoxRect;
     private Rect playerExistWarningRect;
 
+    #endregion
 
-    // Size section for buttons, boxes and labels
+    #region  Size section for buttons, boxes and labels
+
     private float screenWidth;
     private float screenHeight;
-
     private float buttonWidth;
     private float buttonHeight;
     private float buttonSpacing;
 
-    // String section
+    #endregion
+
+    #region String section
+
     private string warningMessage;
     private string typedName;
     private string playerNamePrompt;
     private string playerNameWarning;
     private string playerExistsWarning;
 
-    // Flag section
+    #endregion
+
+
+    #region Flag section
+
     private bool mainMenuWindow;
     private bool newGameConfirm;
     private bool playerNameConfirm;
     private bool emptyPlayerName;
     private bool playerExists;
+
+    #endregion
+    
     #endregion
 
     private void Start()
     {
         #region Initializing necessary variables
+
+        GameManager.numberOfLevels = SceneManager.sceneCountInBuildSettings - 2;  // variable storing number of levels
+
         // Initializing sizes
         screenWidth = Screen.width;
         screenHeight = Screen.height;
@@ -103,13 +119,14 @@ public class MainMenu : MonoBehaviour
         
         #endregion
     }
-
-
+    
+    // Main menu GUI section
     private void OnGUI()
     {
         GUI.skin = mainMenuSkin;  // skin prepared for main menu
 
         #region Main Menu
+
         GUI.Label(gameNameLabel, "Try to slide");  // game label in center of main menu
         // If newGameConfirm flag is not raised than in main menu scene player can see 2 buttons or 3 buttons if he made some progress before
         if (mainMenuWindow)
@@ -148,9 +165,11 @@ public class MainMenu : MonoBehaviour
             }
 
         }
+
         #endregion
 
         #region New Game warning window
+
         // If newGameConfirm flag is raised, main menu buttons are disabled and player will see only Warning Window
         // if player press yes button new game starts, if he press no main menu will show once again
         if (newGameConfirm)
@@ -160,7 +179,7 @@ public class MainMenu : MonoBehaviour
             if (GUI.Button(yesButton, "Yes"))
             {
                 newGameConfirm = false;
-                playerNameConfirm = true;
+                playerNameConfirm = true;  // raising flag for player name confirm
             }
             if (GUI.Button(noButton, "No"))
             {
@@ -171,51 +190,74 @@ public class MainMenu : MonoBehaviour
         #endregion
 
         #region Player Name input window
+
+        // Player input window, player need to input 10 digit name
+        // if player will not put any name, he will be announced with red prompt
         if (playerNameConfirm)
         {
             GUI.Box(playerNameBoxRect, "");
             GUI.Label(playerNamePromptRect, playerNamePrompt, mainMenuSkin.GetStyle("Player Name Prompt"));
             typedName = GUI.TextField(playerNameTextFieldRect, typedName, 10, mainMenuSkin.GetStyle("Player Name"));
+
+            // if name window will be empty, player will be informed with red color prompt
             if (emptyPlayerName)
             {
                 GUI.Label(playerNameWarningRect, playerNameWarning, mainMenuSkin.GetStyle("New Player Warning"));
             }
+
+            // if player press confirm button few states will be checked
             if (GUI.Button(confirmButton, "Confirm"))
             {
+                
+                // state that checks if player already in any scoreboard
                 if (GameManager.PlayerNameCheck(typedName))
                 {
                     playerExists = true;
                     playerNameConfirm = false;
                 }
+
+                // state that checks if the player name field is empty
                 else if (string.IsNullOrEmpty(typedName))
                 {
                     emptyPlayerName = true;
                 }
+
+                // if field is not empty and player is not in any scoreboard new game will start with typed name
                 else
                 {
                     emptyPlayerName = false;
                     GameManager.NewGame(typedName);
                 }
             }
+
+            // if player press back, he will be moved to main menu
             if (GUI.Button(backButton, "Back"))
             {
                 playerNameConfirm = false;
                 mainMenuWindow = true;
             }
         }
+
         #endregion
 
         #region Player Exist window
+
+        // after raising playerExist flag = if player is already in any scoreboard, warning window will show up and player will be notified that progress
+        // will be lost
         if (playerExists)
         {
             GUI.Box(playerExistBoxRect, "WARNING!");
             GUI.Label(playerExistWarningRect, playerExistsWarning, mainMenuSkin.GetStyle("Player Exists Warning"));
+
+            // if player press yes, flag will be lowered, scores with player name will be deleted and new game will start
             if (GUI.Button(yesButton, "Yes"))
             {
                 playerExists = false;
                 GameManager.RemovePlayerScore(typedName);
                 GameManager.NewGame(typedName);
             }
+
+            // if player press no, he will be moved to player name confirm window
             if (GUI.Button(noButton, "No"))
             {
                 playerExists = false;

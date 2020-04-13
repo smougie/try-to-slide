@@ -6,6 +6,8 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
+    #region Variables
+
     #region Life, Score, Level, Coin, Time section
     // Life variables section
     public static int life = 3;  // player current life
@@ -21,7 +23,7 @@ public class GameManager : MonoBehaviour
     // Level section
     public static int currentLevel;  // var storing current level, using it while saving progress, while loading next levels
     public static int currentLevelLabel;  // var storing current level label, even if some mehtods will change currentLevel this var stays the same for level
-    public static int numberOfLevels = SceneManager.sceneCountInBuildSettings - 2;  // var storing current number of levels ->   -2 means: - Main Menu scene, -Level Select
+    public static int numberOfLevels;  // var storing current number of levels ->   -2 means: - Main Menu scene, -Level Select
 
     // Coin section
     [SerializeField] private GameObject coinParent = null;  // object with coin parent, coin parent is box when storing coin object to count them
@@ -90,13 +92,19 @@ public class GameManager : MonoBehaviour
     [SerializeField] private bool isLevelSelect = false;
     #endregion
 
+    #endregion
 
     private void Start()
     {
+        #region Initializing necessary variables
+
+        #region Reseting values at level start, tracking object parents, setting time and coin variables 
+
         if (!isLevelSelect)
         {
             totalCoinCount = coinParent.transform.childCount;  // setting total coin count
         }
+        numberOfLevels = SceneManager.sceneCountInBuildSettings - 2;  // variable with number of levels
         currentTime = startTime;  // seting start time as current time
         currentCoinCount = 0f;  // reseting coin count value when starting level
         coinCompletion = 0f;  // reseting coin completition value when starting level
@@ -104,13 +112,21 @@ public class GameManager : MonoBehaviour
         coinImportanceCalc = coinImportance;  // setting coin imporance from inspector
         timeImportanceCalc = timeImportance;  // setting time importance from inspector
         maxLevelTime = startTime;  // setting start time as max level time
+
+        #endregion
+
+        #region Flag section
+
         showWinScreen = false;  // droping win screen flag
         showLoseScreen = false;  // dropping lose screen flag
         showScoreBoard = false;  // dropping scoreboard flag
         freezeFlag = false;  // dropping freeze flag
         gameFinished = false;
 
-        // Initializing all rectangles for labels and boxes
+        #endregion
+
+        #region Initializing all rectangles for labels and boxes
+
         lifeRect = new Rect(10, 10, 10, 10);  
         timerRect = new Rect(Screen.width / 2 - 40, 10, 10, 10);
         coinsRect = new Rect(10, 30, 10, 10);
@@ -128,30 +144,31 @@ public class GameManager : MonoBehaviour
         levelPlayerListRect = playerListRect;
         levelScoreListRect = scoreListRect;
 
+        #endregion
 
-        // Initializing buttons rectangles
+        #region Initializing buttons rectangles
+
         continueButtonWinScreen = new Rect(winScreenRect.x + winScreenBoxWidth - 100, winScreenRect.y + winScreenBoxHeight - 55, 80, 35);
         quitButtonWinScreen = new Rect(winScreenRect.x + 20, winScreenRect.y + winScreenBoxHeight - 55, 80, 35);
         scoreBoardButton = continueButtonWinScreen;
         levelScoreBoardButton = new Rect(winScreenRect.x + winScreenBoxWidth - 240, winScreenRect.y + winScreenBoxHeight - 55, 120, 35);
         backButton = quitButtonWinScreen;
 
-        // if level stored in unlocked level (current player progress) is higher than level 1 than set current level as unlocked level
-        // added to set player name even if he press continue button
-        if (PlayerPrefs.GetInt("Unlocked Level") > 1)
-        {
-            //currentLevel = PlayerPrefs.GetInt("Unlocked Level");
-        }
+        #endregion
 
+        #endregion
     }
 
 
     private void Update()
     {
+        // if not in level select, so if in normal game level
         if (!isLevelSelect)
         {
+            // if game is not finished
             if (!gameFinished )
             {
+                // if current time is greater than0 and life is greater than 0, time counter will work and count down current time till hit 0
                 if (currentTime > 0 && life > 0)
                 {
                     currentTime -= Time.deltaTime;
@@ -163,22 +180,11 @@ public class GameManager : MonoBehaviour
             }
         }
         
-        // tracking freezeFlag status nad controlin conditions
+        // tracking freezeFlag status and controling conditions
         FreezeGame(freezeFlag);
-
-
-        //DELETE AFTER TEST!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        //if (Input.GetButtonDown("reset"))
-        //{
-        //    PlayerPrefs.SetString("Scoreboard", "");
-        //    PlayerPrefs.SetString("Scoreboard Level 1", "");
-        //    PlayerPrefs.SetString("Scoreboard Level 2", "");
-        //    PlayerPrefs.SetString("Scoreboard Level 3", "");
-        //}
     }
 
-
-    // New game method responsible for staring a new game, loading level 1, clearing save in PlayerPrefs "Unlocked Level", setting player name. reseting
+    // New game method responsible for staring a new game, loading level select, clearing save in PlayerPrefs "Unlocked Level", setting player name, reseting
     // score and life values
     public static void NewGame(string typedName)
     {
@@ -191,8 +197,9 @@ public class GameManager : MonoBehaviour
         PlayerPrefs.SetInt("Unlocked Level", 1);  // before test was 0
         PlayerPrefs.SetString("Player Name", playerName);
     }
-
-
+    
+    // Continue game method responsible for rebooting the game with player progress
+    // Player will be moved to Level Select, current score and player name will be loaded
     public static void ContinueGame()
     {
         currentLevel = 0;
@@ -200,7 +207,6 @@ public class GameManager : MonoBehaviour
         currentScore = float.Parse(PlayerPrefs.GetString("Current Score"));
         playerName = PlayerPrefs.GetString("Player Name");
     }
-
 
     // Method responsible for ending the game by dropping all flags, destroying game manager object, loading main menu scene and reseting player progress
     public static void GameOver(GameObject gameObject)
@@ -216,8 +222,8 @@ public class GameManager : MonoBehaviour
         PlayerPrefs.SetInt("Unlocked Level", 0);
     }
 
-
     // Method responsible for setting current level as Unlocked Level in PlayerPrefs
+    // if save in player pref is less than current level, progress will be saved
     public static void SaveLevel()
     {
         if (PlayerPrefs.GetInt("Unlocked Level") < currentLevel + 1)
@@ -227,7 +233,6 @@ public class GameManager : MonoBehaviour
         PlayerPrefs.SetString("Current Score", $"{currentScore}");
     }
 
-
     // Method responsible for raising Lose Screen flag, setting current time to 0 and current score with player name to PlayerPrefs "Scoreboard" 
     public static void LoseLevel()
     {
@@ -235,28 +240,25 @@ public class GameManager : MonoBehaviour
         showLoseScreen = true;
         AddScore();
     }
-
     
-    // Method responsible for raising Win Screen flag, setting current time as remaining time, calculating level score, incrementing level var and saving
+    // Method responsible for raising Win Screen flag, setting current time as remaining time, calculating level score, adding level score to scoreboard
+    // and saving game
     public static void CompleteLevel()
     {
         showWinScreen = true;
         remainingTime = currentTime;
         CalculateLevelScore();
         AddLevelScore(currentLevel);
-        //currentLevel++;
         SaveLevel();
     }
 
-
-    // Method responsible for loading next scene
+    // Method responsible for loading Level Select scene
     public static void LoadLevelSelect()
     {
         SceneManager.LoadScene("Level Select");
         currentLevel = 0;
     }
 
-     
     /*
      * Method responsible for calcualting level score
      * First calculating percentage coin completion (if there was 4 coins on map and player collected 1 than he has = 25% completition)
@@ -286,13 +288,11 @@ public class GameManager : MonoBehaviour
         currentScore += levelScore;
     }
 
-
     // Method responsible for increment coin value after picking coin
     public static void CoinPickUp()
     {
         currentCoinCount += 1;
     }
-
 
     /*
      * Method resposible for concatenate current player and his score to scoreboard save in PlayerPrefs
@@ -313,7 +313,6 @@ public class GameManager : MonoBehaviour
 
     }
 
-
     /*
      * Method resposible for concatenate current player and his score to level scoreboard save in PlayerPrefs
      * first method is checking is there any record in player prefs, if there is none method is starting new record
@@ -331,13 +330,17 @@ public class GameManager : MonoBehaviour
             PlayerPrefs.SetString($"Scoreboard Level {levelNumber}", $"{playerName}:{levelScore};");
         }
     }
-
-
+    
+    /*
+     * Method resposible for removing player name and score from Level Scoreboard after pressing restart button by player in Select Level scene
+     * also method will substract previous level score from currentScore
+     */
     public static void RemoveLevelScore(string playerName, int levelNumberToRemove)
     {
         string modifiedScoreboard = "";
         Dictionary<string, string> playersAndScores = PlayerNamesScores($"Scoreboard Level {levelNumberToRemove}");
-
+        
+        // removing player level score from global scoreboard
         foreach (KeyValuePair<string, string> item in playersAndScores)
         {
             if (item.Key == playerName)
@@ -346,36 +349,46 @@ public class GameManager : MonoBehaviour
             }
         }
 
+        // removing player key and value from dict
         playersAndScores.Remove(playerName);
 
+        // creating new record for player pref scoreboard save
         foreach (KeyValuePair<string, string> item in playersAndScores)
         {
             modifiedScoreboard += $"{item.Key}:{item.Value};";
         }
 
+        // setting new scoreboard record
         PlayerPrefs.SetString($"Scoreboard Level {levelNumberToRemove}", modifiedScoreboard);
     }
 
-
+    /*
+     * Method responsible for removing player name and score from global game scoreboard after choosing already existing player name
+     * When player hit new game button in the main menu scene, and type player name that is already in some scoreboard record and confirm
+     * that he wants to start the game with this name, his previous score in every scoreboard will be removed
+     */
     public static void RemovePlayerScore(string playerToRemove, int levelToRemove = 0)
     {
         Dictionary<string, string> scoreboardDict = PlayerNamesScores("Scoreboard");
         List<string> scoreboardKeysToRemove = new List<string>();
         string modifiedRecord = "";
+
+        // first checking global scoreboard for player name, if there will be name, we are adding name to remove it after loop
         foreach (KeyValuePair<string, string> entry in scoreboardDict)
         {
             if (entry.Key == playerToRemove)
             {
-                //scoreboardDict.Remove(playerToRemove);
                 scoreboardKeysToRemove.Add(entry.Key);
             }
         }
 
+        // removing all key in dict equal to player name
         foreach (var key in scoreboardKeysToRemove)
         {
             scoreboardDict.Remove(key);
         }
-        // jeżeli lista zawiera jakieś elementy to wykonujemy modyfikację recordu
+
+        // if there was any record to remove, we are creating new string for player pref save without removed record
         if (scoreboardKeysToRemove.Any())
         {
             foreach (KeyValuePair<string, string> playerScore in scoreboardDict)
@@ -384,9 +397,11 @@ public class GameManager : MonoBehaviour
             }
             PlayerPrefs.SetString("Scoreboard", modifiedRecord);
         }
-        ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+        // now moving to Level X Scoreboard, creating list of levels which will have to remove player score record
         List<int> levelsToNuke = new List<int>();
+
+        // now checking all level scoreboards for any score with player name as a key
         for (int levelNum = 1; levelNum <= numberOfLevels; levelNum++)
         {
             foreach (KeyValuePair<string, string> entry in PlayerNamesScores($"Scoreboard Level {levelNum}"))
@@ -398,23 +413,30 @@ public class GameManager : MonoBehaviour
             }
         }
 
-        // w tym momencie mam levele z których trzeba usunąć record gracza levelsToNuke = {1,2,3}
-
+        // for each level number where player name was found, method will create modified record without player name and score
         foreach (var levelNumber in levelsToNuke)
         {
             Dictionary<string, string> levelScoreBoard = PlayerNamesScores($"Scoreboard Level {levelNumber}");
             string modifiedLevelRecord = "";
 
+            // removing player as a key and score as a value from temp dict
             levelScoreBoard.Remove(playerToRemove);
+
             foreach (KeyValuePair<string, string> entry in levelScoreBoard)
             {
                 modifiedLevelRecord += $"{entry.Key}:{entry.Value};";
             }
+
+            // saving new record without player and score
             PlayerPrefs.SetString($"Scoreboard Level {levelNumber}", modifiedLevelRecord);
         }
     }
 
-
+    /*
+     * Method responsible for comparing player level score
+     * If method find any record with player name, score will show up under best scores in Level X Scoreboard
+     * If method will not find any record assigned to player name, player will get proper information
+     */
     public static string LevelScoreComparer(int levelNumber, string playerName)
     {
         string playerScore = "You have not finished this level.";
@@ -423,21 +445,24 @@ public class GameManager : MonoBehaviour
         List<string> listPlayerScores = levelScoreboard.Split(separator).ToList();
 
         int counter = 0;
+
         foreach (var item in listPlayerScores)
         {
             if (item == playerName)
             {
                 return $"Your score on this level: {listPlayerScores[counter + 1]}";
             }
+
             else
             {
                 counter++;
             }
         }
+
         return playerScore;
     }
 
-
+    // Method responsible for checking if the player's name is already on Level X Scoreboard
     public static bool RestartAvailable(int levelToCheck)
     {
         Dictionary<string, string> playersAndScores = PlayerNamesScores($"Scoreboard Level {levelToCheck}");
@@ -451,7 +476,9 @@ public class GameManager : MonoBehaviour
         }
     }
 
-
+    /*
+     * Method responsible for checking if the player's name is already in any of Level X Scoreboard
+     */
     public static bool PlayerNameCheck(string typedName)
     {
         bool exist = false;
@@ -471,7 +498,7 @@ public class GameManager : MonoBehaviour
     }
 
     /*
-     * Method creating and returning dict with key - player name, value - player score, both are string
+     * Method creating and returning dict with key - player name, value - player score, both are strings
      */
     public static Dictionary<string, string> PlayerNamesScores(string listToCheck)
     {
@@ -482,21 +509,7 @@ public class GameManager : MonoBehaviour
 
         for (int i = 0; i < listScores.Count() - 1 * 2; i += 2)
         {
-            /*
-             * W tym miejscu buguje się lista, jeżeli gracz wszedł drugi raz w level to posiada dwa wyniki
-             * Tutaj dochodzi do sytuacji w której wysoki wynik 197, po napotkaniu drugi raz nicku dostaje informacje aby nadpisał 
-             * Wynik (który już znajduje się na miejscu 1, słabszym wynikiem 96
-             * Wygląda na to, że w ShowScores() dict zapisuje wysoko gracza z recordem 197, następnie gdy natrafia po raz kolejny na niego
-             * to nadpisuje go wynikiem słabszym - tym z playerprefs??? tutaj tworzymy dict na podstawie playerprefs natomiast record playerprefs pozostaje 
-             * nadal z dwoma wynikami dla jednego gracza
-             * należy stworzyć instrukcję, która po wejściu gracza do tego samego levelu, tj. level'a w którym już widnieje wynik dla tego gracza, usunie z 
-             * playerprefs ten wynik
-             * Coś jak levelscorecomparer...
-             * Jeżeli gracz będzie w range level node'a a node odnotuje wynik jaki gracz już ustalił to wyświetli możliwość zrestartowania level'a
-             * Po potwierdzeniu, kasujemy record i odpalamy level, jeżeli gracz przejdzie level zapisujemy wynik, jeżeli zginie, dodajemy wynik jaki osiągnał
-             * obecnie do current score i kończymy jego grę
-             */
-            if (dictPlayersScores.ContainsKey(listScores[i]))  // check THIS - w tym miejscu się buguje wyświetlane wyniku
+            if (dictPlayersScores.ContainsKey(listScores[i]))
             {
                 dictPlayersScores[listScores[i]] = listScores[i + 1];
             }
@@ -508,7 +521,6 @@ public class GameManager : MonoBehaviour
 
         return dictPlayersScores;
     }
-
 
     /*
      * Method responsible for creating template with players and their scores
@@ -539,34 +551,17 @@ public class GameManager : MonoBehaviour
         string showTemplatePlayers = $"";
         string showTemplateScores = $"";
         string[] playersAndScores = new string[2];
-        List<string> listScores = new List<string>();
         Dictionary<string, string> notSortedDictScore = new Dictionary<string, string>();
-        //Dictionary<string, float> dictScores = new Dictionary<string, float>();
-        //char[] separator = { ':', ';' };
+
         if (level == 0)
         {
-            //listScores = PlayerPrefs.GetString("Scoreboard").Split(separator).ToList();
             notSortedDictScore = PlayerNamesScores("Scoreboard");
         }
+
         else
         {
             notSortedDictScore = PlayerNamesScores($"Scoreboard Level {level}");
-            //listScores = PlayerPrefs.GetString($"Scoreboard Level {level}").Split(separator).ToList();
         }
-
-        //for (int i = 0; i < listScores.Count() - 1 * 2; i += 2)
-        //{
-        //    if (dictScores.ContainsKey(listScores[i]))
-        //    {
-        //        float valueStrToInt = float.Parse(listScores[i + 1]);
-        //        dictScores[listScores[i]] = valueStrToInt;
-        //    }
-        //    else
-        //    {
-        //        float valueStrToInt = float.Parse(listScores[i + 1]);
-        //        dictScores.Add(listScores[i], valueStrToInt);
-        //    }
-        //}
 
         int playerPlace = 1;
         if (notSortedDictScore.Count() < showPlayerPlaces)
@@ -581,10 +576,6 @@ public class GameManager : MonoBehaviour
 
         else
         {
-            //foreach (KeyValuePair<string, string> item in notSortedDictScore.OrderByDescending(key => key.Value))
-            //{
-            //    Debug.Log("Key: " + item.Key + " Value: " + item.Value);
-            //}
             foreach (KeyValuePair<string, string> player in notSortedDictScore.OrderByDescending(key => float.Parse(key.Value)))
             {
                 showTemplatePlayers += $"{playerPlace}.) {player.Key}".PadRight(63 - player.Key.Length - 2, '.') + "\n";
@@ -598,13 +589,11 @@ public class GameManager : MonoBehaviour
             }
         }
 
-
         playersAndScores[0] = showTemplatePlayers;
         playersAndScores[1] = showTemplateScores;
 
         return playersAndScores;
     }
-
 
     // Method resposnible for controlling Time.timeScale, after showing the win screen or lose screen flag is raising to true and game is frozen
     // When player press continue (win screen) or quit (win/lose screen) button, flag will be lowered to false and Time.timeScale will be set to 1f.
@@ -614,43 +603,47 @@ public class GameManager : MonoBehaviour
         {
             Time.timeScale = 0f;
         }
+
         else
         {
             Time.timeScale = 1f;
         }
     }
 
-
     // GUI section responsible for showing win/lose/scoreboard boxes, life/timer/coins label
     private void OnGUI()
     {
         GUI.skin = levelSkin;
-
-        // In game/Level labels
-        // show timer, coins
-        // if level is higher than 1 than show score 
+        
         string winScreenLevelInfo = $"Level completion time: {levelCompleteTime.ToString("0.0")}" +
             $"\nCoins collected {currentCoinCount}/{totalCoinCount}" +
             $"\nLevel score: {levelScore}\nTotal score: {currentScore}";
         string loseScreenLevelInfo = $"Coins collected {currentCoinCount}/{totalCoinCount}" +
             $"\nLevel score: {levelScore}\nTotal score: {currentScore}";
-
+        
+        // In game level labels, timers, coins
         GUI.Label(lifeRect, $"Life: {life}/{maxLife}", levelSkin.GetStyle("Life"));
+
+        // if it is level select show score in top center of screen
         if (isLevelSelect)
         {
             GUI.Label(currentScoreLevelSelectRect, $"Score: {currentScore}", levelSkin.GetStyle("Level Select Score"));
         }
 
+        // if it is normal game level show time, coins, score labels
         if (!isLevelSelect)
         {
             GUI.Label(timerRect, $"Time: {currentTime.ToString("0.0")}/{startTime}", levelSkin.GetStyle("Timer"));
             GUI.Label(coinsRect, $"Coins: {currentCoinCount}/{totalCoinCount}", levelSkin.GetStyle("Coins"));
+
+            // if score is greater than 0, show it
             if (currentScore > 0)
             {
                 GUI.Label(scoreRect, $"Score: {currentScore}", levelSkin.GetStyle("Score"));
             }
         }
 
+        // if time falls below 5 seconds, the timer color will change for red
         if (currentTime <= 5)
         {
             levelSkin.GetStyle("Timer").normal.textColor = warningTimerColor;

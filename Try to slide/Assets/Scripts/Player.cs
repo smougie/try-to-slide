@@ -31,16 +31,8 @@ public class Player : MonoBehaviour
 
     private void Update()
     {
-        //if (!GameManager.gameFinished)
-        //{
-        //    // when player falls down to 0 lifes, game ends
-        //    if (GameManager.life <= 0)
-        //    {
-        //        GameManager.LoseLevel();
-        //    }
-        //}
-
-        // timer for invictible buff, while true player color is black
+        // if player pick up invictible buff this counter will start counting down buff time until time of buff will be greater than 0
+        // Player cube will change color for the buff time
         if (invictibleTime > 0)
         {
             invictibleTime -= Time.deltaTime;

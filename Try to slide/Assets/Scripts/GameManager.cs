@@ -577,7 +577,7 @@ public class GameManager : MonoBehaviour
         int playerPlace = 1;
         if (notSortedDictScore.Count() < showPlayerPlaces)
         {
-            foreach (KeyValuePair<string, string> player in notSortedDictScore.OrderByDescending(key => key.Value))
+            foreach (KeyValuePair<string, string> player in notSortedDictScore.OrderByDescending(key => float.Parse(key.Value)))
             {
                 print($"{playerPlace}.) {player.Key}".PadRight(60, '.') + "\n" + $"{player.Value}\n");
                 showTemplatePlayers += $"{playerPlace}.) {player.Key}".PadRight(60, '.') + "\n";
@@ -592,7 +592,7 @@ public class GameManager : MonoBehaviour
             //{
             //    Debug.Log("Key: " + item.Key + " Value: " + item.Value);
             //}
-            foreach (KeyValuePair<string, string> player in notSortedDictScore.OrderByDescending(key => key.Value))
+            foreach (KeyValuePair<string, string> player in notSortedDictScore.OrderByDescending(key => float.Parse(key.Value)))
             {
                 print("K: " + player.Key + " V: "+ player.Value);
                 showTemplatePlayers += $"{playerPlace}.) {player.Key}".PadRight(60, '.') + "\n";

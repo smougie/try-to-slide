@@ -654,7 +654,6 @@ public class GameManager : MonoBehaviour
             levelSkin.GetStyle("Timer").normal.textColor = normalTimerColor;
         }
 
-
         /*
          * Win/Lose/Scoreboard screen
          * if any of this flag is raised, than game is freezed

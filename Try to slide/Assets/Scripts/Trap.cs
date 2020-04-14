@@ -2,10 +2,8 @@
 
 public class Trap : MonoBehaviour
 {
-    [SerializeField]
-    private float delayTime = 0;
-    [SerializeField]
-    private float pasueTime = 0;
+    [SerializeField] private float delayTime = 0;
+    [SerializeField] private float pasueTime = 0;
     private Animation spikeAnimation;
 
     void Start()

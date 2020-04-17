@@ -12,6 +12,9 @@ TagManager:
   - Life
   - Max Life
   - Invictible
+  - Gas
+  - Fire
+  - Ice
   layers:
   - Default
   - TransparentFX

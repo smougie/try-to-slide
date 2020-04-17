@@ -73,8 +73,14 @@ public class Player : MonoBehaviour
         // collision with enemy 
         if (collision.transform.tag == "Enemy")
         {
+            // if invictible buff is active player can't collide with Enemy, he can pass through Enemy
+            if (invictibleIsActive)
+            {
+                Physics.IgnoreCollision(collision.transform.GetComponent<Collider>(), gameObject.GetComponent<Collider>());
+            }
+
             // if not while invictible buff is triggered player dies when collides with enemy
-            if (!invictibleIsActive)
+            else
             {
                 Die();
             }
@@ -85,6 +91,10 @@ public class Player : MonoBehaviour
     // tracking player triggering other objects
     private void OnTriggerEnter(Collider other)
     {
+        if (other.transform.tag == "Gas")
+        {
+            Die();
+        }
         // shield node trigger invictible buff and destroys shield node object
         if (other.transform.tag == "Invictible")
         {
@@ -122,6 +132,7 @@ public class Player : MonoBehaviour
             if (GameManager.life < GameManager.maxLife)
             {
                 GameManager.life++;
+                PlaySound(3);
                 Destroy(other.gameObject);
             }
 
@@ -136,6 +147,7 @@ public class Player : MonoBehaviour
         if (other.transform.tag == "Max Life")
         {
             GameManager.maxLife++;
+            PlaySound(4);
             Destroy(other.gameObject);
         }
     }

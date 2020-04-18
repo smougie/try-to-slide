@@ -15,6 +15,9 @@ TagManager:
   - Gas
   - Fire
   - Ice
+  - Gas Prot
+  - Fire Prot
+  - Ice Prot
   layers:
   - Default
   - TransparentFX

@@ -16,10 +16,19 @@ public class Player : MonoBehaviour
 
     private float maxSpeed = 7.5f;  // maximum movement speed value
     private float invictibleTime;  // period of time for invictible buff
+    private float elementalProtTime;  // period of time for elemental protection buff
+    private string currentElementalProt;
 
     private bool lifeIsFull;  // life is full flag, raising when player try to collect life node and life is full
     private bool invictibleIsActive;  // invictible buff flag, raising when player collect shield node
-    
+    private bool gasImmune;
+    private bool fireImmune;
+    private bool iceImmune;
+
+    string gasProt = "Gas Prot";
+    string fireProt = "Fire Prot";
+    string iceProt = "Ice Prot";
+
 
     private void Start()
     {
@@ -43,6 +52,15 @@ public class Player : MonoBehaviour
         if (invictibleTime <= 0)
         {
             InvictibleOff();
+        }
+
+        if (elementalProtTime > 0)
+        {
+            elementalProtTime -= Time.deltaTime;
+        }
+        if (elementalProtTime <= 0)
+        {
+            ElementalProtOff();
         }
     }
 
@@ -91,15 +109,46 @@ public class Player : MonoBehaviour
     // tracking player triggering other objects
     private void OnTriggerEnter(Collider other)
     {
-        if (other.transform.tag == "Gas")
+
+        if (other.transform.tag == "Gas" && !gasImmune)
         {
             Die();
         }
+
+        if (other.transform.tag == "Fire" && !fireImmune)
+        {
+            Die();
+        }
+
+        if (other.transform.tag == "Ice" && !iceImmune)
+        {
+            Die();
+        }
+
         // shield node trigger invictible buff and destroys shield node object
         if (other.transform.tag == "Invictible")
         {
             InvictibleOn();
             Destroy(other.gameObject);
+        }
+        if (other.transform.tag == "Gas Prot" || other.transform.tag == "Fire Prot" || other.transform.tag == "Ice Prot")
+        {
+            Destroy(other.gameObject);
+            if (other.transform.tag == "Gas Prot")
+            {
+                ElementalProtOn(other.transform.tag);
+                PlaySound(7);
+            }
+            else if (other.transform.tag == "Fire Prot")
+            {
+                ElementalProtOn(other.transform.tag);
+                PlaySound(5);
+            }
+            else if (other.transform.tag == "Ice Prot")
+            {
+                ElementalProtOn(other.transform.tag);
+                PlaySound(6);
+            }
         }
         // Goal trigger CompleteLevel method and playing sound
         if (other.transform.tag == "Goal")
@@ -186,6 +235,33 @@ public class Player : MonoBehaviour
         playerRenderer.material = invictibleStance;
     }
 
+    private void ElementalProtOn(string elementalTag)
+    {
+        elementalProtTime = 10f;
+
+        if (elementalTag == gasProt)
+        {
+            gasImmune = true;
+            fireImmune = false;
+            iceImmune = false;
+            currentElementalProt = gasProt;
+        }
+        if (elementalTag == fireProt)
+        {
+            fireImmune = true;
+            gasImmune = false;
+            iceImmune = false;
+            currentElementalProt = fireProt;
+        }
+        if (elementalTag == iceProt)
+        {
+            iceImmune = true;
+            fireImmune = false;
+            gasImmune = false;
+            currentElementalProt = iceProt;
+        }
+    }
+
 
     // Method resposible for turning off ivictible buff, dropping flag and setting normal color
     private void InvictibleOff()
@@ -194,6 +270,22 @@ public class Player : MonoBehaviour
         playerRenderer.material = normalStance;
     }
 
+    private void ElementalProtOff()
+    {
+        if (currentElementalProt == gasProt)
+        {
+            gasImmune = false;
+        }
+        if (currentElementalProt == fireProt)
+        {
+            fireImmune = false;
+        }
+        if (currentElementalProt == iceProt)
+        {
+            iceImmune = false;
+        }
+        currentElementalProt = "";
+    }
 
     // Method responsible for showing life is full while player is on full hp and try to collect life node
     // also shows timer for invictible buff in bot center of screen
@@ -207,5 +299,8 @@ public class Player : MonoBehaviour
         {
             GUI.Label(new Rect(Screen.width / 2 - 70, Screen.height * .90f, 400, 400), $"Invictible for {invictibleTime.ToString("0.0")} seconds.");
         }
+        GUI.Label(new Rect(Screen.width / 2, Screen.height * .15f, 200, 20), $"Current Prot: {currentElementalProt}");
+        GUI.Label(new Rect(Screen.width / 2, Screen.height * .17f, 200, 20), $"Buff time: {elementalProtTime}");
+        GUI.Label(new Rect(Screen.width / 2, Screen.height * .19f, 200, 20), $"Gas: {gasImmune} | Fire: {fireImmune} | Ice: {iceImmune}");
     }
 }

@@ -242,6 +242,14 @@ public class Player : MonoBehaviour
         GameObject playerBuff = Instantiate(shieldPrefab, gameObject.transform) as GameObject;
     }
 
+    // Method resposible for turning off ivictible buff, dropping flag and setting normal color
+    private void InvictibleOff()
+    {
+        invictibleIsActive = false;
+        playerRenderer.material = normalStance;
+        Destroy(playerBuff);
+    }
+
     private void ElementalProtOn(string elementalTag)
     {
         elementalProtTime = 10f;
@@ -271,14 +279,6 @@ public class Player : MonoBehaviour
             currentElementalProt = iceProt;
             //playerBuff = SpawnPlayerBuff(iceOrbPrefab);
         }
-    }
-
-    // Method resposible for turning off ivictible buff, dropping flag and setting normal color
-    private void InvictibleOff()
-    {
-        invictibleIsActive = false;
-        playerRenderer.material = normalStance;
-        Destroy(playerBuff);
     }
 
     private void ElementalProtOff()

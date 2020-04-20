@@ -3,41 +3,37 @@
 // Player class responsible for moving player, track collisions and triggers, destroying player and controlling sound effects.
 public class Player : MonoBehaviour
 {
+    [SerializeField] private float moveSpeed = 0;  // player movement speed, accesible from inspector
     [SerializeField] private GameObject deathParticles = null;  // insert death particles object here
-    [SerializeField] private AudioClip[] audioClips = null;  // audio clips array for player sounds
+    [SerializeField] private GameObject physicalOrbPrefab = null;  // variable storing Physical Orb Prefab 
+    [SerializeField] private GameObject fireOrbPrefab = null;  // variable storing Fire Orb Prefab
+    [SerializeField] private GameObject gasOrbPrefab = null;  // variable storing Gas Orb Prefab
+    [SerializeField] private GameObject iceOrbPrefab = null;  // variable storing Ice Orb Prefab
     [SerializeField] private Material normalStance = null;  // material for normal stance
     [SerializeField] private Material InviolableStance = null;  // material for invictible stance
-    [SerializeField] private float moveSpeed = 0;  // player movement speed, accesible from inspector
+    [SerializeField] private AudioClip[] audioClips = null;  // audio clips array for player sounds
 
     private Rigidbody playerRb;  // player rigidbody variable
     private Vector3 input;  // variable create to manipulate player position by using arrow keys
     private Vector3 spawnPoint;  // spawn point for player, use game object inside Unity to change it by moving
     private Renderer playerRenderer;  // variable storing player renderer necessary
+    private GameObject playerBuff;  // variable storing currently spawned player buff object
 
     private float maxSpeed = 7.5f;  // maximum movement speed value
     private float InviolableTime;  // period of time for invictible buff
     private float elementalProtTime;  // period of time for elemental protection buff
-    private string currentElementalProt;
+    private string currentElementalProt;  // string storing string with tag
 
     private bool lifeIsFull;  // life is full flag, raising when player try to collect life node and life is full
-    private bool InviolableIsActive;  // invictible buff flag, raising when player collect shield node
+    private bool gasImmune;  // flag for Gas resistance
+    private bool fireImmune;  // flag for Fire resistance
+    private bool iceImmune;  // flag for Ice resistance
+    private bool physicalImmune;  // Flag for Physical resistance
 
-    [SerializeField] private GameObject physicalOrbPrefab = null;
-    [SerializeField] private GameObject fireOrbPrefab = null;
-    [SerializeField] private GameObject gasOrbPrefab = null;
-    [SerializeField] private GameObject iceOrbPrefab = null;
-    private GameObject playerBuff;
-
-    private bool gasImmune;
-    private bool fireImmune;
-    private bool iceImmune;
-    private bool physicalImmune;
-    private bool playerBuffActive;
-
-    string gasProt = "Gas Prot";
-    string fireProt = "Fire Prot";
-    string iceProt = "Ice Prot";
-    string physicalProt = "Physical Prot";
+    string gasProt = "Gas Prot";  // variable storing gas tag
+    string fireProt = "Fire Prot";  // variable storing fire tag
+    string iceProt = "Ice Prot";  // variable storing ice tag
+    string physicalProt = "Physical Prot";  // variable storing physical tag
 
 
     private void Start()
@@ -50,6 +46,7 @@ public class Player : MonoBehaviour
 
     private void Update()
     {
+        // Tracking status of buff counter, if greater than 0, count down to 0, if less than 0, set to 0 and turn off buff using ElementalProtOff() method
         if (elementalProtTime > 0)
         {
             elementalProtTime -= Time.deltaTime;
@@ -80,7 +77,7 @@ public class Player : MonoBehaviour
 
     }
 
-    // tracking player collisions with other objects
+    // tracking player collisions with other objects - currently checking name and physical immune, if player collide with enemy and he is not phys immune he will die
     void OnCollisionEnter(Collision collision)
     {
         if (collision.transform.name == "Enemy" && !physicalImmune)
@@ -92,65 +89,11 @@ public class Player : MonoBehaviour
     // tracking player triggering other objects
     private void OnTriggerStay(Collider other)
     {
-
-        if (other.transform.tag == "Gas" && !gasImmune)
-        {
-            Die();
-        }
-
-        if (other.transform.tag == "Fire" && !fireImmune)
-        {
-            Die();
-        }
-
-        if (other.transform.tag == "Ice" && !iceImmune)
-        {
-            Die();
-        }
-        if (other.transform.tag == "Physical" && !physicalImmune)
-        {
-            Die();
-        }
-
-        if (other.transform.tag == "Gas Prot" || other.transform.tag == "Fire Prot" || other.transform.tag == "Ice Prot" || other.transform.tag == "Physical Prot")
-        {
-            Destroy(other.gameObject);
-            if (other.transform.tag == "Gas Prot")
-            {
-                ElementalProtOn(other.transform.tag);
-                PlaySound(7);
-            }
-            else if (other.transform.tag == "Fire Prot")
-            {
-                ElementalProtOn(other.transform.tag);
-                PlaySound(5);
-            }
-            else if (other.transform.tag == "Ice Prot")
-            {
-                ElementalProtOn(other.transform.tag);
-                PlaySound(6);
-            }
-            else if (other.transform.tag == "Physical Prot")
-            {
-                ElementalProtOn(other.transform.tag);
-                PlaySound(8);
-            }
-        }
         // Goal trigger CompleteLevel method and playing sound
         if (other.transform.tag == "Goal")
         {
             PlaySound(2);
             GameManager.CompleteLevel();
-        }
-
-        // Trap trigger Die method
-        if (other.transform.tag == "Trap")
-        {
-            // if not while invictible buff is triggered, player dies from trap spikes
-            if (!InviolableIsActive)
-            {
-                Die();
-            }
         }
 
         // Coin trigger CoinPickUp method and destroy coin object and play sound
@@ -184,6 +127,53 @@ public class Player : MonoBehaviour
             GameManager.maxLife++;
             PlaySound(4);
             Destroy(other.gameObject);
+        }
+
+        //  section with statements which are responsible for killing player if he is not resistant to elemental and he trigger trap
+        if (other.transform.tag == "Gas" && !gasImmune)
+        {
+            Die();
+        }
+
+        if (other.transform.tag == "Fire" && !fireImmune)
+        {
+            Die();
+        }
+
+        if (other.transform.tag == "Ice" && !iceImmune)
+        {
+            Die();
+        }
+
+        if (other.transform.tag == "Physical" && !physicalImmune)
+        {
+            Die();
+        }
+        // section with statements repsonsible for picking up buff shrine, playing sound and triggering buff on player using ElementalProtOn() method
+        
+        if (other.transform.tag == "Gas Prot" || other.transform.tag == "Fire Prot" || other.transform.tag == "Ice Prot" || other.transform.tag == "Physical Prot")
+        {
+            Destroy(other.gameObject);
+            if (other.transform.tag == "Gas Prot")
+            {
+                ElementalProtOn(other.transform.tag);
+                PlaySound(7);
+            }
+            else if (other.transform.tag == "Fire Prot")
+            {
+                ElementalProtOn(other.transform.tag);
+                PlaySound(5);
+            }
+            else if (other.transform.tag == "Ice Prot")
+            {
+                ElementalProtOn(other.transform.tag);
+                PlaySound(6);
+            }
+            else if (other.transform.tag == "Physical Prot")
+            {
+                ElementalProtOn(other.transform.tag);
+                PlaySound(8);
+            }
         }
     }
 
@@ -254,29 +244,28 @@ public class Player : MonoBehaviour
 
     private void ElementalProtOff()
     {
-        if (!playerBuffActive)
+
+        Destroy(playerBuff.gameObject);
+        if (currentElementalProt == gasProt)
         {
-            Destroy(playerBuff.gameObject);
-            if (currentElementalProt == gasProt)
-            {
-                gasImmune = false;
-            }
-            if (currentElementalProt == fireProt)
-            {
-                fireImmune = false;
-            }
-            if (currentElementalProt == iceProt)
-            {
-                iceImmune = false;
-            }
-            if (currentElementalProt == physicalProt)
-            {
-                physicalImmune = false;
-                playerRenderer.material = normalStance;
-                Physics.IgnoreCollision(GameObject.Find("Enemy").GetComponent<Collider>(), gameObject.GetComponent<Collider>(), false);
-            }
-            currentElementalProt = "";
+            gasImmune = false;
         }
+        if (currentElementalProt == fireProt)
+        {
+            fireImmune = false;
+        }
+        if (currentElementalProt == iceProt)
+        {
+            iceImmune = false;
+        }
+        if (currentElementalProt == physicalProt)
+        {
+            physicalImmune = false;
+            playerRenderer.material = normalStance;
+            Physics.IgnoreCollision(GameObject.Find("Enemy").GetComponent<Collider>(), gameObject.GetComponent<Collider>(), false);
+        }
+        currentElementalProt = "";
+
     }
 
     private GameObject SpawnPlayerBuff(GameObject buffToSpawn)
@@ -313,8 +302,5 @@ public class Player : MonoBehaviour
         {
             GUI.Label(new Rect(Screen.width / 2 - 70, Screen.height * .90f, 400, 400), physicalResString);
         }
-        //GUI.Label(new Rect(Screen.width / 2, Screen.height * .15f, 200, 20), $"Current Prot: {currentElementalProt}");
-        //GUI.Label(new Rect(Screen.width / 2, Screen.height * .17f, 200, 20), $"Buff time: {elementalProtTime}");
-        //GUI.Label(new Rect(Screen.width / 2, Screen.height * .19f, 400, 40), $"Physical: {physicalImmune} | Ice: {iceImmune} | Fire: {fireImmune} | Gas: {gasImmune}");
     }
 }

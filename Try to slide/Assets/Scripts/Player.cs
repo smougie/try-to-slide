@@ -21,6 +21,13 @@ public class Player : MonoBehaviour
 
     private bool lifeIsFull;  // life is full flag, raising when player try to collect life node and life is full
     private bool invictibleIsActive;  // invictible buff flag, raising when player collect shield node
+
+    [SerializeField] private GameObject shieldPrefab = null;
+    [SerializeField] private GameObject fireOrbPrefab = null;
+    [SerializeField] private GameObject gasOrbPrefab = null;
+    [SerializeField] private GameObject iceOrbPrefab = null;
+    private GameObject playerBuff;
+
     private bool gasImmune;
     private bool fireImmune;
     private bool iceImmune;
@@ -45,7 +52,6 @@ public class Player : MonoBehaviour
         if (invictibleTime > 0)
         {
             invictibleTime -= Time.deltaTime;
-            playerRenderer.material.SetColor("_Color", Color.black);
         }
 
         // if invictible time falls to 0, running method to turn off this buff
@@ -233,18 +239,20 @@ public class Player : MonoBehaviour
         invictibleTime = 5f;
         invictibleIsActive = true;
         playerRenderer.material = invictibleStance;
+        GameObject playerBuff = Instantiate(shieldPrefab, gameObject.transform) as GameObject;
     }
 
     private void ElementalProtOn(string elementalTag)
     {
         elementalProtTime = 10f;
-
+        Destroy(playerBuff);
         if (elementalTag == gasProt)
         {
             gasImmune = true;
             fireImmune = false;
             iceImmune = false;
             currentElementalProt = gasProt;
+            
         }
         if (elementalTag == fireProt)
         {
@@ -252,6 +260,8 @@ public class Player : MonoBehaviour
             gasImmune = false;
             iceImmune = false;
             currentElementalProt = fireProt;
+            //playerBuff = SpawnPlayerBuff(fireOrbPrefab);
+            //playerBuff = Instantiate(fireOrbPrefab, gameObject.transform);
         }
         if (elementalTag == iceProt)
         {
@@ -259,19 +269,21 @@ public class Player : MonoBehaviour
             fireImmune = false;
             gasImmune = false;
             currentElementalProt = iceProt;
+            //playerBuff = SpawnPlayerBuff(iceOrbPrefab);
         }
     }
-
 
     // Method resposible for turning off ivictible buff, dropping flag and setting normal color
     private void InvictibleOff()
     {
         invictibleIsActive = false;
         playerRenderer.material = normalStance;
+        Destroy(playerBuff);
     }
 
     private void ElementalProtOff()
     {
+        Destroy(playerBuff);
         if (currentElementalProt == gasProt)
         {
             gasImmune = false;
@@ -285,6 +297,16 @@ public class Player : MonoBehaviour
             iceImmune = false;
         }
         currentElementalProt = "";
+    }
+
+    private GameObject SpawnPlayerBuff(GameObject buffToSpawn)
+    {
+        return Instantiate(buffToSpawn, gameObject.transform);
+    }
+
+    private void DestroyPlayerBuff(GameObject buffToDestroy)
+    {
+        Destroy(playerBuff);
     }
 
     // Method responsible for showing life is full while player is on full hp and try to collect life node

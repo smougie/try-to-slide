@@ -106,7 +106,7 @@ Animation:
   m_Animations:
   - {fileID: 7400000, guid: 42dd4331a8ac57841b0ba4f49c69f52c, type: 2}
   m_WrapMode: 0
-  m_PlayAutomatically: 1
+  m_PlayAutomatically: 0
   m_AnimatePhysics: 0
   m_CullingType: 0
 --- !u!114 &5326601837562825310
@@ -122,7 +122,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   delayTime: 0
-  pasueTime: 3
+  repeatRate: 0
 --- !u!1 &5326601837062001885
 GameObject:
   m_ObjectHideFlags: 0

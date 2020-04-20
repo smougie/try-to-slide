@@ -83,25 +83,14 @@ public class Player : MonoBehaviour
     // tracking player collisions with other objects
     void OnCollisionEnter(Collision collision)
     {
-        // collision with enemy 
-        if (collision.transform.tag == "Enemy")
+        if (collision.transform.name == "Enemy" && !physicalImmune)
         {
-            // if invictible buff is active player can't collide with Enemy, he can pass through Enemy
-            if (physicalImmune)
-            {
-                Physics.IgnoreCollision(collision.transform.GetComponent<Collider>(), gameObject.GetComponent<Collider>());
-            }
-
-            // if not while invictible buff is triggered player dies when collides with enemy
-            else
-            {
-                Die();
-            }
+            Die();
         }
     }
 
     // tracking player triggering other objects
-    private void OnTriggerEnter(Collider other)
+    private void OnTriggerStay(Collider other)
     {
 
         if (other.transform.tag == "Gas" && !gasImmune)
@@ -144,6 +133,7 @@ public class Player : MonoBehaviour
             else if (other.transform.tag == "Physical Prot")
             {
                 ElementalProtOn(other.transform.tag);
+                PlaySound(8);
             }
         }
         // Goal trigger CompleteLevel method and playing sound
@@ -257,6 +247,7 @@ public class Player : MonoBehaviour
             iceImmune = false;
             currentElementalProt = physicalProt;
             playerRenderer.material = InviolableStance;
+            Physics.IgnoreCollision(GameObject.Find("Enemy").GetComponent<Collider>(), gameObject.GetComponent<Collider>());
             playerBuff = SpawnPlayerBuff(physicalOrbPrefab);
         }
     }
@@ -282,6 +273,7 @@ public class Player : MonoBehaviour
             {
                 physicalImmune = false;
                 playerRenderer.material = normalStance;
+                Physics.IgnoreCollision(GameObject.Find("Enemy").GetComponent<Collider>(), gameObject.GetComponent<Collider>(), false);
             }
             currentElementalProt = "";
         }
@@ -296,16 +288,33 @@ public class Player : MonoBehaviour
     // also shows timer for invictible buff in bot center of screen
     private void OnGUI()
     {
+        string gasResString = $"Gas resistant for {elementalProtTime.ToString("0.0")} seconds.";
+        string fireResString = $"Fire resistant for {elementalProtTime.ToString("0.0")} seconds.";
+        string iceResString = $"Ice resistant for {elementalProtTime.ToString("0.0")} seconds.";
+        string physicalResString = $"Invulnerable for {elementalProtTime.ToString("0.0")} seconds.";
+
         if (lifeIsFull)
         {
             GUI.Label(new Rect(Screen.width / 2, Screen.height * .95f, 200, 20), "Life is full");
         }
-        if (InviolableIsActive)
+        if (gasImmune)
         {
-            GUI.Label(new Rect(Screen.width / 2 - 70, Screen.height * .90f, 400, 400), $"Invictible for {InviolableTime.ToString("0.0")} seconds.");
+            GUI.Label(new Rect(Screen.width / 2 - 70, Screen.height * .90f, 400, 400), gasResString);
         }
-        GUI.Label(new Rect(Screen.width / 2, Screen.height * .15f, 200, 20), $"Current Prot: {currentElementalProt}");
-        GUI.Label(new Rect(Screen.width / 2, Screen.height * .17f, 200, 20), $"Buff time: {elementalProtTime}");
-        GUI.Label(new Rect(Screen.width / 2, Screen.height * .19f, 400, 40), $"Physical: {physicalImmune} | Ice: {iceImmune} | Fire: {fireImmune} | Gas: {gasImmune}");
+        if (fireImmune)
+        {
+            GUI.Label(new Rect(Screen.width / 2 - 70, Screen.height * .90f, 400, 400), fireResString);
+        }
+        if (iceImmune)
+        {
+            GUI.Label(new Rect(Screen.width / 2 - 70, Screen.height * .90f, 400, 400), iceResString);
+        }
+        if (physicalImmune)
+        {
+            GUI.Label(new Rect(Screen.width / 2 - 70, Screen.height * .90f, 400, 400), physicalResString);
+        }
+        //GUI.Label(new Rect(Screen.width / 2, Screen.height * .15f, 200, 20), $"Current Prot: {currentElementalProt}");
+        //GUI.Label(new Rect(Screen.width / 2, Screen.height * .17f, 200, 20), $"Buff time: {elementalProtTime}");
+        //GUI.Label(new Rect(Screen.width / 2, Screen.height * .19f, 400, 40), $"Physical: {physicalImmune} | Ice: {iceImmune} | Fire: {fireImmune} | Gas: {gasImmune}");
     }
 }

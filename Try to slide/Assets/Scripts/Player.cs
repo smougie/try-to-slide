@@ -6,7 +6,7 @@ public class Player : MonoBehaviour
     [SerializeField] private GameObject deathParticles = null;  // insert death particles object here
     [SerializeField] private AudioClip[] audioClips = null;  // audio clips array for player sounds
     [SerializeField] private Material normalStance = null;  // material for normal stance
-    [SerializeField] private Material invictibleStance = null;  // material for invictible stance
+    [SerializeField] private Material InviolableStance = null;  // material for invictible stance
     [SerializeField] private float moveSpeed = 0;  // player movement speed, accesible from inspector
 
     private Rigidbody playerRb;  // player rigidbody variable
@@ -15,14 +15,14 @@ public class Player : MonoBehaviour
     private Renderer playerRenderer;  // variable storing player renderer necessary
 
     private float maxSpeed = 7.5f;  // maximum movement speed value
-    private float invictibleTime;  // period of time for invictible buff
+    private float InviolableTime;  // period of time for invictible buff
     private float elementalProtTime;  // period of time for elemental protection buff
     private string currentElementalProt;
 
     private bool lifeIsFull;  // life is full flag, raising when player try to collect life node and life is full
-    private bool invictibleIsActive;  // invictible buff flag, raising when player collect shield node
+    private bool InviolableIsActive;  // invictible buff flag, raising when player collect shield node
 
-    [SerializeField] private GameObject shieldPrefab = null;
+    [SerializeField] private GameObject physicalOrbPrefab = null;
     [SerializeField] private GameObject fireOrbPrefab = null;
     [SerializeField] private GameObject gasOrbPrefab = null;
     [SerializeField] private GameObject iceOrbPrefab = null;
@@ -31,10 +31,13 @@ public class Player : MonoBehaviour
     private bool gasImmune;
     private bool fireImmune;
     private bool iceImmune;
+    private bool physicalImmune;
+    private bool playerBuffActive;
 
     string gasProt = "Gas Prot";
     string fireProt = "Fire Prot";
     string iceProt = "Ice Prot";
+    string physicalProt = "Physical Prot";
 
 
     private void Start()
@@ -47,29 +50,16 @@ public class Player : MonoBehaviour
 
     private void Update()
     {
-        // if player pick up invictible buff this counter will start counting down buff time until time of buff will be greater than 0
-        // Player cube will change color for the buff time
-        if (invictibleTime > 0)
-        {
-            invictibleTime -= Time.deltaTime;
-        }
-
-        // if invictible time falls to 0, running method to turn off this buff
-        if (invictibleTime <= 0)
-        {
-            InvictibleOff();
-        }
-
         if (elementalProtTime > 0)
         {
             elementalProtTime -= Time.deltaTime;
         }
-        if (elementalProtTime <= 0)
+        if (elementalProtTime < 0)
         {
+            elementalProtTime = 0;
             ElementalProtOff();
         }
     }
-
 
     private void FixedUpdate()
     {
@@ -90,7 +80,6 @@ public class Player : MonoBehaviour
 
     }
 
-
     // tracking player collisions with other objects
     void OnCollisionEnter(Collision collision)
     {
@@ -98,7 +87,7 @@ public class Player : MonoBehaviour
         if (collision.transform.tag == "Enemy")
         {
             // if invictible buff is active player can't collide with Enemy, he can pass through Enemy
-            if (invictibleIsActive)
+            if (physicalImmune)
             {
                 Physics.IgnoreCollision(collision.transform.GetComponent<Collider>(), gameObject.GetComponent<Collider>());
             }
@@ -110,7 +99,6 @@ public class Player : MonoBehaviour
             }
         }
     }
-
 
     // tracking player triggering other objects
     private void OnTriggerEnter(Collider other)
@@ -130,14 +118,12 @@ public class Player : MonoBehaviour
         {
             Die();
         }
-
-        // shield node trigger invictible buff and destroys shield node object
-        if (other.transform.tag == "Invictible")
+        if (other.transform.tag == "Physical" && !physicalImmune)
         {
-            InvictibleOn();
-            Destroy(other.gameObject);
+            Die();
         }
-        if (other.transform.tag == "Gas Prot" || other.transform.tag == "Fire Prot" || other.transform.tag == "Ice Prot")
+
+        if (other.transform.tag == "Gas Prot" || other.transform.tag == "Fire Prot" || other.transform.tag == "Ice Prot" || other.transform.tag == "Physical Prot")
         {
             Destroy(other.gameObject);
             if (other.transform.tag == "Gas Prot")
@@ -155,6 +141,10 @@ public class Player : MonoBehaviour
                 ElementalProtOn(other.transform.tag);
                 PlaySound(6);
             }
+            else if (other.transform.tag == "Physical Prot")
+            {
+                ElementalProtOn(other.transform.tag);
+            }
         }
         // Goal trigger CompleteLevel method and playing sound
         if (other.transform.tag == "Goal")
@@ -167,7 +157,7 @@ public class Player : MonoBehaviour
         if (other.transform.tag == "Trap")
         {
             // if not while invictible buff is triggered, player dies from trap spikes
-            if (!invictibleIsActive)
+            if (!InviolableIsActive)
             {
                 Die();
             }
@@ -207,7 +197,6 @@ public class Player : MonoBehaviour
         }
     }
 
-
     // if player leaves life node while he is on full hp, drop flag and stop showing label with info
     private void OnTriggerExit(Collider other)
     {
@@ -222,7 +211,6 @@ public class Player : MonoBehaviour
         sound.PlayOneShot(audioClips[clipIndex]);
     }
 
-
     // Method responsible for instantiate death particles in place of player death, moving player to spawn point and playing sound
     private void Die()
     {
@@ -232,35 +220,18 @@ public class Player : MonoBehaviour
         GameManager.life -= 1;
     }
 
-
-    // Method responsible for turning on invictible buff, initializing buff time, raising flag and setting player color
-    private void InvictibleOn()
-    {
-        invictibleTime = 5f;
-        invictibleIsActive = true;
-        playerRenderer.material = invictibleStance;
-        GameObject playerBuff = Instantiate(shieldPrefab, gameObject.transform) as GameObject;
-    }
-
-    // Method resposible for turning off ivictible buff, dropping flag and setting normal color
-    private void InvictibleOff()
-    {
-        invictibleIsActive = false;
-        playerRenderer.material = normalStance;
-        Destroy(playerBuff);
-    }
-
     private void ElementalProtOn(string elementalTag)
     {
         elementalProtTime = 10f;
         Destroy(playerBuff);
+        playerRenderer.material = normalStance;
         if (elementalTag == gasProt)
         {
             gasImmune = true;
             fireImmune = false;
             iceImmune = false;
             currentElementalProt = gasProt;
-            
+            playerBuff = SpawnPlayerBuff(gasOrbPrefab);
         }
         if (elementalTag == fireProt)
         {
@@ -268,8 +239,7 @@ public class Player : MonoBehaviour
             gasImmune = false;
             iceImmune = false;
             currentElementalProt = fireProt;
-            //playerBuff = SpawnPlayerBuff(fireOrbPrefab);
-            //playerBuff = Instantiate(fireOrbPrefab, gameObject.transform);
+            playerBuff = SpawnPlayerBuff(fireOrbPrefab);
         }
         if (elementalTag == iceProt)
         {
@@ -277,36 +247,49 @@ public class Player : MonoBehaviour
             fireImmune = false;
             gasImmune = false;
             currentElementalProt = iceProt;
-            //playerBuff = SpawnPlayerBuff(iceOrbPrefab);
+            playerBuff = SpawnPlayerBuff(iceOrbPrefab);
+        }
+        if (elementalTag == physicalProt)
+        {
+            physicalImmune = true;
+            gasImmune = false;
+            fireImmune = false;
+            iceImmune = false;
+            currentElementalProt = physicalProt;
+            playerRenderer.material = InviolableStance;
+            playerBuff = SpawnPlayerBuff(physicalOrbPrefab);
         }
     }
 
     private void ElementalProtOff()
     {
-        Destroy(playerBuff);
-        if (currentElementalProt == gasProt)
+        if (!playerBuffActive)
         {
-            gasImmune = false;
+            Destroy(playerBuff.gameObject);
+            if (currentElementalProt == gasProt)
+            {
+                gasImmune = false;
+            }
+            if (currentElementalProt == fireProt)
+            {
+                fireImmune = false;
+            }
+            if (currentElementalProt == iceProt)
+            {
+                iceImmune = false;
+            }
+            if (currentElementalProt == physicalProt)
+            {
+                physicalImmune = false;
+                playerRenderer.material = normalStance;
+            }
+            currentElementalProt = "";
         }
-        if (currentElementalProt == fireProt)
-        {
-            fireImmune = false;
-        }
-        if (currentElementalProt == iceProt)
-        {
-            iceImmune = false;
-        }
-        currentElementalProt = "";
     }
 
     private GameObject SpawnPlayerBuff(GameObject buffToSpawn)
     {
         return Instantiate(buffToSpawn, gameObject.transform);
-    }
-
-    private void DestroyPlayerBuff(GameObject buffToDestroy)
-    {
-        Destroy(playerBuff);
     }
 
     // Method responsible for showing life is full while player is on full hp and try to collect life node
@@ -317,12 +300,12 @@ public class Player : MonoBehaviour
         {
             GUI.Label(new Rect(Screen.width / 2, Screen.height * .95f, 200, 20), "Life is full");
         }
-        if (invictibleIsActive)
+        if (InviolableIsActive)
         {
-            GUI.Label(new Rect(Screen.width / 2 - 70, Screen.height * .90f, 400, 400), $"Invictible for {invictibleTime.ToString("0.0")} seconds.");
+            GUI.Label(new Rect(Screen.width / 2 - 70, Screen.height * .90f, 400, 400), $"Invictible for {InviolableTime.ToString("0.0")} seconds.");
         }
         GUI.Label(new Rect(Screen.width / 2, Screen.height * .15f, 200, 20), $"Current Prot: {currentElementalProt}");
         GUI.Label(new Rect(Screen.width / 2, Screen.height * .17f, 200, 20), $"Buff time: {elementalProtTime}");
-        GUI.Label(new Rect(Screen.width / 2, Screen.height * .19f, 200, 20), $"Gas: {gasImmune} | Fire: {fireImmune} | Ice: {iceImmune}");
+        GUI.Label(new Rect(Screen.width / 2, Screen.height * .19f, 400, 40), $"Physical: {physicalImmune} | Ice: {iceImmune} | Fire: {fireImmune} | Gas: {gasImmune}");
     }
 }

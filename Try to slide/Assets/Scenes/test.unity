@@ -397,9 +397,9 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 8c82f4cf1bbdab845824189d9f9b7f5f, type: 3}
   - {fileID: 8300000, guid: b291c7fd6c1c7c34fadd5d87fa107d72, type: 3}
   normalStance: {fileID: 2100000, guid: fff35f267be07df48ac9e6f357d6953c, type: 2}
-  invictibleStance: {fileID: 2100000, guid: 3b14addd976f20949b25623b44a4fe91, type: 2}
+  InviolableStance: {fileID: 2100000, guid: 3b14addd976f20949b25623b44a4fe91, type: 2}
   moveSpeed: 30
-  shieldPrefab: {fileID: 6811480937203788140, guid: 3d1249c9b18556f49aee1ea7e65acbac,
+  physicalOrbPrefab: {fileID: 6811480937203788140, guid: 3d1249c9b18556f49aee1ea7e65acbac,
     type: 3}
   fireOrbPrefab: {fileID: 6734246190790805524, guid: a5b0fe2fdf708ec47b8caefe0271e769,
     type: 3}

@@ -2,8 +2,8 @@
 
 public class LockedDoor : MonoBehaviour
 {
-    [SerializeField] private GameObject doors;
-    [SerializeField] private GameObject key;
+    [SerializeField] private GameObject doors = null;
+    [SerializeField] private GameObject key = null;
 
     private Vector3 doorStartingRotation;
     private Vector3 doorEndingRotation;

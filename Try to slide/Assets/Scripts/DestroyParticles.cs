@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class DestroyDeathParticles : MonoBehaviour
+public class DestroyParticles : MonoBehaviour
 {
     public float lifetime;
 

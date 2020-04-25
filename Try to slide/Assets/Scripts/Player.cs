@@ -156,22 +156,22 @@ public class Player : MonoBehaviour
             Destroy(other.gameObject);
             if (other.transform.tag == "Gas Prot")
             {
-                ElementalProtOn(other.transform.tag);
+                ElementalProtOn(other.transform.tag, other.transform.GetComponent<ElementalProtShrine>().elementalProtTime);
                 PlaySound(7);
             }
             else if (other.transform.tag == "Fire Prot")
             {
-                ElementalProtOn(other.transform.tag);
+                ElementalProtOn(other.transform.tag, other.transform.GetComponent<ElementalProtShrine>().elementalProtTime);
                 PlaySound(5);
             }
             else if (other.transform.tag == "Ice Prot")
             {
-                ElementalProtOn(other.transform.tag);
+                ElementalProtOn(other.transform.tag, other.transform.GetComponent<ElementalProtShrine>().elementalProtTime);
                 PlaySound(6);
             }
             else if (other.transform.tag == "Physical Prot")
             {
-                ElementalProtOn(other.transform.tag);
+                ElementalProtOn(other.transform.tag, other.transform.GetComponent<ElementalProtShrine>().elementalProtTime);
                 PlaySound(8);
             }
         }
@@ -200,9 +200,9 @@ public class Player : MonoBehaviour
         GameManager.life -= 1;
     }
 
-    private void ElementalProtOn(string elementalTag)
+    private void ElementalProtOn(string elementalTag, int protTime)
     {
-        elementalProtTime = 10f;
+        elementalProtTime = protTime;
         Destroy(playerBuff);
         playerRenderer.material = normalStance;
         if (elementalTag == gasProt)

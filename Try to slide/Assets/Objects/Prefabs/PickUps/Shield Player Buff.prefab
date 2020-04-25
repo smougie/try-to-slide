@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 6811480937202955628}
   - component: {fileID: 6811480937201858476}
   - component: {fileID: 952796012}
+  - component: {fileID: 114492933948995456}
   m_Layer: 0
   m_Name: Shield Player Buff
   m_TagString: Physical Prot
@@ -91,3 +92,16 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 0.5122804, y: 0.107996136, z: 0.5131382}
   m_Center: {x: -9.2987475e-18, y: -0.02899807, z: -0.0065690726}
+--- !u!114 &114492933948995456
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6811480937203788140}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 84a089f1add971a47a90ae58397563d0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  elementalProtTime: 0

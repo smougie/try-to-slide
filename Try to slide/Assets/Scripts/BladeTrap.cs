@@ -3,7 +3,7 @@ using System.Collections;
 
 public class BladeTrap : MonoBehaviour
 {
-    [SerializeField] private int delayTime = 0;
+    [SerializeField] private float delayTime = 0;
     private Animation bladeAnimation;
     private Animation platformAnimation;
     
@@ -22,7 +22,7 @@ public class BladeTrap : MonoBehaviour
         }
     }
 
-    IEnumerator DelayedAnimation(int sec)
+    IEnumerator DelayedAnimation(float sec)
     {
         yield return new WaitForSeconds(sec);
         bladeAnimation.Play();

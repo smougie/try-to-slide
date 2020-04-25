@@ -27,9 +27,11 @@ public class GameManager : MonoBehaviour
 
     // Coin section
     [SerializeField] private GameObject coinParent = null;  // object with coin parent, coin parent is box when storing coin object to count them
+    [SerializeField] private GameObject enemyParent = null;  // object with enemy paren, enemy parent is box when storing enemie objects to count them
     [SerializeField] private float coinImportance = 0f;  // value from game manager inspector, setting how important are coins at level
     private static float coinImportanceCalc;  // var for storing coin importance necessary for score calculations
-    private static float totalCoinCount;  // var storing total number of coins at scene 
+    private static float totalCoinCount;  // var storing total number of coins at the scene 
+    private static float totalEnemiesCount;  // var storing total number of Enemies at the scene
     private static float currentCoinCount = 0f;  // current coin count at level
     private static float coinCompletion = 0f;  // var storing value with coin % completion at current scene 
     private static float coinScore;  // var storing coin score from current level
@@ -104,6 +106,7 @@ public class GameManager : MonoBehaviour
         {
             totalCoinCount = coinParent.transform.childCount;  // setting total coin count
         }
+        totalEnemiesCount = enemyParent.transform.childCount;
         numberOfLevels = SceneManager.sceneCountInBuildSettings - 2;  // variable with number of levels
         currentTime = startTime;  // seting start time as current time
         currentCoinCount = 0f;  // reseting coin count value when starting level

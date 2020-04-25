@@ -237,7 +237,7 @@ public class Player : MonoBehaviour
             iceImmune = false;
             currentElementalProt = physicalProt;
             playerRenderer.material = InviolableStance;
-            Physics.IgnoreCollision(GameObject.Find("Enemy").GetComponent<Collider>(), gameObject.GetComponent<Collider>());
+            ApplyIgnoreCollision();
             playerBuff = SpawnPlayerBuff(physicalOrbPrefab);
         }
     }
@@ -262,7 +262,8 @@ public class Player : MonoBehaviour
         {
             physicalImmune = false;
             playerRenderer.material = normalStance;
-            Physics.IgnoreCollision(GameObject.Find("Enemy").GetComponent<Collider>(), gameObject.GetComponent<Collider>(), false);
+            //Physics.IgnoreCollision(GameObject.Find("Enemy").GetComponent<Collider>(), gameObject.GetComponent<Collider>(), false);
+            RemoveIgnoreCollision();
         }
         currentElementalProt = "";
 
@@ -273,6 +274,27 @@ public class Player : MonoBehaviour
         return Instantiate(buffToSpawn, gameObject.transform);
     }
 
+    private void ApplyIgnoreCollision()
+    {
+        foreach (var gameObj in FindObjectsOfType(typeof(GameObject)) as GameObject[])
+        {
+            if (gameObj.name == "Enemy")
+            {
+                Physics.IgnoreCollision(gameObj.GetComponent<Collider>(), gameObject.GetComponent<Collider>());
+            }
+        }
+    }
+
+    private void RemoveIgnoreCollision()
+    {
+        foreach (var gameObj in FindObjectsOfType(typeof(GameObject)) as GameObject[])
+        {
+            if (gameObj.name == "Enemy")
+            {
+                Physics.IgnoreCollision(gameObj.GetComponent<Collider>(), gameObject.GetComponent<Collider>(), false);
+            }
+        }
+    }
     // Method responsible for showing life is full while player is on full hp and try to collect life node
     // also shows timer for invictible buff in bot center of screen
     private void OnGUI()

@@ -18,6 +18,7 @@ public class Player : MonoBehaviour
     private Vector3 spawnPoint;  // spawn point for player, use game object inside Unity to change it by moving
     private Renderer playerRenderer;  // variable storing player renderer necessary
     private GameObject playerBuff;  // variable storing currently spawned player buff object
+    private GameObject shrineObject;  // variable storing current shrine object untill game will respawn shrine
 
     private float maxSpeed = 7.5f;  // maximum movement speed value
     private float InviolableTime;  // period of time for invictible buff
@@ -34,6 +35,8 @@ public class Player : MonoBehaviour
     string fireProt = "Fire Prot";  // variable storing fire tag
     string iceProt = "Ice Prot";  // variable storing ice tag
     string physicalProt = "Physical Prot";  // variable storing physical tag
+
+    private float shrineCounter;
 
 
     private void Start()
@@ -55,6 +58,15 @@ public class Player : MonoBehaviour
         {
             elementalProtTime = 0;
             ElementalProtOff();
+        }
+        if (shrineCounter > 0)
+        {
+            shrineCounter -= Time.deltaTime;
+        }
+        if (shrineCounter < 0)
+        {
+            shrineCounter = 0;
+            shrineObject.SetActive(true);
         }
     }
 
@@ -149,11 +161,10 @@ public class Player : MonoBehaviour
         {
             Die();
         }
+
         // section with statements repsonsible for picking up buff shrine, playing sound and triggering buff on player using ElementalProtOn() method
-        
         if (other.transform.tag == "Gas Prot" || other.transform.tag == "Fire Prot" || other.transform.tag == "Ice Prot" || other.transform.tag == "Physical Prot")
         {
-            Destroy(other.gameObject);
             if (other.transform.tag == "Gas Prot")
             {
                 ElementalProtOn(other.transform.tag, other.transform.GetComponent<ElementalProtShrine>().elementalProtTime);
@@ -174,6 +185,16 @@ public class Player : MonoBehaviour
                 ElementalProtOn(other.transform.tag, other.transform.GetComponent<ElementalProtShrine>().elementalProtTime);
                 PlaySound(8);
             }
+            if (other.transform.GetComponent<ElementalProtShrine>().respawnShrine)
+            {
+                other.gameObject.SetActive(false);
+                StartShrineCounter(other.gameObject, other.transform.GetComponent<ElementalProtShrine>().elementalProtTime);
+
+            }
+            if (!other.transform.GetComponent<ElementalProtShrine>().respawnShrine)
+            {
+                Destroy(other.gameObject);
+            }
         }
     }
 
@@ -182,7 +203,6 @@ public class Player : MonoBehaviour
     {
         lifeIsFull = false;
     }
-
 
     // Method responsible for playing sound from array with sounds
     private void PlaySound(int clipIndex)
@@ -198,6 +218,12 @@ public class Player : MonoBehaviour
         Instantiate(deathParticles, transform.position, Quaternion.identity);
         transform.position = spawnPoint;
         GameManager.life -= 1;
+    }
+
+    private void StartShrineCounter(GameObject shrine, float shrineRespawnTime)
+    {
+        shrineObject = shrine;
+        shrineCounter = shrineRespawnTime;
     }
 
     private void ElementalProtOn(string elementalTag, int protTime)

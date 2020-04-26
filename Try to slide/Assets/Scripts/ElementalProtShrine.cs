@@ -2,15 +2,9 @@
 
 public class ElementalProtShrine : MonoBehaviour
 {
-    public int elementalProtTime = 0;
-
-    void Start()
-    {
-        
-    }
-
-    void Update()
-    {
-        
-    }
+    public bool respawnShrine;
+    public int respawnTime;
+    public int elementalProtTime = 9;
+    private float counter;
+    private bool counterActive;
 }

@@ -3,6 +3,8 @@
 // Player class responsible for moving player, track collisions and triggers, destroying player and controlling sound effects.
 public class Player : MonoBehaviour
 {
+    #region Variables
+
     [SerializeField] private float moveSpeed = 0;  // player movement speed, accesible from inspector
     [SerializeField] private GameObject deathParticles = null;  // insert death particles object here
     [SerializeField] private GameObject physicalOrbPrefab = null;  // variable storing Physical Orb Prefab 
@@ -36,8 +38,9 @@ public class Player : MonoBehaviour
     string iceProt = "Ice Prot";  // variable storing ice tag
     string physicalProt = "Physical Prot";  // variable storing physical tag
 
-    private float shrineCounter;
+    private float shrineCounter;  // variable storing shrine respawn counter
 
+    #endregion
 
     private void Start()
     {
@@ -59,6 +62,7 @@ public class Player : MonoBehaviour
             elementalProtTime = 0;
             ElementalProtOff();
         }
+        // Tracking status of shrine respawn counter, if greater than 0, count down to 0, if less than 0, set to 0 and turn on shrine object (respawn it)
         if (shrineCounter > 0)
         {
             shrineCounter -= Time.deltaTime;
@@ -137,6 +141,7 @@ public class Player : MonoBehaviour
         if (other.transform.tag == "Max Life")
         {
             GameManager.maxLife++;
+            GameManager.life++;
             PlaySound(4);
             Destroy(other.gameObject);
         }
@@ -185,12 +190,14 @@ public class Player : MonoBehaviour
                 ElementalProtOn(other.transform.tag, other.transform.GetComponent<ElementalProtShrine>().elementalProtTime);
                 PlaySound(8);
             }
+            // if shrine is set to respawn, turning off shrine game object and starting counter
             if (other.transform.GetComponent<ElementalProtShrine>().respawnShrine)
             {
                 other.gameObject.SetActive(false);
                 StartShrineCounter(other.gameObject, other.transform.GetComponent<ElementalProtShrine>().elementalProtTime);
 
             }
+            // if shrine is not set to respawn, destroying shrine game object
             if (!other.transform.GetComponent<ElementalProtShrine>().respawnShrine)
             {
                 Destroy(other.gameObject);
@@ -220,17 +227,21 @@ public class Player : MonoBehaviour
         GameManager.life -= 1;
     }
 
+    // Method responsible for starting shrine counter, setting shrine object and changing counter time from 0 to shrineRespawnTime
     private void StartShrineCounter(GameObject shrine, float shrineRespawnTime)
     {
         shrineObject = shrine;
         shrineCounter = shrineRespawnTime;
     }
 
+    // Method responsible for setting resistant buff type, time, spawning buff effect around player object
+    // Also method is responsible for dealing with collecting another shrine while already one is active
+    // If that happens, method is setting latest buff by removing old one
     private void ElementalProtOn(string elementalTag, int protTime)
     {
-        elementalProtTime = protTime;
-        Destroy(playerBuff);
-        playerRenderer.material = normalStance;
+        elementalProtTime = protTime;  // setting buff time 
+        Destroy(playerBuff);  // destroying current buff effect
+        playerRenderer.material = normalStance;  // setting player.material for normal stance
         if (elementalTag == gasProt)
         {
             gasImmune = true;
@@ -268,10 +279,12 @@ public class Player : MonoBehaviour
         }
     }
 
+    // Method responsible for turning off Elemental Protection Buff
     private void ElementalProtOff()
     {
 
-        Destroy(playerBuff.gameObject);
+        Destroy(playerBuff.gameObject);  // destroying player buff effect
+        // turning off resistance
         if (currentElementalProt == gasProt)
         {
             gasImmune = false;
@@ -287,21 +300,23 @@ public class Player : MonoBehaviour
         if (currentElementalProt == physicalProt)
         {
             physicalImmune = false;
-            playerRenderer.material = normalStance;
-            //Physics.IgnoreCollision(GameObject.Find("Enemy").GetComponent<Collider>(), gameObject.GetComponent<Collider>(), false);
-            RemoveIgnoreCollision();
+            playerRenderer.material = normalStance;  // reseting player material to normal
+            RemoveIgnoreCollision();  // turning collision with Enemy on
         }
         currentElementalProt = "";
 
     }
 
+    // Method responsible for spawning player buff effect
     private GameObject SpawnPlayerBuff(GameObject buffToSpawn)
     {
         return Instantiate(buffToSpawn, gameObject.transform);
     }
 
+    // Method responsible for turning off collision by player. Player can now move through enemies
     private void ApplyIgnoreCollision()
     {
+        // setting ignore collision to all "Enemy" objects
         foreach (var gameObj in FindObjectsOfType(typeof(GameObject)) as GameObject[])
         {
             if (gameObj.name == "Enemy")
@@ -311,8 +326,10 @@ public class Player : MonoBehaviour
         }
     }
 
+    // Method responsible for turning on player collision. Player can't move though enemies anymore
     private void RemoveIgnoreCollision()
     {
+        // turning off ignore collision from all "Enemy" objects
         foreach (var gameObj in FindObjectsOfType(typeof(GameObject)) as GameObject[])
         {
             if (gameObj.name == "Enemy")
@@ -321,6 +338,7 @@ public class Player : MonoBehaviour
             }
         }
     }
+
     // Method responsible for showing life is full while player is on full hp and try to collect life node
     // also shows timer for invictible buff in bot center of screen
     private void OnGUI()

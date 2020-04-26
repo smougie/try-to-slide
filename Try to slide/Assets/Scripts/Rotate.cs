@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+// Class responsible for rotating object around
 public class Rotate : MonoBehaviour
 {
     [SerializeField] private float rotateSpeed = 0f;

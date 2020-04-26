@@ -2,17 +2,21 @@
 
 public class LockedDoor : MonoBehaviour
 {
-    [SerializeField] private GameObject doors = null;
-    [SerializeField] private GameObject key = null;
+    #region Variables
 
-    private Vector3 doorStartingRotation;
-    private Vector3 doorEndingRotation;
+    [SerializeField] private GameObject doors = null;  // variable storing door game object
+    [SerializeField] private GameObject key = null;  // variable storing key game object
 
-    private bool openingDoors;
-    private int doorCounter = 0;
+    private Vector3 doorStartingRotation;  // variable storing door starting rotation
+    private Vector3 doorEndingRotation;  // variable storing door ending rotation
 
-    private float doorStartingY;
+    private bool openingDoors;  // variable storing flag raised when script is starting opening the doors
+    private int doorCounter = 0;  // variable storing angle progress while rotating doors
+
+    private float doorStartingY;  // variable storing door starting Y rotation 
     
+    #endregion
+
     void Start()
     {
         doorStartingRotation = new Vector3(doors.transform.rotation.x, doors.transform.rotation.y, doors.transform.rotation.z);
@@ -22,6 +26,7 @@ public class LockedDoor : MonoBehaviour
 
     void Update()
     {
+        // simple counter, which is rotating doors on Y rotation, when doors move 90 degrees, counter stop moving doors
         if (openingDoors)
         {
             doors.transform.Rotate(0, -1, 0);
@@ -34,6 +39,7 @@ public class LockedDoor : MonoBehaviour
         }
     }
 
+    // Method responsible for start opening doors and destroying key object
     public void KeyTrigger()
     {
         Destroy(key);

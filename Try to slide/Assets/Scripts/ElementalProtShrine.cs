@@ -2,6 +2,7 @@
 
 public class ElementalProtShrine : MonoBehaviour
 {
+    // Declaring and initializing variables
     public bool respawnShrine;
     public int respawnTime;
     public int elementalProtTime = 9;

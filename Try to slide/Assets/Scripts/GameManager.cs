@@ -105,8 +105,8 @@ public class GameManager : MonoBehaviour
         if (!isLevelSelect)
         {
             totalCoinCount = coinParent.transform.childCount;  // setting total coin count
+            totalEnemiesCount = enemyParent.transform.childCount;  // setting total enemies count
         }
-        totalEnemiesCount = enemyParent.transform.childCount;
         numberOfLevels = SceneManager.sceneCountInBuildSettings - 2;  // variable with number of levels
         currentTime = startTime;  // seting start time as current time
         currentCoinCount = 0f;  // reseting coin count value when starting level
@@ -171,7 +171,7 @@ public class GameManager : MonoBehaviour
             // if game is not finished
             if (!gameFinished )
             {
-                // if current time is greater than0 and life is greater than 0, time counter will work and count down current time till hit 0
+                // if current time is greater than 0 and life is greater than 0, time counter will work and count down current time till hit 0
                 if (currentTime > 0 && life > 0)
                 {
                     currentTime -= Time.deltaTime;
@@ -637,7 +637,10 @@ public class GameManager : MonoBehaviour
         if (!isLevelSelect)
         {
             GUI.Label(timerRect, $"Time: {currentTime.ToString("0.0")}/{startTime}", levelSkin.GetStyle("Timer"));
-            GUI.Label(coinsRect, $"Coins: {currentCoinCount}/{totalCoinCount}", levelSkin.GetStyle("Coins"));
+            if (totalCoinCount > 0)
+            {
+                GUI.Label(coinsRect, $"Coins: {currentCoinCount}/{totalCoinCount}", levelSkin.GetStyle("Coins"));
+            }
 
             // if score is greater than 0, show it
             if (currentScore > 0)

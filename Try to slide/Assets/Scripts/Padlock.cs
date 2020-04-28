@@ -6,7 +6,7 @@ public class Padlock : MonoBehaviour
     private void OnTriggerStay(Collider other)
     {
         // if padlock is colliding with World tag object (World Node), rotating padlock around World Node
-        if (other.transform.tag == "World")
+        if (other.transform.tag == "World" || other.transform.tag == "Scoreboard")
         {
             transform.RotateAround(other.transform.position, Vector3.up, .5f);
         }

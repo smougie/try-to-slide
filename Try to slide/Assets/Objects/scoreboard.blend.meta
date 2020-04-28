@@ -4,16 +4,29 @@ ModelImporter:
   serializedVersion: 23
   fileIDToRecycleName:
     100000: //RootNode
+    100002: Cube
+    100004: Cube.001
+    100006: Cube.002
     400000: //RootNode
+    400002: Cube
+    400004: Cube.001
+    400006: Cube.002
     2100000: Material
-    2100002: Material.001
-    2100004: Material.002
-    2100006: Material.003
-    2100008: Material.004
+    2100002: Material.003
+    2100004: No Name
+    2100006: Material.001
+    2100008: Material.002
     2300000: //RootNode
+    2300002: Cube
+    2300004: Cube.001
+    2300006: Cube.002
     3300000: //RootNode
+    3300002: Cube
+    3300004: Cube.001
+    3300006: Cube.002
     4300000: Cube
-    2186277476908879412: ImportLogs
+    4300002: Cube.002
+    4300004: Cube.001
   externalObjects: {}
   materials:
     importMaterials: 1
@@ -49,10 +62,10 @@ ModelImporter:
     meshCompression: 0
     addColliders: 0
     useSRGBMaterialColor: 1
-    importVisibility: 0
-    importBlendShapes: 0
-    importCameras: 0
-    importLights: 0
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
     swapUVChannels: 0
     generateSecondaryUV: 0
     useFileUnits: 1
@@ -71,12 +84,12 @@ ModelImporter:
   tangentSpace:
     normalSmoothAngle: 60
     normalImportMode: 0
-    tangentImportMode: 0
+    tangentImportMode: 3
     normalCalculationMode: 4
     legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 0
     blendShapeNormalImportMode: 1
     normalSmoothingSource: 0
-  importAnimation: 0
+  importAnimation: 1
   copyAvatar: 0
   humanDescription:
     serializedVersion: 2

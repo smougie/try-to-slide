@@ -25,6 +25,7 @@ public class LevelSelect : MonoBehaviour
     private Rect playerLevelScoreRect;  // rect for Player Level X score which will appear in Level X Scoreboard window after completing X level
     private Rect levelDetailsRect;  // rect for world details label
     private Rect restartButton;  // rect for restart button
+    private Rect submitButton;  // rect for restart button
 
     #endregion
 
@@ -64,6 +65,7 @@ public class LevelSelect : MonoBehaviour
         playerLevelScoreRect = new Rect(levelScoreBoardRect.x + levelScoreBoardRect.width * .28f, levelScoreBoardRect.height, 200, 100);
         levelDetailsRect = new Rect(Screen.width * .01f, Screen.height * .95f, 400, 150);
         restartButton = new Rect(levelScoreBoardRect.x + levelScoreBoardRect.width / 2 - 30, levelScoreBoardRect.y + levelScoreBoardRect.height * .8f, 60, 30);
+        submitButton = new Rect(levelScoreBoardRect.x + levelScoreBoardRect.width / 2 - 50, levelScoreBoardRect.y + levelScoreBoardRect.height * .91f, 100, 30);
 
         // Initializing labels
         unlockedLevelDetails = $"Press [SPACE] or [E]  to load level {levelToLoad}.";
@@ -78,8 +80,8 @@ public class LevelSelect : MonoBehaviour
             Instantiate(padlock,new Vector3(transform.position.x, transform.position.y - 0.15f, transform.position.z - 1), Quaternion.identity);
         }
 
-        // if level to load on level node is greater than player save or level is equal to 0 (global scoreboard) raise locked flag
-        if (levelToLoad > PlayerPrefs.GetInt("Unlocked Level") || levelToLoad == 0)
+        // if level to load on level node is greater than player save or level is equal to number of all levels + 1 (empty place for global scoreboard) raise locked flag
+        if (levelToLoad > PlayerPrefs.GetInt("Unlocked Level") || levelToLoad == GameManager.numberOfLevels + 1)
         {
             locked = true;
         }
@@ -93,14 +95,20 @@ public class LevelSelect : MonoBehaviour
         if (other.transform.tag == "Player")
         {
             restartAvailable = GameManager.RestartAvailable(levelToLoad);
-            inRange = true;
             if (Input.GetButtonDown("Action") && !locked && !restartAvailable)
             {
                 LoadLevel();
             }
         }
     }
-    
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.transform.tag == "Player")
+        {
+            inRange = true;
+        }
+    }
     // when player leaves world node range, inRange flag will be lowered
     private void OnTriggerExit(Collider other)
     {
@@ -122,7 +130,18 @@ public class LevelSelect : MonoBehaviour
         if (inRange)
         {
             // Boxes and labels with player info for level 0 - global scoreboard
-            if (levelToLoad == 0)
+            if (levelToLoad == GameManager.numberOfLevels + 1 && GameManager.gameDone)
+            {
+                GUI.Box(levelScoreBoardRect, $"Scoreboard");
+                GUI.Label(levelPlayerListRect, GameManager.ShowScores(20, levelToLoad)[0], skinLevelSelect.GetStyle("Scores"));
+                GUI.Label(levelScoreListRect, GameManager.ShowScores(20, levelToLoad)[1], skinLevelSelect.GetStyle("Scores"));
+                if (GUI.Button(submitButton, "Submit Score"))
+                {
+                    inRange = false;
+                    GameManager.CongratulationsWindow();
+                }
+            }
+            else if (levelToLoad == GameManager.numberOfLevels + 1)
             {
                 GUI.Box(levelScoreBoardRect, $"Scoreboard");
                 GUI.Label(levelPlayerListRect, GameManager.ShowScores(20, levelToLoad)[0], skinLevelSelect.GetStyle("Scores"));

@@ -22,7 +22,6 @@ public class GameManager : MonoBehaviour
 
     // Level section
     public static int currentLevel;  // var storing current level, using it while saving progress, while loading next levels
-    public static int currentLevelLabel;  // var storing current level label, even if some mehtods will change currentLevel this var stays the same for level
     public static int numberOfLevels;  // var storing current number of levels ->   -2 means: - Main Menu scene, -Level Select
 
     // Coin section
@@ -75,6 +74,8 @@ public class GameManager : MonoBehaviour
     private Rect levelScoreBoardScreenRect;
     private Rect levelScoreListRect;
     private Rect levelPlayerListRect;
+    private Rect congratulationsWindowScreenRect;
+    private Rect congratulationsWindowLabelRect;
 
     // Initializing win screen window
     private static float winScreenBoxWidth = Screen.width * .7f;  // Width of win screen - 70% of screen width
@@ -85,13 +86,15 @@ public class GameManager : MonoBehaviour
 
     #region Flag Section
     // Flag section
+    [SerializeField] private bool isLevelSelect = false;
     private static bool showWinScreen;  // win screen flag showing after player complete level
     private static bool showLoseScreen;  // lose screen flag showing after time ends, player waste all his lifes
     private static bool showScoreBoard;  // scoreboard flag showing after pressing Scoreboard button after lose
     private static bool showLevelScoreBoard;  // level scoreboard flag showing after pressing Level Scoreboard button after finishing level
     private static bool freezeFlag;  // freeze flag which raising will result with freezing game (Time.timeScale = 0f;)
     public static bool gameFinished;
-    [SerializeField] private bool isLevelSelect = false;
+    public static bool gameDone;
+    public static bool showCongratulationsWindow;
     #endregion
 
     #endregion
@@ -137,6 +140,7 @@ public class GameManager : MonoBehaviour
         currentScoreLevelSelectRect = timerRect;
         winScreenRect = new Rect(winScreenRectPositionX, winScreenRectPositionY, winScreenBoxWidth, winScreenBoxHeight);
         LoseScreenRect = winScreenRect;
+        congratulationsWindowScreenRect = winScreenRect;
         detailstWinScreenRect = new Rect(winScreenRect.x + 20, winScreenRect.y + 40, 400, 200);
         scoreBoardScreenRect = winScreenRect;
         playerListRect = new Rect(scoreBoardScreenRect.x + scoreBoardScreenRect.x * 1.5f, scoreBoardScreenRect.y + scoreBoardScreenRect.y * .5f,
@@ -185,9 +189,17 @@ public class GameManager : MonoBehaviour
         
         // tracking freezeFlag status and controling conditions
         FreezeGame(freezeFlag);
+
+        //DELETE AFTER TEST
+        if (Input.GetKeyDown("f"))
+        {
+            setMaxLevel();
+            gameDone = true;
+        }
     }
 
 
+    // Method responsible for reseting player scoreboard and player scoreboard level X (all level scoreboards), accesible from options  menu
     public static void resetScores()
     {
         PlayerPrefs.SetString("Scoreboard", "");
@@ -206,9 +218,12 @@ public class GameManager : MonoBehaviour
         life = 3;
         maxLife = 3;
         playerName = typedName;
-        SceneManager.LoadScene("Level Select");  // before test was currentLevel
-        PlayerPrefs.SetInt("Unlocked Level", 1);  // before test was 0
+        PlayerPrefs.SetInt("Life", life);
+        PlayerPrefs.SetInt("Max Life", maxLife);
+        SceneManager.LoadScene("Level Select");
+        PlayerPrefs.SetInt("Unlocked Level", 1);
         PlayerPrefs.SetString("Player Name", playerName);
+        PlayerPrefs.SetString("gameDone", "false");
     }
     
     // Continue game method responsible for rebooting the game with player progress
@@ -219,6 +234,16 @@ public class GameManager : MonoBehaviour
         SceneManager.LoadScene("Level Select");
         currentScore = float.Parse(PlayerPrefs.GetString("Current Score"));
         playerName = PlayerPrefs.GetString("Player Name");
+        life = PlayerPrefs.GetInt("Life", life);
+        maxLife = PlayerPrefs.GetInt("Max Life", maxLife);
+        if (PlayerPrefs.GetString("gameDone") == "true")
+        {
+            gameDone = true;
+        }
+        if (PlayerPrefs.GetString("gameDone") == "false")
+        {
+            gameDone = false;
+        }
     }
 
     // Method responsible for ending the game by dropping all flags, destroying game manager object, loading main menu scene and reseting player progress
@@ -232,6 +257,9 @@ public class GameManager : MonoBehaviour
         freezeFlag = false;
         PlayerPrefs.DeleteKey("Player Name");
         PlayerPrefs.DeleteKey("Current Score");
+        PlayerPrefs.DeleteKey("Life");
+        PlayerPrefs.DeleteKey("Max Life");
+        PlayerPrefs.DeleteKey("gameDone");
         PlayerPrefs.SetInt("Unlocked Level", 0);
     }
 
@@ -239,11 +267,17 @@ public class GameManager : MonoBehaviour
     // if save in player pref is less than current level, progress will be saved
     public static void SaveLevel()
     {
-        if (PlayerPrefs.GetInt("Unlocked Level") < currentLevel + 1)
+        if (gameDone)
+        {
+            PlayerPrefs.SetString("gameDone", "true");
+        }
+        if (PlayerPrefs.GetInt("Unlocked Level") < currentLevel + 1 )
         {
             PlayerPrefs.SetInt("Unlocked Level", currentLevel + 1);
         }
         PlayerPrefs.SetString("Current Score", $"{currentScore}");
+        PlayerPrefs.SetInt("Life", life);
+        PlayerPrefs.SetInt("Max Life", maxLife);
     }
 
     // Method responsible for raising Lose Screen flag, setting current time to 0 and current score with player name to PlayerPrefs "Scoreboard" 
@@ -258,11 +292,77 @@ public class GameManager : MonoBehaviour
     // and saving game
     public static void CompleteLevel()
     {
+        if (currentLevel == numberOfLevels)
+        {
+            gameDone = true;
+        }
         showWinScreen = true;
         remainingTime = currentTime;
         CalculateLevelScore();
         AddLevelScore(currentLevel);
         SaveLevel();
+    }
+
+    public static void CongratulationsWindow()
+    {
+        // TODO call submit screen
+        showCongratulationsWindow = true;
+    }
+
+    public static void PlaceCheck(int level)
+    {
+        string playerPlaceScore = $"";
+        string showTemplatePlayers = $"";
+        string showTemplateScores = $"";
+        string[] playersAndScores = new string[2];
+        Dictionary<string, string> notSortedDictScore = new Dictionary<string, string>();
+
+        //8 lvl + 1 lvl global scoreboard
+        int levelNum = 1;
+        int place = 1;
+        float score = 0;
+
+        for (int i = 1; i <= numberOfLevels + 1; i++)
+        {
+            if (i == numberOfLevels + 1)
+            {
+                // scoreboard dict
+            }
+            else
+            {
+                // level x scoreboard dict
+            }
+        }
+
+
+
+        if (level == numberOfLevels + 1)
+        {
+            notSortedDictScore = PlayerNamesScores("Scoreboard");
+        }
+
+        else
+        {
+            notSortedDictScore = PlayerNamesScores($"Scoreboard Level {level}");
+        }
+
+        int playerPlace = 1;
+        foreach (KeyValuePair<string, string> player in notSortedDictScore.OrderByDescending(key => float.Parse(key.Value)))
+        {
+            showTemplatePlayers += $"{playerPlace}.) {player.Key}".PadRight(63 - player.Key.Length - 2, '.') + "\n";
+            showTemplateScores += $"{player.Value}\n";
+            playerPlace++;
+        }
+
+        foreach (KeyValuePair<string, string> player in notSortedDictScore.OrderByDescending(key => float.Parse(key.Value)))
+        {
+            showTemplatePlayers += $"{playerPlace}.) {player.Key}".PadRight(63 - player.Key.Length - 2, '.') + "\n";
+            showTemplateScores += $"{player.Value}\n";
+            playerPlace++;
+        }
+
+        playersAndScores[0] = showTemplatePlayers;
+        playersAndScores[1] = showTemplateScores;
     }
 
     // Method responsible for loading Level Select scene
@@ -572,7 +672,7 @@ public class GameManager : MonoBehaviour
         string[] playersAndScores = new string[2];
         Dictionary<string, string> notSortedDictScore = new Dictionary<string, string>();
 
-        if (level == 0)
+        if (level == numberOfLevels + 1)
         {
             notSortedDictScore = PlayerNamesScores("Scoreboard");
         }
@@ -628,6 +728,11 @@ public class GameManager : MonoBehaviour
             Time.timeScale = 1f;
         }
     }
+    //DELETE AFTER TEST
+    public void setMaxLevel()
+    {
+        PlayerPrefs.SetInt("Unlocked Level", 8);
+    }
 
     // GUI section responsible for showing win/lose/scoreboard boxes, life/timer/coins label
     private void OnGUI()
@@ -639,6 +744,7 @@ public class GameManager : MonoBehaviour
             $"\nLevel score: {levelScore}\nTotal score: {currentScore}";
         string loseScreenLevelInfo = $"Coins collected {currentCoinCount}/{totalCoinCount}" +
             $"\nLevel score: {levelScore}\nTotal score: {currentScore}";
+        string congratulationsWindowInfo = "You finished the game in {place} with a score of {score}!";  // TODO congratz window info
         
         // In game level labels, timers, coins
         GUI.Label(lifeRect, $"Life: {life}/{maxLife}", levelSkin.GetStyle("Life"));
@@ -696,13 +802,13 @@ public class GameManager : MonoBehaviour
          * creating two vertical labels, one with player names, second with players scores
          * if player press back button, showLevelScoreBoard flag is dopping and showWinScreen flag is raising
          */
-        if (showWinScreen || showLoseScreen || showScoreBoard || showLevelScoreBoard)
+        if (showWinScreen || showLoseScreen || showScoreBoard || showLevelScoreBoard || showCongratulationsWindow)
         {
             freezeFlag = true;
             if (showWinScreen)
             {
                 // Show win screen with Level Completed sign at top of the box also show Continue button
-                GUI.Box(winScreenRect, $"Level {currentLevelLabel} Completed");
+                GUI.Box(winScreenRect, $"Level {currentLevel} Completed");
                 // show Level Details on win screen
                 GUI.Label(detailstWinScreenRect, winScreenLevelInfo);
                 if (GUI.Button(continueButtonWinScreen, "Continue"))
@@ -744,8 +850,8 @@ public class GameManager : MonoBehaviour
             {
                 showWinScreen = false;
                 GUI.Box(levelScoreBoardScreenRect, "Level Scoreboard");
-                GUI.Label(levelPlayerListRect, ShowScores(10, currentLevelLabel)[0], levelSkin.GetStyle("Scores"));
-                GUI.Label(levelScoreListRect, ShowScores(10, currentLevelLabel)[1], levelSkin.GetStyle("Scores"));
+                GUI.Label(levelPlayerListRect, ShowScores(10, currentLevel)[0], levelSkin.GetStyle("Scores"));
+                GUI.Label(levelScoreListRect, ShowScores(10, currentLevel)[1], levelSkin.GetStyle("Scores"));
                 if (GUI.Button(backButton, "Back"))
                 {
                     showLevelScoreBoard = false;
@@ -765,6 +871,12 @@ public class GameManager : MonoBehaviour
                     showLoseScreen = true;
                 }
             }
+
+            if (showCongratulationsWindow)
+            {
+                GUI.Box(congratulationsWindowScreenRect, "Congratulations!");
+                GUI.Label(detailstWinScreenRect, congratulationsWindowInfo);
+            }
         }
 
         
@@ -776,6 +888,6 @@ Current Level: {currentLevel}
 Playerpref Unlocked Level: {PlayerPrefs.GetInt("Unlocked Level")}
 LvLScore: {levelScore}
 Score: {currentScore}
-Coins: {currentCoinCount}/{totalCoinCount}", levelSkin.GetStyle("Test"));
+gameDone: {gameDone}", levelSkin.GetStyle("Test"));
     }
 }

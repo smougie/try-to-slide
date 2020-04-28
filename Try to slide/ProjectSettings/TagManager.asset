@@ -25,6 +25,7 @@ TagManager:
   - Switch
   - Platform
   - Bar
+  - Scoreboard
   layers:
   - Default
   - TransparentFX

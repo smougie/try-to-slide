@@ -4854,7 +4854,7 @@ GameObject:
   - component: {fileID: 5882414461966419075}
   m_Layer: 0
   m_Name: Bar
-  m_TagString: Untagged
+  m_TagString: Bar
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -4944,5 +4944,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eda8d401a8d519845bec5c1e1c6c7260, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  barParticles: {fileID: 426150298080585730, guid: 0105def4756dbde4681afdcda46e1eb4,
-    type: 3}

@@ -187,6 +187,16 @@ public class GameManager : MonoBehaviour
         FreezeGame(freezeFlag);
     }
 
+
+    public static void resetScores()
+    {
+        PlayerPrefs.SetString("Scoreboard", "");
+        for (int i = 0; i < numberOfLevels; i++)
+        {
+            PlayerPrefs.SetString($"Scoreboard level {i + 1}", "");
+        }
+    }
+
     // New game method responsible for staring a new game, loading level select, clearing save in PlayerPrefs "Unlocked Level", setting player name, reseting
     // score and life values
     public static void NewGame(string typedName)

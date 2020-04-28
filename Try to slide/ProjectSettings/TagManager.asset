@@ -21,6 +21,10 @@ TagManager:
   - Physical
   - Physical Prot
   - Bar Trigger
+  - Key
+  - Switch
+  - Platform
+  - Bar
   layers:
   - Default
   - TransparentFX

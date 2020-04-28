@@ -102,6 +102,29 @@ public class Player : MonoBehaviour
         }
     }
 
+    // tracking player triggering with door objects
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.transform.tag == "Key")
+        {
+            PlaySound(9);
+        }
+
+        if (other.transform.tag == "Switch")
+        {
+            PlaySound(10);
+        }
+
+        if (other.transform.tag == "Platform")
+        {
+            PlaySound(11);
+        }
+
+        if (other.transform.tag == "Bar")
+        {
+            PlaySound(12);
+        }
+    }
     // tracking player triggering other objects
     private void OnTriggerStay(Collider other)
     {

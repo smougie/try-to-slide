@@ -9,6 +9,10 @@ public class MainMenu : MonoBehaviour
 
     [SerializeField] private GUISkin mainMenuSkin = null;
     private Rect newGameButton;
+    private Rect optionsButton;
+    private Rect resetButton;
+    private Rect resetLabelRect;
+    private Rect scoreboardsResetedLabelRect;
     private Rect continueButton;
     private Rect quitButton;
     private Rect gameNameLabel;
@@ -24,6 +28,7 @@ public class MainMenu : MonoBehaviour
     private Rect backButton;
     private Rect playerExistBoxRect;
     private Rect playerExistWarningRect;
+    private Rect optionsWindowBoxRect;
 
     #endregion
 
@@ -40,6 +45,7 @@ public class MainMenu : MonoBehaviour
     #region String section
 
     private string warningMessage;
+    private string resetWarningMessage;
     private string typedName;
     private string playerNamePrompt;
     private string playerNameWarning;
@@ -55,9 +61,12 @@ public class MainMenu : MonoBehaviour
     private bool playerNameConfirm;
     private bool emptyPlayerName;
     private bool playerExists;
+    private bool resetWarningWindow;
+    private bool optionsWindow;
+    private bool scoresReseted;
 
     #endregion
-    
+
     #endregion
 
     private void Start()
@@ -90,11 +99,18 @@ public class MainMenu : MonoBehaviour
             playerNameBoxRect.x * .7f, playerNameBoxRect.y * .1f);
         playerExistBoxRect = newGameConfirmBoxRect;
         playerExistWarningRect = newGameWarningRect;
+        optionsWindowBoxRect = new Rect(screenWidth / 2 - (screenWidth * .4f) / 2, screenHeight / 2 - (screenHeight * .4f) / 2,
+            screenWidth * .4f, screenHeight * .4f);
+        resetLabelRect = new Rect(newGameConfirmBoxRect.x + newGameConfirmBoxRect.width * .09f, newGameConfirmBoxRect.y + newGameConfirmBoxRect.height * .3f,
+            160, 160);
+        scoreboardsResetedLabelRect = new Rect(optionsWindowBoxRect.x + optionsWindowBoxRect.width * .32f, optionsWindowBoxRect.y + optionsWindowBoxRect.height * .7f, 150, 150);
 
 
         // Rectangles for buttons
-        newGameButton = new Rect(screenWidth / 2 - 45, screenHeight / 2 - buttonHeight, buttonWidth, buttonHeight);  // Play
-        continueButton = new Rect(screenWidth / 2 - 45, screenHeight / 2 - (2 * buttonHeight + buttonSpacing), buttonWidth, buttonHeight);  // Continue
+        continueButton = new Rect(screenWidth / 2 - 45, screenHeight / 2 - (3 * buttonHeight + 2 * buttonSpacing), buttonWidth, buttonHeight);  // Continue
+        resetButton = new Rect(optionsWindowBoxRect.x + optionsWindowBoxRect.width * .8f, optionsWindowBoxRect.y + optionsWindowBoxRect.height * .3f, buttonWidth, buttonHeight);  // Reset
+        newGameButton = new Rect(screenWidth / 2 - 45, screenHeight / 2 - (2 * buttonHeight + buttonSpacing), buttonWidth, buttonHeight);  // Play
+        optionsButton = new Rect(screenWidth / 2 - 45, screenHeight / 2 - buttonHeight, buttonWidth, buttonHeight);  // Options
         quitButton = new Rect(screenWidth / 2 - 45, screenHeight / 2 + buttonSpacing, buttonWidth, buttonHeight);  // Quit
         yesButton = new Rect(newGameConfirmBoxRect.x + newGameConfirmBoxRect.width * .8f, newGameConfirmBoxRect.y + newGameConfirmBoxRect.height * .8f,
             buttonWidth, buttonHeight);  // Yes button in newGameConfirmBox
@@ -112,6 +128,7 @@ public class MainMenu : MonoBehaviour
 
         // Strings for boxes
         warningMessage = "You're trying to start new game, your current game progress will be reset. Are you sure?";  // Warning message for box
+        resetWarningMessage = "You're trying to reset all world scores and global scoreboard. Are you sure?";  // Reset warning message for box
         typedName = "";
         playerNamePrompt = "Enter player name (maximum 10 characters).";
         playerNameWarning = "You must enter player name!";
@@ -155,6 +172,12 @@ public class MainMenu : MonoBehaviour
                     playerNameConfirm = true;
                     mainMenuWindow = false;
                 }
+            }
+
+            if (GUI.Button(optionsButton, "Options"))
+            {
+                optionsWindow = true;
+                mainMenuWindow = false;
             }
 
             // quit button prepared for application quit
@@ -264,6 +287,54 @@ public class MainMenu : MonoBehaviour
                 playerNameConfirm = true;
             }
         }
+        #endregion
+
+        #region Options window
+
+        if (optionsWindow)
+        {
+            GUI.Box(optionsWindowBoxRect, "Options");
+            GUI.Label(resetLabelRect, "Reset all scores", mainMenuSkin.GetStyle("Warning Message"));
+            if (scoresReseted)
+            {
+                GUI.Label(scoreboardsResetedLabelRect, "All scoreboards have been reseted.", mainMenuSkin.GetStyle("Scoreboards Reseted"));
+            }
+            if (GUI.Button(resetButton, "Reset"))
+            {
+                resetWarningWindow = true;
+                optionsWindow = false;
+            }
+            if (GUI.Button(backButton, "Back"))
+            {
+                scoresReseted = false;
+                mainMenuWindow = true;
+                optionsWindow = false;
+            }
+        }
+
+        #endregion
+
+        #region Reset Warning window
+
+        if (resetWarningWindow)
+        {
+            GUI.Box(optionsWindowBoxRect, "WARNING!");
+            GUI.Label(newGameWarningRect, resetWarningMessage, mainMenuSkin.GetStyle("Warning Message"));
+            if (GUI.Button(yesButton, "Yes"))
+            {
+                // APPLY THIS LINE OF CODE BEFORE DEPLOY
+                //GameManager.resetScores();
+                scoresReseted = true;
+                optionsWindow = true;
+                resetWarningWindow = false;
+            }
+            if (GUI.Button(noButton, "No"))
+            {
+                optionsWindow = true;
+                resetWarningWindow = false;
+            }
+        }
+
         #endregion
     }
 }

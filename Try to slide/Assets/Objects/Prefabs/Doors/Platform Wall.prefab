@@ -51,31 +51,6 @@ MonoBehaviour:
   wallLiftSpeed: 1
   wallLiftDropSpeed: 8
   wallLiftingTime: 4
---- !u!65 &3071109940246432675
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3071109941803496801}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 1, y: 0.9999999, z: 0.27}
-  m_Center: {x: 0, y: 0, z: 0.028760433}
---- !u!114 &3071109940246432672
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3071109941803496801}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b1571a8d9e6e96d4788960ed1b54319e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &3071109940449789313
 GameObject:
   m_ObjectHideFlags: 0
@@ -167,6 +142,31 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!65 &3071109940246432675
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3071109941803496801}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 1, y: 0.9999999, z: 0.27}
+  m_Center: {x: 0, y: 0, z: 0.028760433}
+--- !u!114 &3071109940246432672
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3071109941803496801}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b1571a8d9e6e96d4788960ed1b54319e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &3071109941803594689
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -176,6 +176,10 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 100000, guid: 5e0195103a176254e8d296e059b63add, type: 3}
       propertyPath: m_Name
+      value: Platform
+      objectReference: {fileID: 0}
+    - target: {fileID: 100000, guid: 5e0195103a176254e8d296e059b63add, type: 3}
+      propertyPath: m_TagString
       value: Platform
       objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 5e0195103a176254e8d296e059b63add, type: 3}

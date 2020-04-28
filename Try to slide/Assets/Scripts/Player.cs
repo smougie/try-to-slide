@@ -102,9 +102,16 @@ public class Player : MonoBehaviour
         }
     }
 
-    // tracking player triggering with door objects
+    // tracking player triggering with door objects, goal
     private void OnTriggerEnter(Collider other)
     {
+        // Goal trigger CompleteLevel method and playing sound
+        if (other.transform.tag == "Goal")
+        {
+            PlaySound(2);
+            GameManager.CompleteLevel();
+        }
+
         if (other.transform.tag == "Key")
         {
             PlaySound(9);
@@ -128,12 +135,6 @@ public class Player : MonoBehaviour
     // tracking player triggering other objects
     private void OnTriggerStay(Collider other)
     {
-        // Goal trigger CompleteLevel method and playing sound
-        if (other.transform.tag == "Goal")
-        {
-            PlaySound(2);
-            GameManager.CompleteLevel();
-        }
 
         // Coin trigger CoinPickUp method and destroy coin object and play sound
         if (other.transform.tag == "Coin")

@@ -284,8 +284,13 @@ public class GameManager : MonoBehaviour
     public static void CalculateLevelScore()
     {
         // Remaining time and coin count % values, than converting them to int
+        // statement created to avoid errors while counting score when player didn't collect any coin
+        if (currentCoinCount > 0)
+        {
         coinCompletion = (currentCoinCount * 100) / totalCoinCount;
         coinCompletion = (int)coinCompletion;  // Coin completion as percentage value
+
+        }
 
         timeCompletion = (remainingTime * 100) / maxLevelTime;
         timeCompletion = (int)timeCompletion;  // Time completion as percentage value
@@ -350,6 +355,7 @@ public class GameManager : MonoBehaviour
      */
     public static void RemoveLevelScore(string playerName, int levelNumberToRemove)
     {
+        
         string modifiedScoreboard = "";
         Dictionary<string, string> playersAndScores = PlayerNamesScores($"Scoreboard Level {levelNumberToRemove}");
         
@@ -371,7 +377,7 @@ public class GameManager : MonoBehaviour
             modifiedScoreboard += $"{item.Key}:{item.Value};";
         }
 
-        // setting new scoreboard record
+        // setting new scoreboard level record
         PlayerPrefs.SetString($"Scoreboard Level {levelNumberToRemove}", modifiedScoreboard);
     }
 

@@ -98,6 +98,7 @@ public class GameManager : MonoBehaviour
     public static bool gameFinished;
     public static bool gameDone;
     public static bool showCongratulationsWindow;
+    private bool showEscapeMenu;
     #endregion
 
     #endregion
@@ -197,6 +198,17 @@ public class GameManager : MonoBehaviour
         // tracking freezeFlag status and controling conditions
         FreezeGame(freezeFlag);
 
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            if (showEscapeMenu)
+            {
+            showEscapeMenu = false;
+            }
+            else
+            {
+                showEscapeMenu = true;
+            }
+        }
         //DELETE AFTER TEST
         if (Input.GetKeyDown("f"))
         {
@@ -701,7 +713,7 @@ public class GameManager : MonoBehaviour
      * ShowScore(20)[1] - show scores of best 20 players in total scoreboard (change 20 number to get other number of players)
      * ShowScore(10, 1)[0] - show score of 10 best player in level 1 scoreboards
      */
-    public static string[] ShowScores(int places = 0, int level = 0)
+    public static string[] ShowScores(int places = 0, int level = 9)
     {
         int showPlayerPlaces = places;
         string showTemplatePlayers = $"";
@@ -839,7 +851,7 @@ public class GameManager : MonoBehaviour
          * creating two vertical labels, one with player names, second with players scores
          * if player press back button, showLevelScoreBoard flag is dopping and showWinScreen flag is raising
          */
-        if (showWinScreen || showLoseScreen || showScoreBoard || showLevelScoreBoard || showCongratulationsWindow)
+        if (showWinScreen || showLoseScreen || showScoreBoard || showLevelScoreBoard || showCongratulationsWindow  || showEscapeMenu)
         {
             freezeFlag = true;
             if (showWinScreen)
@@ -918,6 +930,11 @@ public class GameManager : MonoBehaviour
                 {
                     GameOver(gameObject);
                 }
+            }
+
+            if (showEscapeMenu)
+            {
+                GUI.Box(new Rect(congratulationsWindowScreenRect), "");
             }
         }
 

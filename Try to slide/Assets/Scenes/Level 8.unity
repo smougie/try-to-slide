@@ -474,7 +474,7 @@ MonoBehaviour:
   coinParent: {fileID: 1415642005}
   enemyParent: {fileID: 157555683}
   coinImportance: 150
-  startTime: 100
+  startTime: 120
   timeImportance: 100
   levelSkin: {fileID: 11400000, guid: 2dad13ba5537a674d843b659d1a57ba2, type: 2}
   isLevelSelect: 0

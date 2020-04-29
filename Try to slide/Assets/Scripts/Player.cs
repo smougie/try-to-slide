@@ -236,7 +236,7 @@ public class Player : MonoBehaviour
     }
 
     // Method responsible for playing sound from array with sounds
-    private void PlaySound(int clipIndex)
+    public void PlaySound(int clipIndex)
     {
         AudioSource sound = GetComponent<AudioSource>();
         sound.PlayOneShot(audioClips[clipIndex]);

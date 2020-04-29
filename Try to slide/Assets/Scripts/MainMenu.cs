@@ -8,13 +8,14 @@ public class MainMenu : MonoBehaviour
     #region GUI/rectangle section for buttons, boxes and labels
 
     [SerializeField] private GUISkin mainMenuSkin = null;
-    private Rect newGameButton;
-    private Rect optionsButton;
+    private Rect button2;
+    private Rect button3;
     private Rect resetButton;
     private Rect resetLabelRect;
     private Rect scoreboardsResetedLabelRect;
-    private Rect continueButton;
-    private Rect quitButton;
+    private Rect button1;
+    private Rect button4;
+    private Rect button5;
     private Rect gameNameLabel;
     private Rect newGameConfirmBoxRect;
     private Rect newGameWarningRect;
@@ -29,6 +30,9 @@ public class MainMenu : MonoBehaviour
     private Rect playerExistBoxRect;
     private Rect playerExistWarningRect;
     private Rect optionsWindowBoxRect;
+    private Rect highscoresWindowBoxRect;
+    private Rect highscoresLabelRect;
+    private Rect backButtonHighscores;
 
     #endregion
 
@@ -64,6 +68,7 @@ public class MainMenu : MonoBehaviour
     private bool resetWarningWindow;
     private bool optionsWindow;
     private bool scoresReseted;
+    private bool highscoresWindow;
 
     #endregion
 
@@ -104,20 +109,25 @@ public class MainMenu : MonoBehaviour
         resetLabelRect = new Rect(newGameConfirmBoxRect.x + newGameConfirmBoxRect.width * .09f, newGameConfirmBoxRect.y + newGameConfirmBoxRect.height * .3f,
             160, 160);
         scoreboardsResetedLabelRect = new Rect(optionsWindowBoxRect.x + optionsWindowBoxRect.width * .32f, optionsWindowBoxRect.y + optionsWindowBoxRect.height * .7f, 150, 150);
+        highscoresWindowBoxRect = new Rect(screenWidth * .25f, screenHeight * .1f, screenWidth * .5f, screenHeight * .8f);
 
 
         // Rectangles for buttons
-        continueButton = new Rect(screenWidth / 2 - 45, screenHeight / 2 - (3 * buttonHeight + 2 * buttonSpacing), buttonWidth, buttonHeight);  // Continue
+        button1 = new Rect(screenWidth / 2 - 45, screenHeight / 2 - (3 * buttonHeight + 2 * buttonSpacing), buttonWidth, buttonHeight);  // Continue
+        button2 = new Rect(screenWidth / 2 - 45, screenHeight / 2 - (2 * buttonHeight + buttonSpacing), buttonWidth, buttonHeight);  // New Game
+        button3 = new Rect(screenWidth / 2 - 45, screenHeight / 2 - buttonHeight, buttonWidth, buttonHeight);  // Highscores
+        button4 = new Rect(screenWidth / 2 - 45, screenHeight / 2 + buttonSpacing, buttonWidth, buttonHeight);  // Options
+        button5 = new Rect(screenWidth / 2 - 45, screenHeight / 2 + 2 * buttonSpacing + buttonHeight, buttonWidth, buttonHeight);  // Quit
         resetButton = new Rect(optionsWindowBoxRect.x + optionsWindowBoxRect.width * .8f, optionsWindowBoxRect.y + optionsWindowBoxRect.height * .3f, buttonWidth, buttonHeight);  // Reset
-        newGameButton = new Rect(screenWidth / 2 - 45, screenHeight / 2 - (2 * buttonHeight + buttonSpacing), buttonWidth, buttonHeight);  // Play
-        optionsButton = new Rect(screenWidth / 2 - 45, screenHeight / 2 - buttonHeight, buttonWidth, buttonHeight);  // Options
-        quitButton = new Rect(screenWidth / 2 - 45, screenHeight / 2 + buttonSpacing, buttonWidth, buttonHeight);  // Quit
         yesButton = new Rect(newGameConfirmBoxRect.x + newGameConfirmBoxRect.width * .8f, newGameConfirmBoxRect.y + newGameConfirmBoxRect.height * .8f,
             buttonWidth, buttonHeight);  // Yes button in newGameConfirmBox
         noButton = new Rect(newGameConfirmBoxRect.x + (newGameConfirmBoxRect.width * .2f) - buttonWidth, 
             yesButton.y, buttonWidth, buttonHeight);  //button in newGameConfirmBox
         confirmButton = yesButton;
         backButton = noButton;
+        backButtonHighscores = new Rect(highscoresWindowBoxRect.x + (highscoresWindowBoxRect.width / 2) - (buttonWidth / 2), 
+            highscoresWindowBoxRect.y + (highscoresWindowBoxRect.height - buttonHeight - buttonSpacing), 
+            buttonWidth, buttonHeight);
 
         // Flags
         mainMenuWindow = true;
@@ -144,14 +154,18 @@ public class MainMenu : MonoBehaviour
 
         #region Main Menu
 
-        GUI.Label(gameNameLabel, "Try to slide");  // game label in center of main menu
+        if (!highscoresWindow)
+        {
+            GUI.Label(gameNameLabel, "Try to slide");  // game label in center of main menu
+        }
+
         // If newGameConfirm flag is not raised than in main menu scene player can see 2 buttons or 3 buttons if he made some progress before
         if (mainMenuWindow)
         {
             // if player made some progress, Continue button will be available and he will be able to continue from highest level achieved
             if (PlayerPrefs.GetInt("Unlocked Level") > 1)
             {
-                if (GUI.Button(continueButton, "Continue"))
+                if (GUI.Button(button1, "Continue"))
                 {
                     GameManager.ContinueGame();
                 }
@@ -160,7 +174,7 @@ public class MainMenu : MonoBehaviour
             // if new game button will be pressed while there is no progress in PlayerPrefs, new game start immediately
             // if there is some progress in PLayerPrefs, than newGameConfirm flag is rising and New Game warning windows shows up
             // if player press yes button new game starts, if he press no main menu will show once again
-            if (GUI.Button(newGameButton, "New Game"))
+            if (GUI.Button(button2, "New Game"))
             {
                 if (PlayerPrefs.GetInt("Unlocked Level") > 1)
                 {
@@ -174,19 +188,24 @@ public class MainMenu : MonoBehaviour
                 }
             }
 
-            if (GUI.Button(optionsButton, "Options"))
+            if (GUI.Button(button3, "Highscores"))
+            {
+                highscoresWindow = true;
+                mainMenuWindow = false;
+            }
+
+            if (GUI.Button(button4, "Options"))
             {
                 optionsWindow = true;
                 mainMenuWindow = false;
             }
 
             // quit button prepared for application quit
-            if (GUI.Button(quitButton, "Quit"))
+            if (GUI.Button(button5, "Quit"))
             {
                 Debug.Log("Quit");
                 Application.Quit();
             }
-
         }
 
         #endregion
@@ -322,8 +341,7 @@ public class MainMenu : MonoBehaviour
             GUI.Label(newGameWarningRect, resetWarningMessage, mainMenuSkin.GetStyle("Warning Message"));
             if (GUI.Button(yesButton, "Yes"))
             {
-                // APPLY THIS LINE OF CODE BEFORE DEPLOY
-                //GameManager.resetScores();
+                GameManager.resetScores();
                 scoresReseted = true;
                 optionsWindow = true;
                 resetWarningWindow = false;
@@ -332,6 +350,24 @@ public class MainMenu : MonoBehaviour
             {
                 optionsWindow = true;
                 resetWarningWindow = false;
+            }
+        }
+
+        #endregion
+
+        #region Highscores window
+
+        if (highscoresWindow)
+        {
+            GUI.Box(highscoresWindowBoxRect, "Highscores");
+            GUI.Label(new Rect(highscoresWindowBoxRect.x * 1.6f, highscoresWindowBoxRect.y + highscoresWindowBoxRect.y * .8f, 100, 400), 
+                GameManager.ShowScores(25, GameManager.numberOfLevels + 1)[0], mainMenuSkin.GetStyle("Highscores"));
+            GUI.Label(new Rect(highscoresWindowBoxRect.x * 2.3f, highscoresWindowBoxRect.y + highscoresWindowBoxRect.y * .8f, 100, 400), 
+                GameManager.ShowScores(25, GameManager.numberOfLevels + 1)[1], mainMenuSkin.GetStyle("Highscores"));
+            if (GUI.Button(backButtonHighscores, "Back"))
+            {
+                mainMenuWindow = true;
+                highscoresWindow = false;
             }
         }
 

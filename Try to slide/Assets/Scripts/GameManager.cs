@@ -76,6 +76,9 @@ public class GameManager : MonoBehaviour
     private Rect levelPlayerListRect;
     private Rect congratulationsWindowScreenRect;
     private Rect congratulationsWindowLabelRect;
+    private Rect congratulationsPlaceScoreLabelRect;
+    private Rect playerPlaceScoresRect;
+    private Rect mainMenuButtonEndWindow;
 
     // Initializing win screen window
     private static float winScreenBoxWidth = Screen.width * .7f;  // Width of win screen - 70% of screen width
@@ -140,7 +143,8 @@ public class GameManager : MonoBehaviour
         currentScoreLevelSelectRect = timerRect;
         winScreenRect = new Rect(winScreenRectPositionX, winScreenRectPositionY, winScreenBoxWidth, winScreenBoxHeight);
         LoseScreenRect = winScreenRect;
-        congratulationsWindowScreenRect = winScreenRect;
+        congratulationsWindowScreenRect = new Rect(Screen.width / 2 - (Screen.width * .15f), Screen.height - Screen.height * .92f, Screen.width * .3f, Screen.height * .85f);
+        congratulationsWindowLabelRect = new Rect(congratulationsWindowScreenRect.x + 25, congratulationsWindowScreenRect.y + 40, 400, 200);
         detailstWinScreenRect = new Rect(winScreenRect.x + 20, winScreenRect.y + 40, 400, 200);
         scoreBoardScreenRect = winScreenRect;
         playerListRect = new Rect(scoreBoardScreenRect.x + scoreBoardScreenRect.x * 1.5f, scoreBoardScreenRect.y + scoreBoardScreenRect.y * .5f,
@@ -150,6 +154,8 @@ public class GameManager : MonoBehaviour
         levelScoreBoardScreenRect = scoreBoardScreenRect;
         levelPlayerListRect = playerListRect;
         levelScoreListRect = scoreListRect;
+        playerPlaceScoresRect = new Rect(scoreBoardScreenRect.x + scoreBoardScreenRect.x * 1.7f, scoreBoardScreenRect.y + scoreBoardScreenRect.y * .3f,
+            600, 600);
 
         #endregion
 
@@ -157,6 +163,7 @@ public class GameManager : MonoBehaviour
 
         continueButtonWinScreen = new Rect(winScreenRect.x + winScreenBoxWidth - 100, winScreenRect.y + winScreenBoxHeight - 55, 80, 35);
         quitButtonWinScreen = new Rect(winScreenRect.x + 20, winScreenRect.y + winScreenBoxHeight - 55, 80, 35);
+        mainMenuButtonEndWindow = new Rect(Screen.width / 2 - 40, Screen.height * .86f, 80, 35);
         scoreBoardButton = continueButtonWinScreen;
         levelScoreBoardButton = new Rect(winScreenRect.x + winScreenBoxWidth - 240, winScreenRect.y + winScreenBoxHeight - 55, 120, 35);
         backButton = quitButtonWinScreen;
@@ -205,7 +212,7 @@ public class GameManager : MonoBehaviour
         PlayerPrefs.SetString("Scoreboard", "");
         for (int i = 0; i < numberOfLevels; i++)
         {
-            PlayerPrefs.SetString($"Scoreboard level {i + 1}", "");
+            PlayerPrefs.SetString($"Scoreboard Level {i + 1}", "");
         }
     }
 
@@ -251,6 +258,7 @@ public class GameManager : MonoBehaviour
     {
         Destroy(gameObject);
         SceneManager.LoadScene("Main Menu");
+        gameDone = false;
         gameFinished = false;
         showWinScreen = false;
         showLoseScreen = false;
@@ -306,63 +314,92 @@ public class GameManager : MonoBehaviour
     public static void CongratulationsWindow()
     {
         // TODO call submit screen
+        AddScore();
+        gameFinished = true;
         showCongratulationsWindow = true;
     }
 
-    public static void PlaceCheck(int level)
+    public static string PlaceCheck()
     {
         string playerPlaceScore = $"";
-        string showTemplatePlayers = $"";
-        string showTemplateScores = $"";
-        string[] playersAndScores = new string[2];
         Dictionary<string, string> notSortedDictScore = new Dictionary<string, string>();
-
-        //8 lvl + 1 lvl global scoreboard
-        int levelNum = 1;
-        int place = 1;
-        float score = 0;
-
+        int place;
+        
         for (int i = 1; i <= numberOfLevels + 1; i++)
         {
             if (i == numberOfLevels + 1)
             {
-                // scoreboard dict
+                place = 1;
+                notSortedDictScore = PlayerNamesScores("Scoreboard");
+                foreach (KeyValuePair<string, string> player in notSortedDictScore.OrderByDescending(key => float.Parse(key.Value)))
+                {
+                    if (player.Key == playerName)
+                    {
+                        playerPlaceScore += "\tOverall Scoreboard:" +
+                            $"\nPlace: {place}\t\t\tScore: {player.Value}\n\n";
+                    }
+                    else
+                    {
+                        place++;
+                    }
+                }
             }
             else
             {
-                // level x scoreboard dict
+                place = 1;
+                notSortedDictScore = PlayerNamesScores($"Scoreboard Level {i}");
+                foreach (KeyValuePair<string, string> player in notSortedDictScore.OrderByDescending(key => float.Parse(key.Value)))
+                {
+                    if (player.Key == playerName)
+                    {
+                        playerPlaceScore += $"\tLevel {i} Scoreboard:" +
+                            $"\nPlace: {place}\t\t\tScore: {player.Value}\n\n";
+                    }
+                    else
+                    {
+                        place++;
+                    }
+                }
             }
         }
+        return playerPlaceScore;
+    }
 
-
-
-        if (level == numberOfLevels + 1)
-        {
-            notSortedDictScore = PlayerNamesScores("Scoreboard");
-        }
-
-        else
-        {
-            notSortedDictScore = PlayerNamesScores($"Scoreboard Level {level}");
-        }
-
-        int playerPlace = 1;
-        foreach (KeyValuePair<string, string> player in notSortedDictScore.OrderByDescending(key => float.Parse(key.Value)))
-        {
-            showTemplatePlayers += $"{playerPlace}.) {player.Key}".PadRight(63 - player.Key.Length - 2, '.') + "\n";
-            showTemplateScores += $"{player.Value}\n";
-            playerPlace++;
-        }
+    public string ScoreboardPlayerScore()
+    {
+        string playerScore = "";
+        Dictionary<string, string> notSortedDictScore = new Dictionary<string, string>();
+        notSortedDictScore = PlayerNamesScores("Scoreboard");
 
         foreach (KeyValuePair<string, string> player in notSortedDictScore.OrderByDescending(key => float.Parse(key.Value)))
         {
-            showTemplatePlayers += $"{playerPlace}.) {player.Key}".PadRight(63 - player.Key.Length - 2, '.') + "\n";
-            showTemplateScores += $"{player.Value}\n";
-            playerPlace++;
+            if (player.Key == playerName)
+            {
+                playerScore = player.Value;
+            }
+        }
+        
+        return playerScore;
+    }
+
+    public string ScoreboardPlayerPlace()
+    {
+        string playerPlace = "";
+        Dictionary<string, string> notSortedDictScore = new Dictionary<string, string>();
+        notSortedDictScore = PlayerNamesScores("Scoreboard");
+
+        int place = 1;
+        foreach (KeyValuePair<string, string> player in notSortedDictScore.OrderByDescending(key => float.Parse(key.Value)))
+        {
+            if (player.Key == playerName)
+            {
+                playerPlace = $"{place}";
+                break;
+            }
+            place++;
         }
 
-        playersAndScores[0] = showTemplatePlayers;
-        playersAndScores[1] = showTemplateScores;
+        return playerPlace;
     }
 
     // Method responsible for loading Level Select scene
@@ -744,7 +781,7 @@ public class GameManager : MonoBehaviour
             $"\nLevel score: {levelScore}\nTotal score: {currentScore}";
         string loseScreenLevelInfo = $"Coins collected {currentCoinCount}/{totalCoinCount}" +
             $"\nLevel score: {levelScore}\nTotal score: {currentScore}";
-        string congratulationsWindowInfo = "You finished the game in {place} with a score of {score}!";  // TODO congratz window info
+        string congratulationsWindowInfo = $"You finished the game in {ScoreboardPlayerPlace()} place with a total score of {ScoreboardPlayerScore()}!";
         
         // In game level labels, timers, coins
         GUI.Label(lifeRect, $"Life: {life}/{maxLife}", levelSkin.GetStyle("Life"));
@@ -875,7 +912,12 @@ public class GameManager : MonoBehaviour
             if (showCongratulationsWindow)
             {
                 GUI.Box(congratulationsWindowScreenRect, "Congratulations!");
-                GUI.Label(detailstWinScreenRect, congratulationsWindowInfo);
+                GUI.Label(congratulationsWindowLabelRect, congratulationsWindowInfo);
+                GUI.Label(playerPlaceScoresRect, PlaceCheck());
+                if (GUI.Button(mainMenuButtonEndWindow, "Main Menu"))
+                {
+                    GameOver(gameObject);
+                }
             }
         }
 

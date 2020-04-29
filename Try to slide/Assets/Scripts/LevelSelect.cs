@@ -11,6 +11,7 @@ public class LevelSelect : MonoBehaviour
     [SerializeField] private int levelToLoad = 0;  // variable storing value of level to load, accesible from inspector level node
     [SerializeField] private GameObject padlock = null;  // variable storing padlock object for level node
     [SerializeField] private GUISkin skinLevelSelect = null;  // variable storing level GUI skin
+    [SerializeField] private GameObject playerObject = null;
 
     #endregion
 
@@ -94,6 +95,7 @@ public class LevelSelect : MonoBehaviour
     {
         if (other.transform.tag == "Player")
         {
+            inRange = true;
             restartAvailable = GameManager.RestartAvailable(levelToLoad);
             if (Input.GetButtonDown("Action") && !locked && !restartAvailable)
             {
@@ -102,13 +104,6 @@ public class LevelSelect : MonoBehaviour
         }
     }
 
-    private void OnTriggerEnter(Collider other)
-    {
-        if (other.transform.tag == "Player")
-        {
-            inRange = true;
-        }
-    }
     // when player leaves world node range, inRange flag will be lowered
     private void OnTriggerExit(Collider other)
     {
@@ -137,7 +132,9 @@ public class LevelSelect : MonoBehaviour
                 GUI.Label(levelScoreListRect, GameManager.ShowScores(20, levelToLoad)[1], skinLevelSelect.GetStyle("Scores"));
                 if (GUI.Button(submitButton, "Submit Score"))
                 {
+                    playerObject.GetComponent<Player>().PlaySound(0);
                     inRange = false;
+                    gameObject.GetComponent<SphereCollider>().enabled = false;
                     GameManager.CongratulationsWindow();
                 }
             }

@@ -78,7 +78,13 @@ public class GameManager : MonoBehaviour
     private Rect congratulationsWindowLabelRect;
     private Rect congratulationsPlaceScoreLabelRect;
     private Rect playerPlaceScoresRect;
-    private Rect mainMenuButtonEndWindow;
+    private Rect optionsWindowScreenRect;
+    private Rect mainMenuButtonOptionsWindow;
+    private Rect quitMenuButtonOptionsWindow;
+    private Rect confirmWindowScreenRect;
+    private Rect warningMessageLabelRect;
+    private Rect yesMenuButton;
+    private Rect noMenuButton;
 
     // Initializing win screen window
     private static float winScreenBoxWidth = Screen.width * .7f;  // Width of win screen - 70% of screen width
@@ -99,6 +105,10 @@ public class GameManager : MonoBehaviour
     public static bool gameDone;
     public static bool showCongratulationsWindow;
     private bool showEscapeMenu;
+    private bool optionsMainMenu;
+    private bool optionsQuit;
+    private bool showCofrimWindow;
+
     #endregion
 
     #endregion
@@ -157,6 +167,10 @@ public class GameManager : MonoBehaviour
         levelScoreListRect = scoreListRect;
         playerPlaceScoresRect = new Rect(scoreBoardScreenRect.x + scoreBoardScreenRect.x * 1.7f, scoreBoardScreenRect.y + scoreBoardScreenRect.y * .3f,
             600, 600);
+        optionsWindowScreenRect = new Rect(Screen.width / 2 - (Screen.width * .1f), Screen.height * .3f, Screen.width * .2f, Screen.height * .4f);
+        confirmWindowScreenRect = new Rect(Screen.width / 2 - Screen.width * .15f, Screen.height / 2 - Screen.height * .12f, Screen.width * .3f, Screen.height * .24f);
+        warningMessageLabelRect = new Rect(Screen.width / 2 -  (confirmWindowScreenRect.width * .4f), confirmWindowScreenRect.y + (Screen.height * .075f), 
+            confirmWindowScreenRect.width * .8f, confirmWindowScreenRect.height * .8f);
 
         #endregion
 
@@ -164,10 +178,14 @@ public class GameManager : MonoBehaviour
 
         continueButtonWinScreen = new Rect(winScreenRect.x + winScreenBoxWidth - 100, winScreenRect.y + winScreenBoxHeight - 55, 80, 35);
         quitButtonWinScreen = new Rect(winScreenRect.x + 20, winScreenRect.y + winScreenBoxHeight - 55, 80, 35);
-        mainMenuButtonEndWindow = new Rect(Screen.width / 2 - 40, Screen.height * .86f, 80, 35);
+        mainMenuButtonOptionsWindow = new Rect(Screen.width / 2 - 40, Screen.height * .86f, 80, 35);
         scoreBoardButton = continueButtonWinScreen;
         levelScoreBoardButton = new Rect(winScreenRect.x + winScreenBoxWidth - 240, winScreenRect.y + winScreenBoxHeight - 55, 120, 35);
         backButton = quitButtonWinScreen;
+        mainMenuButtonOptionsWindow = new Rect(Screen.width / 2 - 45, optionsWindowScreenRect.y + 40, 90, 40);
+        quitMenuButtonOptionsWindow = new Rect(mainMenuButtonOptionsWindow.x, mainMenuButtonOptionsWindow.y + 50, mainMenuButtonOptionsWindow.width, mainMenuButtonOptionsWindow.height);
+        yesMenuButton = new Rect(Screen.width / 2 + (confirmWindowScreenRect.width * .25f), confirmWindowScreenRect.y + confirmWindowScreenRect.height * .65f, 90, 40);
+        noMenuButton = new Rect(Screen.width / 2 - (confirmWindowScreenRect.width * .25f + yesMenuButton.width), yesMenuButton.y, 90, 40);
 
         #endregion
 
@@ -202,7 +220,8 @@ public class GameManager : MonoBehaviour
         {
             if (showEscapeMenu)
             {
-            showEscapeMenu = false;
+                freezeFlag = false;
+                showEscapeMenu = false;
             }
             else
             {
@@ -325,7 +344,6 @@ public class GameManager : MonoBehaviour
 
     public static void CongratulationsWindow()
     {
-        // TODO call submit screen
         AddScore();
         gameFinished = true;
         showCongratulationsWindow = true;
@@ -794,7 +812,9 @@ public class GameManager : MonoBehaviour
         string loseScreenLevelInfo = $"Coins collected {currentCoinCount}/{totalCoinCount}" +
             $"\nLevel score: {levelScore}\nTotal score: {currentScore}";
         string congratulationsWindowInfo = $"You finished the game in {ScoreboardPlayerPlace()} place with a total score of {ScoreboardPlayerScore()}!";
-        
+        string warningMessage = "Some player's progress might be lost. Are you sure?";
+
+
         // In game level labels, timers, coins
         GUI.Label(lifeRect, $"Life: {life}/{maxLife}", levelSkin.GetStyle("Life"));
 
@@ -851,7 +871,7 @@ public class GameManager : MonoBehaviour
          * creating two vertical labels, one with player names, second with players scores
          * if player press back button, showLevelScoreBoard flag is dopping and showWinScreen flag is raising
          */
-        if (showWinScreen || showLoseScreen || showScoreBoard || showLevelScoreBoard || showCongratulationsWindow  || showEscapeMenu)
+        if (showWinScreen || showLoseScreen || showScoreBoard || showLevelScoreBoard || showCongratulationsWindow  || showEscapeMenu || showCofrimWindow)
         {
             freezeFlag = true;
             if (showWinScreen)
@@ -926,7 +946,7 @@ public class GameManager : MonoBehaviour
                 GUI.Box(congratulationsWindowScreenRect, "Congratulations!");
                 GUI.Label(congratulationsWindowLabelRect, congratulationsWindowInfo);
                 GUI.Label(playerPlaceScoresRect, PlaceCheck());
-                if (GUI.Button(mainMenuButtonEndWindow, "Main Menu"))
+                if (GUI.Button(mainMenuButtonOptionsWindow, "Main Menu"))
                 {
                     GameOver(gameObject);
                 }
@@ -934,7 +954,44 @@ public class GameManager : MonoBehaviour
 
             if (showEscapeMenu)
             {
-                GUI.Box(new Rect(congratulationsWindowScreenRect), "");
+                GUI.Box(optionsWindowScreenRect, "Options");
+                if (GUI.Button(mainMenuButtonOptionsWindow, "Main Menu"))
+                {
+                    optionsMainMenu = true;
+                    showCofrimWindow = true;
+                    showEscapeMenu = false;
+                }
+                if (GUI.Button(quitMenuButtonOptionsWindow, "Quit"))
+                {
+                    optionsQuit = true;
+                    showCofrimWindow = true;
+                    showEscapeMenu = false;
+                }
+            }
+
+            if (showCofrimWindow)
+            {
+                GUI.Box(confirmWindowScreenRect, "WARNING!");
+                GUI.Label(warningMessageLabelRect, warningMessage);
+                if (GUI.Button(yesMenuButton, "Yes"))
+                {
+                    if (optionsQuit)
+                    {
+                        Application.Quit();
+                    }
+                    if (optionsMainMenu)
+                    {
+                        SceneManager.LoadScene("Main Menu");
+                        showWinScreen = false;
+                        freezeFlag = false;
+                        Destroy(gameObject);
+                    }
+                }
+                if (GUI.Button(noMenuButton, "No"))
+                {
+                    showEscapeMenu = true;
+                    showCofrimWindow = false;
+                }
             }
         }
 
@@ -947,6 +1004,7 @@ Current Level: {currentLevel}
 Playerpref Unlocked Level: {PlayerPrefs.GetInt("Unlocked Level")}
 LvLScore: {levelScore}
 Score: {currentScore}
-gameDone: {gameDone}", levelSkin.GetStyle("Test"));
+gameDone: {gameDone}
+freeze: {freezeFlag}", levelSkin.GetStyle("Test"));
     }
 }

@@ -79,6 +79,7 @@ public class GameManager : MonoBehaviour
     private Rect congratulationsPlaceScoreLabelRect;
     private Rect playerPlaceScoresRect;
     private Rect optionsWindowScreenRect;
+    private Rect mainMenuButtonCongratulationsWindow;
     private Rect mainMenuButtonOptionsWindow;
     private Rect quitMenuButtonOptionsWindow;
     private Rect confirmWindowScreenRect;
@@ -101,13 +102,13 @@ public class GameManager : MonoBehaviour
     private static bool showScoreBoard;  // scoreboard flag showing after pressing Scoreboard button after lose
     private static bool showLevelScoreBoard;  // level scoreboard flag showing after pressing Level Scoreboard button after finishing level
     private static bool freezeFlag;  // freeze flag which raising will result with freezing game (Time.timeScale = 0f;)
-    public static bool gameFinished;
-    public static bool gameDone;
-    public static bool showCongratulationsWindow;
-    private bool showEscapeMenu;
-    private bool optionsMainMenu;
-    private bool optionsQuit;
-    private bool showCofrimWindow;
+    public static bool gameFinished;  // flag controling level time counter
+    public static bool gameDone;  // flag raise when player finish last level
+    public static bool showCongratulationsWindow;  // congratulation screen flag raised after player submit score
+    private bool showEscapeMenu;  // flag responsible for controlling escape menu 
+    private bool optionsMainMenu;  // flag responsible for controlling quit to main menu
+    private bool optionsQuit;  // flag responsible for controlling application quit from escape menu
+    private bool showCofrimWindow;  // flag resposbile for controlling confirm window after pressing quit/main menu button in escape option window
 
     #endregion
 
@@ -141,7 +142,7 @@ public class GameManager : MonoBehaviour
         showLoseScreen = false;  // dropping lose screen flag
         showScoreBoard = false;  // dropping scoreboard flag
         freezeFlag = false;  // dropping freeze flag
-        gameFinished = false;
+        gameFinished = false;  // dropping game Finished flag
 
         #endregion
 
@@ -155,7 +156,7 @@ public class GameManager : MonoBehaviour
         winScreenRect = new Rect(winScreenRectPositionX, winScreenRectPositionY, winScreenBoxWidth, winScreenBoxHeight);
         LoseScreenRect = winScreenRect;
         congratulationsWindowScreenRect = new Rect(Screen.width / 2 - (Screen.width * .15f), Screen.height - Screen.height * .92f, Screen.width * .3f, Screen.height * .85f);
-        congratulationsWindowLabelRect = new Rect(congratulationsWindowScreenRect.x + 25, congratulationsWindowScreenRect.y + 40, 400, 200);
+        congratulationsWindowLabelRect = new Rect(congratulationsWindowScreenRect.x + 25, congratulationsWindowScreenRect.y + 40, 600, 200);
         detailstWinScreenRect = new Rect(winScreenRect.x + 20, winScreenRect.y + 40, 400, 200);
         scoreBoardScreenRect = winScreenRect;
         playerListRect = new Rect(scoreBoardScreenRect.x + scoreBoardScreenRect.x * 1.5f, scoreBoardScreenRect.y + scoreBoardScreenRect.y * .5f,
@@ -178,7 +179,7 @@ public class GameManager : MonoBehaviour
 
         continueButtonWinScreen = new Rect(winScreenRect.x + winScreenBoxWidth - 100, winScreenRect.y + winScreenBoxHeight - 55, 80, 35);
         quitButtonWinScreen = new Rect(winScreenRect.x + 20, winScreenRect.y + winScreenBoxHeight - 55, 80, 35);
-        mainMenuButtonOptionsWindow = new Rect(Screen.width / 2 - 40, Screen.height * .86f, 80, 35);
+        mainMenuButtonCongratulationsWindow = new Rect(Screen.width / 2 - 40, Screen.height * .86f, 80, 35);
         scoreBoardButton = continueButtonWinScreen;
         levelScoreBoardButton = new Rect(winScreenRect.x + winScreenBoxWidth - 240, winScreenRect.y + winScreenBoxHeight - 55, 120, 35);
         backButton = quitButtonWinScreen;
@@ -216,6 +217,7 @@ public class GameManager : MonoBehaviour
         // tracking freezeFlag status and controling conditions
         FreezeGame(freezeFlag);
 
+        // tracking pressing escape key while playing
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             if (showEscapeMenu)
@@ -227,12 +229,6 @@ public class GameManager : MonoBehaviour
             {
                 showEscapeMenu = true;
             }
-        }
-        //DELETE AFTER TEST
-        if (Input.GetKeyDown("f"))
-        {
-            setMaxLevel();
-            gameDone = true;
         }
     }
 
@@ -342,6 +338,8 @@ public class GameManager : MonoBehaviour
         SaveLevel();
     }
 
+    // Method responsible for showing Contratulation window after submiting score on scoreboard.
+    // Method submits players score, raising gameFinished flag and showing congratulations windows
     public static void CongratulationsWindow()
     {
         AddScore();
@@ -349,6 +347,7 @@ public class GameManager : MonoBehaviour
         showCongratulationsWindow = true;
     }
 
+    // Method responsible for checking player score and place on each scoreboard
     public static string PlaceCheck()
     {
         string playerPlaceScore = $"";
@@ -395,6 +394,8 @@ public class GameManager : MonoBehaviour
         return playerPlaceScore;
     }
 
+
+    // Method responsible for searching player Scoreboard score
     public string ScoreboardPlayerScore()
     {
         string playerScore = "";
@@ -412,6 +413,7 @@ public class GameManager : MonoBehaviour
         return playerScore;
     }
 
+    // Method responsible for searching player place in Scoreboard
     public string ScoreboardPlayerPlace()
     {
         string playerPlace = "";
@@ -795,11 +797,6 @@ public class GameManager : MonoBehaviour
             Time.timeScale = 1f;
         }
     }
-    //DELETE AFTER TEST
-    public void setMaxLevel()
-    {
-        PlayerPrefs.SetInt("Unlocked Level", 8);
-    }
 
     // GUI section responsible for showing win/lose/scoreboard boxes, life/timer/coins label
     private void OnGUI()
@@ -870,6 +867,12 @@ public class GameManager : MonoBehaviour
          * if player press the Level Scoreboard button, hiding showWinScreen by dropping flag and raising showLevelScoreBoard flag
          * creating two vertical labels, one with player names, second with players scores
          * if player press back button, showLevelScoreBoard flag is dopping and showWinScreen flag is raising
+         * Show Congratulations Window:
+         * if player submit his score on Scoreboard object, Congratulations window with places and scores will be displayed, main menu button below scores
+         * ShowEscapeMenu:
+         * if player press Esc button, menu with main menu and quit buttons will be displayed
+         * ShowConfirmWindow:
+         * if player press quit or main menu button while in Esc menu, he will be warned about loosing some player data
          */
         if (showWinScreen || showLoseScreen || showScoreBoard || showLevelScoreBoard || showCongratulationsWindow  || showEscapeMenu || showCofrimWindow)
         {
@@ -946,7 +949,7 @@ public class GameManager : MonoBehaviour
                 GUI.Box(congratulationsWindowScreenRect, "Congratulations!");
                 GUI.Label(congratulationsWindowLabelRect, congratulationsWindowInfo);
                 GUI.Label(playerPlaceScoresRect, PlaceCheck());
-                if (GUI.Button(mainMenuButtonOptionsWindow, "Main Menu"))
+                if (GUI.Button(mainMenuButtonCongratulationsWindow, "Main Menu"))
                 {
                     GameOver(gameObject);
                 }
@@ -994,17 +997,5 @@ public class GameManager : MonoBehaviour
                 }
             }
         }
-
-        
-
-        // DELETE AFTER TEST!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        GUI.Label(new Rect(Screen.width - 160, Screen.height - 90, 150, 150), $@"Name: {playerName}
-PlayerPrefsName: {PlayerPrefs.GetString("Player Name")}
-Current Level: {currentLevel}
-Playerpref Unlocked Level: {PlayerPrefs.GetInt("Unlocked Level")}
-LvLScore: {levelScore}
-Score: {currentScore}
-gameDone: {gameDone}
-freeze: {freezeFlag}", levelSkin.GetStyle("Test"));
     }
 }

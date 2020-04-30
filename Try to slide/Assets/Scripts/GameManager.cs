@@ -169,7 +169,7 @@ public class GameManager : MonoBehaviour
             600, 600);
         optionsWindowScreenRect = new Rect(Screen.width / 2 - (Screen.width * .1f), Screen.height * .3f, Screen.width * .2f, Screen.height * .4f);
         confirmWindowScreenRect = new Rect(Screen.width / 2 - Screen.width * .15f, Screen.height / 2 - Screen.height * .12f, Screen.width * .3f, Screen.height * .24f);
-        warningMessageLabelRect = new Rect(Screen.width / 2 -  (confirmWindowScreenRect.width * .4f), confirmWindowScreenRect.y + (Screen.height * .075f), 
+        warningMessageLabelRect = new Rect(Screen.width / 2 -  (confirmWindowScreenRect.width * .3f), confirmWindowScreenRect.y + (Screen.height * .075f), 
             confirmWindowScreenRect.width * .8f, confirmWindowScreenRect.height * .8f);
 
         #endregion
@@ -184,7 +184,7 @@ public class GameManager : MonoBehaviour
         backButton = quitButtonWinScreen;
         mainMenuButtonOptionsWindow = new Rect(Screen.width / 2 - 45, optionsWindowScreenRect.y + 40, 90, 40);
         quitMenuButtonOptionsWindow = new Rect(mainMenuButtonOptionsWindow.x, mainMenuButtonOptionsWindow.y + 50, mainMenuButtonOptionsWindow.width, mainMenuButtonOptionsWindow.height);
-        yesMenuButton = new Rect(Screen.width / 2 + (confirmWindowScreenRect.width * .25f), confirmWindowScreenRect.y + confirmWindowScreenRect.height * .65f, 90, 40);
+        yesMenuButton = new Rect(Screen.width / 2 + (confirmWindowScreenRect.width * .25f), confirmWindowScreenRect.y + confirmWindowScreenRect.height * .75f, 90, 40);
         noMenuButton = new Rect(Screen.width / 2 - (confirmWindowScreenRect.width * .25f + yesMenuButton.width), yesMenuButton.y, 90, 40);
 
         #endregion

@@ -102,7 +102,7 @@ public class Player : MonoBehaviour
         }
     }
 
-    // tracking player triggering with door objects, goal
+    // tracking player triggering with door objects and goal, playing sounds after triggering
     private void OnTriggerEnter(Collider other)
     {
         // Goal trigger CompleteLevel method and playing sound

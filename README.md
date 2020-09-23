@@ -42,6 +42,14 @@ After completing all eight levels player can submit his score using Scoreboard o
 - Player loses when time runs out, life is less or equal to 0.
 Player can now view the scoreboard or press Quit button which move him to Main Menu.
 
+## How to play
+**Controls**  
+- `W`/`Up Arrow` - move forward.
+- `S`/`Down Arrow` - move backward.
+- `A`/`Left Arrow` - move left.
+- `D`/`Right Arrow` - move right.
+- `E/SPACE` - enter level.
+
 ## Goals:
 Goals at this time are just simply to try to learn, document my work, progress through this project and finish my first game!
 

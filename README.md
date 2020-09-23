@@ -44,3 +44,7 @@ Player can now view the scoreboard or press Quit button which move him to Main M
 
 ## Goals:
 Goals at this time are just simply to try to learn, document my work, progress through this project and finish my first game!
+
+## Download link
+Download zip file from google drive, unzip package and run .exe file.  
+[Google Drive Link - 43mb](https://drive.google.com/file/d/1kiW2mlkgiXp5ULNOwT17QpoJ2bwUDyWV/view?usp=sharing)
